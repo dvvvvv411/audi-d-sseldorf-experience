@@ -1,6 +1,6 @@
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, LogOut, Menu, Users, Building2 } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, Users, Building2, Car } from "lucide-react";
 import { useState } from "react";
 
 const AudiRingsSmall = () => (
