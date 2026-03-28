@@ -1,32 +1,22 @@
 
 
-## Avatar im Header neben "Ihr Berater" hinzufügen
+## Audi Logo im Header ersetzen
 
 ### Änderung in `src/pages/Gebrauchtwagen.tsx`
 
-**Zeilen 341-348 — Desktop-Berater-Bereich:**
+**Zeilen 324-328 — SVG mit Kreisen ersetzen durch den offiziellen Audi-Ringe-Pfad:**
 
-Vor dem Text-Block ein Avatar-Bild (oder Initialen-Fallback) einfügen. Der `verkaeufer[0]` hat bereits `avatar_url` (wird im Mobile-Popover genutzt).
+Das aktuelle SVG mit 4 `<circle>`-Elementen wird ersetzt durch ein SVG mit dem bereitgestellten `<path>` in schwarz (`fill="black"`).
 
-Neues Layout: `flex items-center gap-2.5` mit einem kleinen runden Avatar (32x32px) links vom Text.
+ViewBox wird auf `0 0 69 24` gesetzt (passend zum Pfad), Breite/Höhe angepasst auf ca. `width="100" height="35"`.
 
 ```tsx
-<div className="hidden md:flex items-center gap-2.5">
-  {verkaeufer[0].avatar_url ? (
-    <img src={verkaeufer[0].avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
-  ) : (
-    <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-white text-xs font-bold">
-      {verkaeufer[0].vorname[0]}{verkaeufer[0].nachname[0]}
-    </div>
-  )}
-  <div className="flex flex-col items-end text-right">
-    <span className="text-[10px] text-gray-400 uppercase tracking-wider">Ihr Berater</span>
-    <span className="text-sm font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
-  </div>
-</div>
+<svg width="100" height="35" viewBox="0 0 69 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M57.0623 21.3142C54.9409 21.3142 ... 63.6447 0 57.0623 0Z" fill="black" />
+</svg>
 ```
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Avatar-Bild/Fallback neben Berater-Name im Header |
+| `src/pages/Gebrauchtwagen.tsx` | SVG-Logo durch offiziellen Pfad ersetzen, `fill="black"` |
 
