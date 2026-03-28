@@ -34,6 +34,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/gebrauchtwagen" element={<Gebrauchtwagen />} />
+          <Route path="/gebrauchtwagen/:sellerSlug/:auftragsnummer" element={<Gebrauchtwagen />} />
           <Route path="/rechtliches" element={<Rechtliches />} />
           <Route path="/rechtliches/impressum" element={<Impressum />} />
           <Route path="/rechtliches/datenschutzinformation" element={<Datenschutzinformation />} />

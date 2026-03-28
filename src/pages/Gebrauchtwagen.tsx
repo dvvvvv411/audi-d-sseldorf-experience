@@ -120,63 +120,114 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
 
 export default function Gebrauchtwagen() {
   const navigate = useNavigate();
+  const { sellerSlug, auftragsnummer } = useParams<{ sellerSlug?: string; auftragsnummer?: string }>();
   const [fahrzeug, setFahrzeug] = useState<Fahrzeug | null>(null);
   const [verkaeufer, setVerkaeufer] = useState<VerkaeuferMitBranding[]>([]);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  
 
   useEffect(() => {
     const load = async () => {
-      // Load first vehicle
-      const { data: fz } = await supabase
-        .from("fahrzeuge")
-        .select("*")
-        .limit(1)
-        .single();
+      if (sellerSlug && auftragsnummer) {
+        // Dynamic seller route: /gebrauchtwagen/:sellerSlug/:auftragsnummer
+        const parts = sellerSlug.split("_");
+        if (parts.length < 2) { setLoading(false); return; }
+        const vorname = parts[0];
+        const nachname = parts.slice(1).join("_");
 
-      if (fz) {
-        setFahrzeug(fz);
-        if (fz.bilder && fz.bilder.length > 0) {
-          setMainImage(fz.bilder[0]);
+        // Find seller by name
+        const { data: sellerData } = await supabase
+          .from("verkaeufer")
+          .select("*")
+          .ilike("vorname", vorname)
+          .ilike("nachname", nachname)
+          .single();
+
+        if (!sellerData) { setLoading(false); return; }
+
+        // Load branding for the seller
+        let branding: Branding | null = null;
+        if (sellerData.branding_id) {
+          const { data: b } = await supabase
+            .from("brandings")
+            .select("*")
+            .eq("id", sellerData.branding_id)
+            .single();
+          branding = b;
         }
+        setVerkaeufer([{ ...sellerData, branding }]);
 
-        // Load assigned sellers
+        // Find the vehicle assigned to this seller with matching auftragsnummer
         const { data: links } = await supabase
           .from("verkaeufer_fahrzeuge")
-          .select("verkaeufer_id")
-          .eq("fahrzeug_id", fz.id);
+          .select("fahrzeug_id")
+          .eq("verkaeufer_id", sellerData.id);
 
         if (links && links.length > 0) {
-          const ids = links.map((l) => l.verkaeufer_id);
-          const { data: sellers } = await supabase
-            .from("verkaeufer")
+          const fahrzeugIds = links.map((l) => l.fahrzeug_id);
+          const { data: fz } = await supabase
+            .from("fahrzeuge")
             .select("*")
-            .in("id", ids);
+            .in("id", fahrzeugIds)
+            .eq("auftragsnummer", auftragsnummer)
+            .single();
 
-          if (sellers) {
-            // Load brandings for each seller
-            const sellersWithBranding: VerkaeuferMitBranding[] = await Promise.all(
-              sellers.map(async (s) => {
-                if (s.branding_id) {
-                  const { data: b } = await supabase
-                    .from("brandings")
-                    .select("*")
-                    .eq("id", s.branding_id)
-                    .single();
-                  return { ...s, branding: b };
-                }
-                return { ...s, branding: null };
-              })
-            );
-            setVerkaeufer(sellersWithBranding);
+          if (fz) {
+            setFahrzeug(fz);
+            if (fz.bilder && fz.bilder.length > 0) {
+              setMainImage(fz.bilder[0]);
+            }
+          }
+        }
+      } else {
+        // Fallback: load first vehicle (original behavior)
+        const { data: fz } = await supabase
+          .from("fahrzeuge")
+          .select("*")
+          .limit(1)
+          .single();
+
+        if (fz) {
+          setFahrzeug(fz);
+          if (fz.bilder && fz.bilder.length > 0) {
+            setMainImage(fz.bilder[0]);
+          }
+
+          const { data: links } = await supabase
+            .from("verkaeufer_fahrzeuge")
+            .select("verkaeufer_id")
+            .eq("fahrzeug_id", fz.id);
+
+          if (links && links.length > 0) {
+            const ids = links.map((l) => l.verkaeufer_id);
+            const { data: sellers } = await supabase
+              .from("verkaeufer")
+              .select("*")
+              .in("id", ids);
+
+            if (sellers) {
+              const sellersWithBranding: VerkaeuferMitBranding[] = await Promise.all(
+                sellers.map(async (s) => {
+                  if (s.branding_id) {
+                    const { data: b } = await supabase
+                      .from("brandings")
+                      .select("*")
+                      .eq("id", s.branding_id)
+                      .single();
+                    return { ...s, branding: b };
+                  }
+                  return { ...s, branding: null };
+                })
+              );
+              setVerkaeufer(sellersWithBranding);
+            }
           }
         }
       }
       setLoading(false);
     };
     load();
-  }, []);
+  }, [sellerSlug, auftragsnummer]);
 
   if (loading) {
     return (
