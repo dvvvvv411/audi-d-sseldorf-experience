@@ -57,3 +57,22 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
+
+.scrollbar-petrol::-webkit-scrollbar {
+  height: 6px;
+}
+.scrollbar-petrol::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 3px;
+}
+.scrollbar-petrol::-webkit-scrollbar-thumb {
+  background: #00527a;
+  border-radius: 3px;
+}
+.scrollbar-petrol::-webkit-scrollbar-thumb:hover {
+  background: #003d5c;
+}
+.scrollbar-petrol {
+  scrollbar-width: thin;
+  scrollbar-color: #00527a #e5e7eb;
+}

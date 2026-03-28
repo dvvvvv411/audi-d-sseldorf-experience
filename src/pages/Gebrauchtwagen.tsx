@@ -5,6 +5,7 @@ import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
   Palette, Cog, Hash, Mail, Phone, MapPin, Check
 } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
@@ -125,18 +126,19 @@ export default function Gebrauchtwagen() {
   const beschreibung = parseBeschreibung(fahrzeug.beschreibung);
 
   const specItems = [
-    { icon: Car, label: "Gebrauchtwagen" },
-    { icon: Gauge, label: fahrzeug.km_stand ? `${formatKm(fahrzeug.km_stand)} km` : "–" },
-    { icon: Calendar, label: formatErstzulassung(fahrzeug.erstzulassung) },
-    { icon: Zap, label: fahrzeug.kw && fahrzeug.ps ? `${fahrzeug.kw} kW / ${fahrzeug.ps} PS` : "–" },
-    { icon: Fuel, label: fahrzeug.kraftstoff || "–" },
-    { icon: Settings2, label: fahrzeug.getriebe || "–" },
-    { icon: Palette, label: fahrzeug.farbe || "–" },
-    { icon: Cog, label: fahrzeug.antrieb || "–" },
-    { icon: Hash, label: fahrzeug.auftragsnummer || "–" },
+    { icon: Car, label: "Gebrauchtwagen", tooltip: "Fahrzeugart" },
+    { icon: Gauge, label: fahrzeug.km_stand ? `${formatKm(fahrzeug.km_stand)} km` : "–", tooltip: "Kilometerstand" },
+    { icon: Calendar, label: formatErstzulassung(fahrzeug.erstzulassung), tooltip: "Erstzulassung" },
+    { icon: Zap, label: fahrzeug.kw && fahrzeug.ps ? `${fahrzeug.kw} kW / ${fahrzeug.ps} PS` : "–", tooltip: "Leistung" },
+    { icon: Fuel, label: fahrzeug.kraftstoff || "–", tooltip: "Kraftstoff" },
+    { icon: Settings2, label: fahrzeug.getriebe || "–", tooltip: "Getriebe" },
+    { icon: Palette, label: fahrzeug.farbe || "–", tooltip: "Farbe" },
+    { icon: Cog, label: fahrzeug.antrieb || "–", tooltip: "Antrieb" },
+    { icon: Hash, label: fahrzeug.auftragsnummer || "–", tooltip: "Auftragsnummer" },
   ];
 
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
@@ -144,7 +146,7 @@ export default function Gebrauchtwagen() {
           {fahrzeug.fahrzeugname}
         </h1>
         <p className="text-gray-500 mt-1">
-          {branding?.name && `${branding.name} · `}ab {formatPrice(fahrzeug.preis)} EUR
+          ab {formatPrice(fahrzeug.preis)} EUR
         </p>
       </div>
 
@@ -171,17 +173,21 @@ export default function Gebrauchtwagen() {
             <h2 className="text-xl font-semibold mb-6">{fahrzeug.fahrzeugname}</h2>
 
             {/* 3x3 Spec Grid */}
-            <div className="grid grid-cols-3 border border-white/20 flex-1">
+            <div className="grid grid-cols-3 border border-[#3a3a3a] flex-1">
               {specItems.map((item, i) => {
                 const Icon = item.icon;
                 return (
-                  <div
-                    key={i}
-                    className="flex flex-col items-center justify-center p-3 text-center border border-white/20 gap-2"
-                  >
-                    <Icon size={20} className="text-white/70" />
-                    <span className="text-xs leading-tight">{item.label}</span>
-                  </div>
+                  <Tooltip key={i}>
+                    <TooltipTrigger asChild>
+                      <div
+                        className="flex flex-col items-center justify-center p-3 text-center border border-[#3a3a3a] bg-[#3c3c3c] gap-2 cursor-default"
+                      >
+                        <Icon size={28} className="text-white/70" />
+                        <span className="text-xs leading-tight">{item.label}</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>{item.tooltip}</TooltipContent>
+                  </Tooltip>
                 );
               })}
             </div>
@@ -207,7 +213,7 @@ export default function Gebrauchtwagen() {
       {/* Thumbnail Gallery */}
       {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
         <div className="max-w-7xl mx-auto px-4 pb-8">
-          <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-petrol">
             {fahrzeug.bilder.map((img, i) => (
               <button
                 key={i}
@@ -219,7 +225,7 @@ export default function Gebrauchtwagen() {
                 <img
                   src={img}
                   alt={`${fahrzeug.fahrzeugname} Bild ${i + 1}`}
-                  className="h-20 w-28 object-cover"
+                  className="h-28 w-48 object-cover"
                 />
               </button>
             ))}
@@ -327,5 +333,6 @@ export default function Gebrauchtwagen() {
         </div>
       </div>
     </div>
+    </TooltipProvider>
   );
 }
