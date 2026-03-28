@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/AdminDashboard.tsx";
 import AdminVerkaeufer from "./pages/AdminVerkaeufer.tsx";
 import AdminBrandings from "./pages/AdminBrandings.tsx";
 import AdminFahrzeugbestand from "./pages/AdminFahrzeugbestand.tsx";
+import Gebrauchtwagen from "./pages/Gebrauchtwagen.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
@@ -23,6 +24,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/gebrauchtwagen" element={<Gebrauchtwagen />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
