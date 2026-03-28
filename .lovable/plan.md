@@ -1,19 +1,16 @@
 
 
-## Zwei kleine Anpassungen auf der Gebrauchtwagen-Seite
+## Zwei Anpassungen: Thumbnail-Abstand + Sticky Ansprechpartner
 
-### 1. Auftragsnummer-Icon ändern
-- Im `specItems` Array das `Hash`-Icon durch `Star` (aus lucide-react) ersetzen
+### 1. Thumbnail-Abstand minimieren
+- In der `ThumbnailGallery`-Komponente: `gap-1` aendern zu `gap-px` (1px Abstand statt 4px)
 
-### 2. Standort-Spalte umbauen zu "Ihr Ansprechpartner"
-- Überschrift von "Standort" zu "Ihr Ansprechpartner" ändern
-- Branding-Adresse, Standort-Infos und "Route berechnen"-Button entfernen
-- Nur noch Verkäufer-Infos anzeigen: Avatar, Name, Telefon, E-Mail
-- "Anrufen"-Button bleibt, "Route berechnen" wird entfernt
+### 2. Ansprechpartner-Spalte fixiert (sticky)
+- Die rechte 40%-Spalte im Details-Bereich (Zeile 337) bekommt `lg:sticky lg:top-4 lg:self-start` damit sie beim Scrollen mitlaeuft
 
 ### Datei
 
-| Datei | Änderung |
+| Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | `Hash` → `Star` Import + specItems, Standort-Sektion zu Ansprechpartner umbauen |
+| `src/pages/Gebrauchtwagen.tsx` | `gap-1` → `gap-px` in ThumbnailGallery, `lg:sticky lg:top-4 lg:self-start` auf Ansprechpartner-Container |
 
