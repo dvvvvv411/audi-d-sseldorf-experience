@@ -11,6 +11,9 @@ import AdminVerkaeufer from "./pages/AdminVerkaeufer.tsx";
 import AdminBrandings from "./pages/AdminBrandings.tsx";
 import AdminFahrzeugbestand from "./pages/AdminFahrzeugbestand.tsx";
 import Gebrauchtwagen from "./pages/Gebrauchtwagen.tsx";
+import Impressum from "./pages/rechtliches/Impressum.tsx";
+import Rechtliches from "./pages/rechtliches/Rechtliches.tsx";
+import Datenschutzinformation from "./pages/rechtliches/Datenschutzinformation.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
@@ -25,6 +28,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/gebrauchtwagen" element={<Gebrauchtwagen />} />
+          <Route path="/rechtliches" element={<Rechtliches />} />
+          <Route path="/rechtliches/impressum" element={<Impressum />} />
+          <Route path="/rechtliches/datenschutzinformation" element={<Datenschutzinformation />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />

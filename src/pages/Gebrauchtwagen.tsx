@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
+import { Link } from "react-router-dom";
 import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
   Palette, Cog, Star, Mail, Phone, Check
@@ -479,7 +480,7 @@ export default function Gebrauchtwagen() {
           <p className="text-xs text-gray-500 font-medium">© 2026 AUDI AG. Alle Rechte vorbehalten</p>
 
           <p className="text-xs text-gray-400">
-            Impressum · Rechtliches · Hinweisgebersystem · Datenschutzinformation · Cookie-Einstellungen · Cookie-Richtlinie · Barrierefreiheit · Digital Services Act · EU Data Act
+            <Link to="/rechtliches/impressum" className="hover:text-gray-600 transition-colors">Impressum</Link> · <Link to="/rechtliches" className="hover:text-gray-600 transition-colors">Rechtliches</Link> · <Link to="/rechtliches/datenschutzinformation" className="hover:text-gray-600 transition-colors">Datenschutzinformation</Link> · Cookie-Einstellungen · Cookie-Richtlinie · Barrierefreiheit · Digital Services Act · EU Data Act
           </p>
 
           <p className="text-[11px] text-gray-400 leading-relaxed">
