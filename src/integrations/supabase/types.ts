@@ -68,6 +68,78 @@ export type Database = {
         }
         Relationships: []
       }
+      fahrzeuge: {
+        Row: {
+          antrieb: string | null
+          auftragsnummer: string | null
+          beschreibung: string | null
+          bilder: string[] | null
+          created_at: string
+          erstzulassung: string | null
+          fahrgestellnummer: string | null
+          fahrzeugname: string
+          farbe: string | null
+          getriebe: string | null
+          hubraum: number | null
+          id: string
+          innenausstattung: string | null
+          km_stand: number | null
+          kraftstoff: string | null
+          kw: number | null
+          preis: number
+          ps: number | null
+          sitze: number | null
+          tueren: number | null
+          tuev_au: string | null
+        }
+        Insert: {
+          antrieb?: string | null
+          auftragsnummer?: string | null
+          beschreibung?: string | null
+          bilder?: string[] | null
+          created_at?: string
+          erstzulassung?: string | null
+          fahrgestellnummer?: string | null
+          fahrzeugname: string
+          farbe?: string | null
+          getriebe?: string | null
+          hubraum?: number | null
+          id?: string
+          innenausstattung?: string | null
+          km_stand?: number | null
+          kraftstoff?: string | null
+          kw?: number | null
+          preis: number
+          ps?: number | null
+          sitze?: number | null
+          tueren?: number | null
+          tuev_au?: string | null
+        }
+        Update: {
+          antrieb?: string | null
+          auftragsnummer?: string | null
+          beschreibung?: string | null
+          bilder?: string[] | null
+          created_at?: string
+          erstzulassung?: string | null
+          fahrgestellnummer?: string | null
+          fahrzeugname?: string
+          farbe?: string | null
+          getriebe?: string | null
+          hubraum?: number | null
+          id?: string
+          innenausstattung?: string | null
+          km_stand?: number | null
+          kraftstoff?: string | null
+          kw?: number | null
+          preis?: number
+          ps?: number | null
+          sitze?: number | null
+          tueren?: number | null
+          tuev_au?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

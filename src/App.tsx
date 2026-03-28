@@ -9,6 +9,7 @@ import AdminLayout from "./pages/AdminLayout.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import AdminVerkaeufer from "./pages/AdminVerkaeufer.tsx";
 import AdminBrandings from "./pages/AdminBrandings.tsx";
+import AdminFahrzeugbestand from "./pages/AdminFahrzeugbestand.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route index element={<AdminDashboard />} />
             <Route path="verkaeufer" element={<AdminVerkaeufer />} />
             <Route path="brandings" element={<AdminBrandings />} />
+            <Route path="fahrzeugbestand" element={<AdminFahrzeugbestand />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
