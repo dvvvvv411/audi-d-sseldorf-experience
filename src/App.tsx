@@ -14,6 +14,7 @@ import AdminFahrzeugbestand from "./pages/AdminFahrzeugbestand.tsx";
 import AdminAnfragen from "./pages/AdminAnfragen.tsx";
 import AdminAnfrageDetail from "./pages/AdminAnfrageDetail.tsx";
 import Gebrauchtwagen from "./pages/Gebrauchtwagen.tsx";
+import Fahrzeugbestand from "./pages/Fahrzeugbestand.tsx";
 import Impressum from "./pages/rechtliches/Impressum.tsx";
 import Rechtliches from "./pages/rechtliches/Rechtliches.tsx";
 import Datenschutzinformation from "./pages/rechtliches/Datenschutzinformation.tsx";
@@ -36,6 +37,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/gebrauchtwagen" element={<Gebrauchtwagen />} />
+          <Route path="/fahrzeugbestand" element={<Fahrzeugbestand />} />
           <Route path="/gebrauchtwagen/:sellerSlug/:auftragsnummer" element={<Gebrauchtwagen />} />
           <Route path="/rechtliches" element={<Rechtliches />} />
           <Route path="/rechtliches/impressum" element={<Impressum />} />
