@@ -701,9 +701,9 @@ export default function Gebrauchtwagen() {
 
     {/* Anfrage Dialog */}
     <Dialog open={anfrageOpen} onOpenChange={(open) => { setAnfrageOpen(open); if (!open) resetAnfrageForm(); }}>
-      <DialogContent className="max-w-3xl w-full sm:rounded-xl max-h-[90vh] overflow-y-auto md:max-h-none md:overflow-visible data-[state=open]:!slide-in-from-bottom-0 data-[state=open]:!slide-in-from-left-0 max-sm:h-full max-sm:max-h-full max-sm:rounded-none max-sm:border-0 [&>button]:top-5 [&>button]:right-5">
+      <DialogContent className="max-w-3xl w-full sm:rounded-xl max-h-[90vh] overflow-y-auto md:max-h-none md:overflow-visible max-sm:h-full max-sm:max-h-full max-sm:rounded-none max-sm:border-0 max-sm:data-[state=open]:!animate-none max-sm:data-[state=closed]:!animate-none [&>button]:top-5 [&>button]:right-5">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900">Schreiben Sie uns</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold text-gray-900">Schreiben Sie uns</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleAnfrageSubmit} className="space-y-5 mt-2">
@@ -771,7 +771,7 @@ export default function Gebrauchtwagen() {
               id="datenschutz"
               checked={datenschutz}
               onCheckedChange={(v) => setDatenschutz(v === true)}
-              className="mt-0.5 border-gray-300 bg-white data-[state=checked]:bg-[#00527a] data-[state=checked]:border-[#00527a] data-[state=checked]:text-white"
+              className="mt-0.5 h-5 w-5 rounded border-gray-300 bg-white data-[state=checked]:bg-[#00527a] data-[state=checked]:border-[#00527a] data-[state=checked]:text-white"
             />
             <label htmlFor="datenschutz" className="text-sm text-gray-600 leading-relaxed">
               Ich bin damit einverstanden, dass die übermittelten Daten entsprechend der{" "}
