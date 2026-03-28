@@ -54,6 +54,68 @@ const parseBeschreibung = (text: string | null) => {
   });
 };
 
+function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
+  bilder: string[];
+  fahrzeugname: string;
+  mainImage: string | null;
+  onSelect: (img: string) => void;
+}) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    containScroll: "trimSnaps",
+    dragFree: true,
+  });
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const onScroll = useCallback(() => {
+    if (!emblaApi) return;
+    const progress = Math.max(0, Math.min(1, emblaApi.scrollProgress()));
+    setScrollProgress(progress);
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("scroll", onScroll);
+    emblaApi.on("reInit", onScroll);
+    onScroll();
+    return () => {
+      emblaApi.off("scroll", onScroll);
+      emblaApi.off("reInit", onScroll);
+    };
+  }, [emblaApi, onScroll]);
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 pb-8">
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex gap-2">
+          {bilder.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => onSelect(img)}
+              className={`flex-shrink-0 rounded overflow-hidden border-2 transition-colors ${
+                mainImage === img ? "border-[#00527a]" : "border-transparent"
+              }`}
+            >
+              <img
+                src={img}
+                alt={`${fahrzeugname} Bild ${i + 1}`}
+                className="h-28 w-48 object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+      {/* Progress Bar */}
+      <div className="mt-3 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-[#00527a] transition-all duration-150"
+          style={{ width: `${Math.max(10, (1 / Math.max(bilder.length - 4, 1)) * 100)}%`, marginLeft: `${scrollProgress * (100 - (1 / Math.max(bilder.length - 4, 1)) * 100)}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function Gebrauchtwagen() {
   const [fahrzeug, setFahrzeug] = useState<Fahrzeug | null>(null);
   const [verkaeufer, setVerkaeufer] = useState<VerkaeuferMitBranding[]>([]);
