@@ -261,49 +261,49 @@ export default function Gebrauchtwagen() {
 
       {/* Mobile Sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto bg-white text-gray-900">
-          <SheetHeader>
-            <SheetTitle className="text-left">Ihr Ansprechpartner</SheetTitle>
+        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto bg-white text-gray-900 p-6">
+          <SheetHeader className="text-center pb-2">
+            <SheetTitle className="text-center text-gray-900">Ihr Ansprechpartner</SheetTitle>
           </SheetHeader>
-          <div className="mt-6 space-y-6">
+          <div className="mt-4 space-y-5">
             {/* Ansprechpartner */}
             {verkaeufer.length > 0 && (
-              <div className="space-y-4">
+              <div className="flex flex-col items-center text-center space-y-3">
                 {verkaeufer.map((v) => (
-                  <div key={v.id} className="flex items-center gap-4">
+                  <div key={v.id} className="flex flex-col items-center">
                     {v.avatar_url ? (
-                      <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-14 h-14 rounded-full object-cover" />
+                      <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-16 h-16 rounded-full object-cover mb-2" />
                     ) : (
-                      <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold">
+                      <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold mb-2">
                         {v.vorname[0]}{v.nachname[0]}
                       </div>
                     )}
-                    <div>
-                      <p className="font-semibold text-gray-900">{v.vorname} {v.nachname}</p>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                        <Phone size={14} />
-                        <span>{v.telefon}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
-                        <Mail size={14} />
-                        <span>{v.email}</span>
-                      </div>
+                    <p className="font-semibold text-gray-900 text-lg">{v.vorname} {v.nachname}</p>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                      <Phone size={14} />
+                      <span>{v.telefon}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
+                      <Mail size={14} />
+                      <span>{v.email}</span>
                     </div>
                   </div>
                 ))}
                 <a
                   href={`tel:${verkaeufer[0]?.telefon || ""}`}
-                  className="w-full bg-[#00527a] text-white text-sm font-medium py-2.5 px-4 rounded flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors"
+                  className="w-full bg-[#00527a] text-white text-sm font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors mt-2"
                 >
-                  <Phone size={14} />
+                  <Phone size={16} />
                   Anrufen
                 </a>
               </div>
             )}
 
+            <div className="border-t border-gray-200" />
+
             {/* Unsere Leistungen */}
-            <div className="bg-[#00527a] rounded-lg p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Unsere Leistungen</h3>
+            <div className="bg-[#00527a] rounded-xl p-5">
+              <h3 className="text-lg font-bold text-white mb-3">Unsere Leistungen</h3>
               <ul className="space-y-2">
                 {[
                   "3 Jahre Audi Gebrauchtwagengarantie",
@@ -321,8 +321,8 @@ export default function Gebrauchtwagen() {
             </div>
 
             {/* Ihre Vorteile */}
-            <div className="bg-[#00527a] rounded-lg p-6">
-              <h3 className="text-xl font-bold text-white mb-4">Ihre Vorteile</h3>
+            <div className="bg-[#00527a] rounded-xl p-5">
+              <h3 className="text-lg font-bold text-white mb-3">Ihre Vorteile</h3>
               <ul className="space-y-2">
                 {[
                   "Direkter Zugang zu exklusiven Kundenfahrzeugen",
