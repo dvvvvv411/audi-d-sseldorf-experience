@@ -1,29 +1,22 @@
 
 
-## Anfrage-Popup fixen: helle Eingabefelder, sichtbare Checkbox, groesseres Popup
-
-### Probleme
-- Eingabefelder und Textarea erben die dunklen Theme-Farben (`--input`, `--background` sind fast schwarz)
-- Checkbox ist unsichtbar (dunkler Rand auf dunklem Hintergrund)
-- Popup koennte groesser sein
+## Anfrage-Popup Feintuning
 
 ### Aenderungen in `src/pages/Gebrauchtwagen.tsx`
 
-**1. Input-Felder (Zeilen 713-750)**
-- Allen `<Input>` Feldern `className="bg-white border-gray-300 text-gray-900"` hinzufuegen
+**1. Titel weniger fett (Zeile 706)**
+- `font-bold` auf `font-semibold` aendern
 
-**2. Textarea (Zeile 756-762)**
-- `className` auf `"min-h-[140px] bg-white border-gray-300 text-gray-900"` aendern
+**2. Checkbox groesser + abgerundet (Zeile 770-774)**
+- `h-5 w-5 rounded` zur className hinzufuegen
 
-**3. Checkbox (Zeile 766-770)**
-- `className` auf `"mt-0.5 border-gray-300 bg-white data-[state=checked]:bg-[#00527a] data-[state=checked]:border-[#00527a] data-[state=checked]:text-white"` aendern
-
-**4. DialogContent groesser (Zeile 704)**
-- `max-w-2xl` auf `max-w-3xl` aendern fuer ein groesseres Popup
+**3. Mobile Animation entfernen (Zeile 704)**
+- Slide-Animationen komplett entfernen: alle `data-[state=open]:!slide-*` und `data-[state=closed]:slide-*` Klassen raus
+- Stattdessen `max-sm:data-[state=open]:!animate-none max-sm:data-[state=closed]:!animate-none` hinzufuegen um auf Mobile jede Animation zu unterdruecken
 
 ### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Input/Textarea/Checkbox Styling + Popup-Groesse |
+| `src/pages/Gebrauchtwagen.tsx` | Titel font-weight, Checkbox Groesse/Rundung, Mobile Animation entfernen |
 
