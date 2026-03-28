@@ -334,7 +334,7 @@ export default function Gebrauchtwagen() {
           </div>
 
           {/* Seller / Location 40% */}
-          <div className="lg:w-[40%]">
+          <div className="lg:w-[40%] lg:sticky lg:top-4 lg:self-start">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Ihr Ansprechpartner</h2>
             {verkaeufer.length > 0 ? (
               <div className="bg-gray-50 rounded-lg p-6 space-y-4">
