@@ -216,27 +216,14 @@ export default function Gebrauchtwagen() {
         </div>
       </div>
 
-      {/* Thumbnail Gallery */}
+      {/* Thumbnail Gallery with Embla Carousel */}
       {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
-        <div className="max-w-7xl mx-auto px-4 pb-8">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-petrol">
-            {fahrzeug.bilder.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setMainImage(img)}
-                className={`flex-shrink-0 rounded overflow-hidden border-2 transition-colors ${
-                  mainImage === img ? "border-[#00527a]" : "border-transparent"
-                }`}
-              >
-                <img
-                  src={img}
-                  alt={`${fahrzeug.fahrzeugname} Bild ${i + 1}`}
-                  className="h-28 w-48 object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
+        <ThumbnailGallery
+          bilder={fahrzeug.bilder}
+          fahrzeugname={fahrzeug.fahrzeugname}
+          mainImage={mainImage}
+          onSelect={setMainImage}
+        />
       )}
 
       {/* Details Section 60/40 */}
