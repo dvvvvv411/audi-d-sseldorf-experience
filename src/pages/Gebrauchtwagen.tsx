@@ -24,7 +24,12 @@ const formatKm = (km: number) =>
 
 const formatErstzulassung = (ez: string | null) => {
   if (!ez) return "–";
-  // Try to parse various formats
+  // Handle dd.mm.yyyy format
+  const dotMatch = ez.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (dotMatch) {
+    return `${dotMatch[2].padStart(2, "0")}/${dotMatch[3]}`;
+  }
+  // Handle yyyy-mm-dd or other parseable formats
   const d = new Date(ez);
   if (!isNaN(d.getTime())) {
     return `${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
