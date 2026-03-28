@@ -304,7 +304,7 @@ export default function Gebrauchtwagen() {
               <h3 className="text-lg font-semibold text-gray-900">{fahrzeug.fahrzeugname}</h3>
               <ul className="space-y-1.5 text-sm text-gray-600">
                 <li className="flex items-center gap-2">
-                  <Euro size={15} className="text-gray-400 shrink-0" />
+                  <BadgeEuro size={15} className="text-gray-400 shrink-0" />
                   <span className="font-medium">{fahrzeug.preis?.toLocaleString("de-DE")} €</span>
                 </li>
                 {fahrzeug.km_stand != null && (
