@@ -771,7 +771,7 @@ export default function Gebrauchtwagen() {
               id="datenschutz"
               checked={datenschutz}
               onCheckedChange={(v) => setDatenschutz(v === true)}
-              className="mt-0.5"
+              className="mt-0.5 border-gray-300 bg-white data-[state=checked]:bg-[#00527a] data-[state=checked]:border-[#00527a] data-[state=checked]:text-white"
             />
             <label htmlFor="datenschutz" className="text-sm text-gray-600 leading-relaxed">
               Ich bin damit einverstanden, dass die übermittelten Daten entsprechend der{" "}
