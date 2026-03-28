@@ -117,7 +117,7 @@ const AdminVerkaeufer = () => {
       ({ error } = await supabase.from("verkaeufer").update(payload).eq("id", editId));
     } else {
       if (!avatar_url) payload.avatar_url = null;
-      ({ error } = await supabase.from("verkaeufer").insert(payload));
+      ({ error } = await supabase.from("verkaeufer").insert(payload as any));
     }
 
     setSaving(false);
