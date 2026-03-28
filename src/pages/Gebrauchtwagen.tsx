@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
+import { Link } from "react-router-dom";
 import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
   Palette, Cog, Star, Mail, Phone, Check
