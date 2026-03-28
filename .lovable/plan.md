@@ -1,38 +1,33 @@
 
 
-## Neue Sektion: Energieverbrauch & CO₂-Emissionen
+## CO₂-Balken korrigieren + Sektion dezenter gestalten
 
-### Design (wie im Screenshot)
+### Problem
+1. Balken sind viel zu breit — im Screenshot nehmen sie nur ca. 120px Gesamtbreite ein, unsere spannen sich ueber die ganze Spalte
+2. Es fehlt der Pfeil-Effekt (rechte Seite jedes Balkens hat eine Pfeilspitze)
+3. Die Sektion soll visuell zurueckgenommener sein als der Rest
 
-Weisser Hintergrund, volle Breite unterhalb des Fahrzeug-Details-Bereichs. Ueberschrift gross: "Information ueber den Energieverbrauch* und die CO₂-Emissionen**"
+### Loesung
 
-Darunter ein 4-Spalten Grid:
+**1. Balken kuerzer machen**
+- Maximale Breite des Balken-Containers auf `max-w-[140px]` begrenzen
+- Breiten anpassen: A ~55%, B ~65%, C ~72%, D ~78%, E ~85%, F ~92%, G ~100%
 
-1. **CO₂ Emissionen**** — CO₂-Label-Chart (A-G Balken in Regenbogenfarben, jeder Balken breiter als der vorherige) + Text "Es wurden keine Angaben zu CO₂ Emissionen hinterlegt."
-2. **Verbrauch & Reichweite*** — Label "Energietraeger:" + Wert aus Fahrzeugdaten (`kraftstoff`)
-3. **Energiekosten**** — Text "Es wurden keine Angaben zu Kosten hinterlegt."
-4. **Leer** — leere Spalte
+**2. Pfeil-Form hinzufuegen**
+Jeder Balken bekommt rechts eine Pfeilspitze via CSS `clip-path`:
+```css
+clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+```
+Das erzeugt die typische Energielabel-Pfeilform.
 
-### CO₂-Label Chart
-
-Sieben horizontale Balken (A-G) mit zunehmender Breite:
-- A: gruen (#00a651), schmalster
-- B: hellgruen (#51b747)
-- C: gelbgruen (#bdd62e)
-- D: gelb (#fff200)
-- E: orange (#f7941d)
-- F: dunkelorange (#f15a24)
-- G: rot (#ed1c24), breitester
-
-Jeder Balken ~20px hoch, weisser Buchstabe links.
-
-### Platzierung
-
-Unterhalb des bestehenden Details-Grid (nach Zeile ~413), aber noch innerhalb des aeusseren Containers, vor `</TooltipProvider>`.
+**3. Sektion dezenter/unauffaelliger gestalten**
+- Hintergrund auf `bg-gray-50` setzen (leicht grau, hebt sich dezent ab)
+- Text etwas kleiner/heller
+- Die darueberliegenden Sektionen bleiben weiss und wirken dadurch prominenter
 
 ### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Neue Sektion mit CO₂-Chart, 4-Spalten Grid, Energietraeger aus `fahrzeug.kraftstoff` einfuegen |
+| `src/pages/Gebrauchtwagen.tsx` | Balken-Container `max-w-[140px]`, `clip-path` Pfeil auf jeden Balken, Sektion `bg-gray-50` mit voller Breite |
 
