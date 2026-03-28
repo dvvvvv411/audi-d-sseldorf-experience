@@ -213,7 +213,7 @@ export default function Gebrauchtwagen() {
       {/* Thumbnail Gallery */}
       {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
         <div className="max-w-7xl mx-auto px-4 pb-8">
-          <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-petrol">
             {fahrzeug.bilder.map((img, i) => (
               <button
                 key={i}
@@ -225,7 +225,7 @@ export default function Gebrauchtwagen() {
                 <img
                   src={img}
                   alt={`${fahrzeug.fahrzeugname} Bild ${i + 1}`}
-                  className="h-20 w-28 object-cover"
+                  className="h-28 w-48 object-cover"
                 />
               </button>
             ))}
