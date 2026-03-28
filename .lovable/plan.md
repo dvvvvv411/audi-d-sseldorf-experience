@@ -1,36 +1,56 @@
 
-## Fix-Plan: Lesbarkeit in `/admin/anfragen` + nachhaltiger Farb-Fix im Admin
 
-### Ursache
-Die App nutzt global ein dunkles Token-Theme (`--foreground` hell, `--background` dunkel).  
-In Admin-Views liegen viele Flächen aber auf `bg-white`. Komponenten wie `TableHead`, `TableCell`, `Button ghost`, `Select` nutzen Tokens → dadurch entstehen „weiß auf weiß“-Effekte.
+## Anfrage-Detailseite aufwerten
 
-### Umsetzung
+### Aktuell
+Drei schlichte weiße Karten mit `border-gray-200`, einfache Key-Value-Zeilen, kein visuelles Highlight. Wirkt wie eine Tabelle, nicht wie ein Dashboard.
 
-1. **Scoped Light-Theme nur für Admin einführen**
-   - In `src/index.css` eine Klasse `.admin-theme` ergänzen, die die zentralen CSS-Variablen auf helle Werte setzt (`--background`, `--foreground`, `--muted`, `--accent`, `--border`, `--input`, `--popover`, `--card`, `--ring`, etc.).
-   - Ziel: Alle Shadcn-Komponenten im Admin erben automatisch lesbare Farben.
+### Redesign
 
-2. **Admin-Bereich an das scoped Theme hängen**
-   - In `src/pages/AdminLayout.tsx` auf den Root-Container die Klasse `admin-theme` setzen.
-   - Ergebnis: Alle Unterseiten (`/admin/*`) sind konsistent hell, ohne die öffentliche (dunkle) Website zu beeinflussen.
+**1. Header-Bereich mit Status-Badge und Datum**
+- Oben: Name groß + farbige Status-Badge (grün fuer NEU, orange fuer In Bearbeitung etc.) + Datum rechts
+- Kompakter als jetzt, gibt sofort Kontext
 
-3. **`/admin/anfragen` gezielt absichern (zusätzliche Klarheit)**
-   - In `src/pages/AdminAnfragen.tsx` Tabellenkopf/-zeilen explizit mit hellen Klassen versehen:
-     - Header: `bg-gray-50`, `text-gray-600`, `font-semibold`
-     - Rows/Cells: `border-gray-100`, `text-gray-900/700/600` je nach Spalte
-   - Action-Button (Auge) mit klaren Hover-Farben versehen (`hover:bg-gray-100`, `hover:text-gray-900`), damit kein Token-Missmatch mehr entsteht.
+**2. Kontaktdaten-Card mit Icons**
+- Jedes Feld bekommt ein Icon (User, Mail, Phone, Calendar)
+- Icons in einem kleinen farbigen Kreis (z.B. `bg-blue-50 text-blue-600`)
+- Card-Header mit einem farbigen Top-Border (`border-t-4 border-blue-500`)
+- E-Mail und Telefon als klickbare Links (`mailto:`, `tel:`)
 
-4. **Regression-Check auf anderen Admin-Seiten**
-   - Visuell prüfen: `/admin`, `/admin/verkaeufer`, `/admin/brandings`, `/admin/fahrzeugbestand`, `/admin/anfragen/:id`
-   - Fokus: Tabellen, Inputs, Textareas, Selects, Badges, Icon-Buttons, Dialoge.
+**3. Nachricht-Card separat hervorheben**
+- Eigene Card mit `border-t-4 border-amber-500`
+- Nachricht in einem leicht getönten Bereich (`bg-amber-50`) mit Anführungszeichen-Icon
+- Mehr Platz, größere Schrift
+
+**4. Fahrzeug-Card mit Preis-Highlight**
+- `border-t-4 border-green-500`
+- Preis groß und prominent oben anzeigen (`text-2xl font-bold text-green-700`)
+- Fahrzeug-Details in einem 2-Spalten-Grid statt als lange Liste
+- Kleine Icons fuer Kraftstoff, Getriebe, KM etc.
+
+**5. Verkäufer-Card**
+- `border-t-4 border-purple-500`
+- Avatar-Kreis mit Initialen
+- Kontaktdaten mit Icons, klickbar
+
+**6. Notizen-Card**
+- `border-t-4 border-gray-400`
+- Speichern-Button prominenter (`bg-gray-900 text-white`)
 
 ### Technische Details
-- Kein hartes Überschreiben aller Komponenten nötig; stattdessen **Theme-Scope via CSS-Variablen**.
-- Dadurch bleibt die bestehende Struktur erhalten und zukünftige Admin-Seiten erben automatisch die korrekten Kontraste.
-- Öffentliche Seiten behalten ihr dunkles Branding, da der Eingriff nur innerhalb von `.admin-theme` wirkt.
 
-### Betroffene Dateien
-- `src/index.css` (neue `.admin-theme` Token-Werte)
-- `src/pages/AdminLayout.tsx` (Root-Klasse `admin-theme`)
-- `src/pages/AdminAnfragen.tsx` (explizite Tabellen-/Button-Kontraste)
+**Nur eine Datei:** `src/pages/AdminAnfrageDetail.tsx`
+
+- Import zusätzlicher Lucide-Icons: `User, Mail, Phone, Calendar, Car, Fuel, Gauge, Palette, CreditCard, MessageSquare, StickyNote, Quote`
+- Import `Badge` von `@/components/ui/badge`
+- Layout bleibt `max-w-5xl` (etwas breiter), Grid wird flexibler:
+  - Obere Reihe: Kontakt + Nachricht (2 Spalten)
+  - Mittlere Reihe: Fahrzeug + Verkäufer (2 Spalten)  
+  - Untere Reihe: Notizen (volle Breite)
+- Jede Card bekommt `shadow-sm hover:shadow-md transition-shadow` fuer subtile Interaktivität
+- InfoRow-Komponente bekommt optionales `icon`-Prop
+
+| Datei | Aenderung |
+|---|---|
+| `src/pages/AdminAnfrageDetail.tsx` | Komplettes Card-Redesign mit Icons, farbigen Akzenten, besserem Layout |
+
