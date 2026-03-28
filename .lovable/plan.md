@@ -1,30 +1,45 @@
 
 
-## Gebrauchtwagen-Seite Optimierungen
+## Gebrauchtwagen-Seite: 3 Fixes
 
-### Aenderungen in `src/pages/Gebrauchtwagen.tsx`
+### 1. Tooltip-Hintergrund auf Blau (`#00527a`)
 
-**1. 3x3 Grid-Zellen neu gestalten**
-- Outline von `border-white/20` aendern zu `border-[#3a3a3a]` (gleiches Grau wie Hintergrund)
-- Zellen-Hintergrund auf `bg-[#3c3c3c]` (leicht heller als `#323232`)
-- Icons groesser: von `size={20}` auf `size={28}`
-- Tooltip auf jeder Zelle mit beschreibendem Titel (z.B. "Kilometerstand", "Erstzulassung", "Leistung", "Kraftstoff", "Getriebe", "Farbe", "Antrieb", "Auftragsnummer") — nutze `TooltipProvider`/`Tooltip`/`TooltipTrigger`/`TooltipContent` aus den vorhandenen UI-Komponenten
+Die `TooltipContent`-Komponente nutzt `bg-popover` (dunkel/schwarz aus dem globalen Theme). Fix: Beim Aufruf in `Gebrauchtwagen.tsx` eine eigene `className` mitgeben:
 
-**2. Header-Untertitel fixen**
-- Branding-Name (`AUDI AG` o.ae.) aus dem Untertitel entfernen
-- Nur `ab {preis} EUR` anzeigen
+```tsx
+<TooltipContent className="bg-[#00527a] text-white border-[#00527a]">
+```
 
-**3. Thumbnails groesser**
-- Von `h-20 w-28` auf `h-28 w-[calc((100%-2rem)/5.5)]` bzw. feste Groesse ca. `h-28 w-48` damit ca. 5,5 Bilder sichtbar sind
-- Custom Scrollbar-Styling per CSS: schlanke Scrollbar in Farbe `#00527a` statt Browser-Standard
+### 2. Erstzulassung-Format `03/2018`
 
-**4. Erstzulassung-Format**
-- Bereits als `MM/YYYY` implementiert — bleibt so, funktioniert korrekt
+Die `formatErstzulassung`-Funktion nutzt `new Date(ez)` — das funktioniert, aber der Wert aus der DB kommt vermutlich als `2018-03-21` (volles Datum mit Tag). `new Date("2018-03-21")` ergibt korrekt Monat 3. Das Problem koennte sein, dass der Wert als deutsches Datum `21.03.2018` gespeichert ist, was `new Date()` nicht parsen kann und dann der Fallback `return ez` greift.
+
+Fix: Robusteres Parsing hinzufuegen — auch `dd.mm.yyyy` Format erkennen:
+
+```ts
+const formatErstzulassung = (ez: string | null) => {
+  if (!ez) return "–";
+  // Handle dd.mm.yyyy format
+  const dotMatch = ez.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (dotMatch) {
+    return `${dotMatch[2].padStart(2, "0")}/${dotMatch[3]}`;
+  }
+  // Handle yyyy-mm-dd or other parseable formats
+  const d = new Date(ez);
+  if (!isNaN(d.getTime())) {
+    return `${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+  }
+  return ez;
+};
+```
+
+### 3. Thumbnail-Galerie: Embla Carousel statt overflow-scroll
+
+Statt `overflow-x-auto` mit haesslicher Scrollbar → Embla Carousel (bereits im Projekt als `carousel.tsx` vorhanden) fuer smooth swiping. Darunter eine eigene Progress-Bar die den Scroll-Fortschritt anzeigt (einfacher `div` mit `bg-[#00527a]` und dynamischer Breite basierend auf Scroll-Position).
 
 ### Dateien
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Grid-Styling, Icons groesser, Tooltips, Thumbnails groesser, Untertitel fix |
-| `src/index.css` | Custom Scrollbar-Klasse `.scrollbar-petrol` mit `#00527a` Farbe |
+| `src/pages/Gebrauchtwagen.tsx` | Tooltip className, Erstzulassung-Parsing, Thumbnail-Galerie mit Embla Carousel + Progress-Bar |
 
