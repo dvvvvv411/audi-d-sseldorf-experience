@@ -199,6 +199,42 @@ export type Database = {
           },
         ]
       }
+      verkaeufer_fahrzeuge: {
+        Row: {
+          created_at: string
+          fahrzeug_id: string
+          id: string
+          verkaeufer_id: string
+        }
+        Insert: {
+          created_at?: string
+          fahrzeug_id: string
+          id?: string
+          verkaeufer_id: string
+        }
+        Update: {
+          created_at?: string
+          fahrzeug_id?: string
+          id?: string
+          verkaeufer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verkaeufer_fahrzeuge_fahrzeug_id_fkey"
+            columns: ["fahrzeug_id"]
+            isOneToOne: false
+            referencedRelation: "fahrzeuge"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verkaeufer_fahrzeuge_verkaeufer_id_fkey"
+            columns: ["verkaeufer_id"]
+            isOneToOne: false
+            referencedRelation: "verkaeufer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
