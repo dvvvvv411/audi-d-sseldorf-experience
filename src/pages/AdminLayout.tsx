@@ -31,7 +31,7 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50 admin-theme">
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-64 bg-black flex flex-col transform transition-transform lg:translate-x-0 lg:static lg:z-auto ${
