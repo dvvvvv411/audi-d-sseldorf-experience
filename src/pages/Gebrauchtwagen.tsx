@@ -87,13 +87,13 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
   return (
     <div className="relative">
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-px">
+        <div className="flex gap-0">
           {bilder.map((img, i) => (
             <button
               key={i}
               onClick={() => onSelect(img)}
-              className={`flex-shrink-0 overflow-hidden border-2 transition-colors ${
-                mainImage === img ? "border-[#00527a]" : "border-transparent"
+              className={`flex-shrink-0 overflow-hidden relative ${
+                mainImage === img ? "ring-2 ring-[#00527a] ring-inset" : ""
               }`}
             >
               <img
