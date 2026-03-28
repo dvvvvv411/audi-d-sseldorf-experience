@@ -413,57 +413,63 @@ export default function Gebrauchtwagen() {
       </div>
 
       {/* Energieverbrauch & CO₂-Emissionen */}
-      <div className="max-w-7xl mx-auto px-4 pb-16">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">
-          Information über den Energieverbrauch* und die CO₂-Emissionen**
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm text-gray-700">
-          {/* Spalte 1: CO₂ Emissionen */}
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-3">CO₂ Emissionen**</h3>
-            <div className="space-y-[2px] mb-4">
-              {[
-                { letter: "A", color: "#00a651", width: "30%" },
-                { letter: "B", color: "#51b747", width: "40%" },
-                { letter: "C", color: "#bdd62e", width: "50%" },
-                { letter: "D", color: "#fff200", width: "60%" },
-                { letter: "E", color: "#f7941d", width: "70%" },
-                { letter: "F", color: "#f15a24", width: "80%" },
-                { letter: "G", color: "#ed1c24", width: "100%" },
-              ].map((bar) => (
-                <div
-                  key={bar.letter}
-                  className="h-5 flex items-center px-2 text-white text-xs font-bold"
-                  style={{ backgroundColor: bar.color, width: bar.width }}
-                >
-                  {bar.letter}
-                </div>
-              ))}
+      <div className="bg-gray-50 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <h2 className="text-lg font-semibold text-gray-500 mb-6">
+            Information über den Energieverbrauch* und die CO₂-Emissionen**
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-sm text-gray-500">
+            {/* Spalte 1: CO₂ Emissionen */}
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-3">CO₂ Emissionen**</h3>
+              <div className="space-y-[2px] mb-4 max-w-[140px]">
+                {[
+                  { letter: "A", color: "#00a651", width: "55%" },
+                  { letter: "B", color: "#51b747", width: "65%" },
+                  { letter: "C", color: "#bdd62e", width: "72%" },
+                  { letter: "D", color: "#fff200", width: "78%" },
+                  { letter: "E", color: "#f7941d", width: "85%" },
+                  { letter: "F", color: "#f15a24", width: "92%" },
+                  { letter: "G", color: "#ed1c24", width: "100%" },
+                ].map((bar) => (
+                  <div
+                    key={bar.letter}
+                    className="h-5 flex items-center px-2 text-white text-xs font-bold"
+                    style={{
+                      backgroundColor: bar.color,
+                      width: bar.width,
+                      clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%)",
+                    }}
+                  >
+                    {bar.letter}
+                  </div>
+                ))}
+              </div>
+              <p className="text-gray-400 text-xs">
+                Es wurden keine Angaben zu CO₂ Emissionen hinterlegt.
+              </p>
             </div>
-            <p className="text-gray-500 text-xs">
-              Es wurden keine Angaben zu CO₂ Emissionen hinterlegt.
-            </p>
-          </div>
 
-          {/* Spalte 2: Verbrauch & Reichweite */}
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-3">Verbrauch &amp; Reichweite*</h3>
-            <p>
-              <span className="text-gray-500">Energieträger:</span>{" "}
-              {fahrzeug.kraftstoff || "–"}
-            </p>
-          </div>
+            {/* Spalte 2: Verbrauch & Reichweite */}
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-3">Verbrauch &amp; Reichweite*</h3>
+              <p>
+                <span className="text-gray-400">Energieträger:</span>{" "}
+                {fahrzeug.kraftstoff || "–"}
+              </p>
+            </div>
 
-          {/* Spalte 3: Energiekosten */}
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-3">Energiekosten***</h3>
-            <p className="text-gray-500 text-xs">
-              Es wurden keine Angaben zu Kosten hinterlegt.
-            </p>
-          </div>
+            {/* Spalte 3: Energiekosten */}
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-3">Energiekosten***</h3>
+              <p className="text-gray-400 text-xs">
+                Es wurden keine Angaben zu Kosten hinterlegt.
+              </p>
+            </div>
 
-          {/* Spalte 4: leer */}
-          <div />
+            {/* Spalte 4: leer */}
+            <div />
+          </div>
         </div>
       </div>
     </div>
