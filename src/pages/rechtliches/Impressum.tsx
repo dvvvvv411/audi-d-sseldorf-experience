@@ -1,10 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 export default function Impressum() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 py-12">
-        <Link to="/gebrauchtwagen" className="inline-block mb-8 hover:opacity-70 transition-opacity">
+        <Link to="/gebrauchtwagen" className="inline-block mb-4 hover:opacity-70 transition-opacity">
           <svg width="80" height="28" viewBox="0 0 188 80" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="40" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
             <circle cx="80" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
