@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
-  Palette, Cog, Hash, Mail, Phone, MapPin, Check
+  Palette, Cog, Star, Mail, Phone, Check
 } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import useEmblaCarousel from "embla-carousel-react";
