@@ -173,17 +173,21 @@ export default function Gebrauchtwagen() {
             <h2 className="text-xl font-semibold mb-6">{fahrzeug.fahrzeugname}</h2>
 
             {/* 3x3 Spec Grid */}
-            <div className="grid grid-cols-3 border border-white/20 flex-1">
+            <div className="grid grid-cols-3 border border-[#3a3a3a] flex-1">
               {specItems.map((item, i) => {
                 const Icon = item.icon;
                 return (
-                  <div
-                    key={i}
-                    className="flex flex-col items-center justify-center p-3 text-center border border-white/20 gap-2"
-                  >
-                    <Icon size={20} className="text-white/70" />
-                    <span className="text-xs leading-tight">{item.label}</span>
-                  </div>
+                  <Tooltip key={i}>
+                    <TooltipTrigger asChild>
+                      <div
+                        className="flex flex-col items-center justify-center p-3 text-center border border-[#3a3a3a] bg-[#3c3c3c] gap-2 cursor-default"
+                      >
+                        <Icon size={28} className="text-white/70" />
+                        <span className="text-xs leading-tight">{item.label}</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>{item.tooltip}</TooltipContent>
+                  </Tooltip>
                 );
               })}
             </div>
