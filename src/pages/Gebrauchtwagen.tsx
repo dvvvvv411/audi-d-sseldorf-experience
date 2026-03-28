@@ -126,11 +126,53 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
 
 export default function Gebrauchtwagen() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { sellerSlug, auftragsnummer } = useParams<{ sellerSlug?: string; auftragsnummer?: string }>();
   const [fahrzeug, setFahrzeug] = useState<Fahrzeug | null>(null);
   const [verkaeufer, setVerkaeufer] = useState<VerkaeuferMitBranding[]>([]);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Anfrage Dialog
+  const [anfrageOpen, setAnfrageOpen] = useState(false);
+  const [anfrageForm, setAnfrageForm] = useState({ vorname: "", nachname: "", email: "", telefon: "", nachricht: "" });
+  const [datenschutz, setDatenschutz] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const resetAnfrageForm = () => {
+    setAnfrageForm({ vorname: "", nachname: "", email: "", telefon: "", nachricht: "" });
+    setDatenschutz(false);
+  };
+
+  const handleAnfrageSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fahrzeug || !verkaeufer[0] || !datenschutz) return;
+    setSubmitting(true);
+    const v = verkaeufer[0];
+    const { error } = await supabase.from("anfragen").insert({
+      vorname: anfrageForm.vorname.trim(),
+      nachname: anfrageForm.nachname.trim(),
+      email: anfrageForm.email.trim(),
+      telefon: anfrageForm.telefon.trim(),
+      nachricht: anfrageForm.nachricht.trim(),
+      datenschutz_akzeptiert: true,
+      fahrzeug_id: fahrzeug.id,
+      fahrzeug_name: fahrzeug.fahrzeugname,
+      fahrzeug_preis: fahrzeug.preis,
+      auftragsnummer: fahrzeug.auftragsnummer || null,
+      verkaeufer_id: v.id,
+      verkaeufer_name: `${v.vorname} ${v.nachname}`,
+      branding_name: v.branding?.name || "–",
+    });
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Fehler", description: "Anfrage konnte nicht gesendet werden.", variant: "destructive" });
+    } else {
+      toast({ title: "Anfrage gesendet", description: "Wir melden uns bei Ihnen." });
+      resetAnfrageForm();
+      setAnfrageOpen(false);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
