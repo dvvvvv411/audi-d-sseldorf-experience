@@ -4,7 +4,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
 import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
-  Palette, Cog, Star, Mail, Phone, Check, Menu
+  Palette, Cog, Star, Mail, Phone, Check, Menu, BadgeEuro
 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
@@ -299,6 +299,47 @@ export default function Gebrauchtwagen() {
               </div>
             )}
 
+            {/* Fahrzeug-Zusammenfassung */}
+            <div className="border-t border-gray-200 pt-4 space-y-2">
+              <h3 className="text-lg font-semibold text-gray-900">{fahrzeug.fahrzeugname}</h3>
+              <ul className="space-y-1.5 text-sm text-gray-600">
+                <li className="flex items-center gap-2">
+                  <BadgeEuro size={15} className="text-gray-400 shrink-0" />
+                  <span className="font-medium">{fahrzeug.preis?.toLocaleString("de-DE")} €</span>
+                </li>
+                {fahrzeug.km_stand != null && (
+                  <li className="flex items-center gap-2">
+                    <Gauge size={15} className="text-gray-400 shrink-0" />
+                    <span>{fahrzeug.km_stand.toLocaleString("de-DE")} km</span>
+                  </li>
+                )}
+                {fahrzeug.erstzulassung && (
+                  <li className="flex items-center gap-2">
+                    <Calendar size={15} className="text-gray-400 shrink-0" />
+                    <span>EZ {fahrzeug.erstzulassung}</span>
+                  </li>
+                )}
+                {fahrzeug.kraftstoff && (
+                  <li className="flex items-center gap-2">
+                    <Fuel size={15} className="text-gray-400 shrink-0" />
+                    <span>{fahrzeug.kraftstoff}</span>
+                  </li>
+                )}
+                {(fahrzeug.ps || fahrzeug.kw) && (
+                  <li className="flex items-center gap-2">
+                    <Zap size={15} className="text-gray-400 shrink-0" />
+                    <span>{fahrzeug.ps ? `${fahrzeug.ps} PS` : ""}{fahrzeug.ps && fahrzeug.kw ? " / " : ""}{fahrzeug.kw ? `${fahrzeug.kw} kW` : ""}</span>
+                  </li>
+                )}
+              </ul>
+              <a
+                href={`mailto:${verkaeufer[0]?.email || ""}?subject=Anfrage: ${encodeURIComponent(fahrzeug.fahrzeugname)}${fahrzeug.auftragsnummer ? ` (${fahrzeug.auftragsnummer})` : ""}`}
+                className="w-full bg-[#00527a] text-white text-sm font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors mt-4"
+              >
+                <Mail size={16} />
+                Fahrzeug anfragen
+              </a>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
