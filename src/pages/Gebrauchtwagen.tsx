@@ -432,8 +432,8 @@ export default function Gebrauchtwagen() {
             </div>
 
             {/* Ihre Vorteile */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Ihre Vorteile</h3>
+            <div className="bg-[#00527a] rounded-lg p-6">
+              <h3 className="text-xl font-bold text-white mb-4">Ihre Vorteile</h3>
               <ul className="space-y-2">
                 {[
                   "Direkter Zugang zu exklusiven Kundenfahrzeugen",
@@ -443,8 +443,8 @@ export default function Gebrauchtwagen() {
                   "Kauf ohne versteckte Zusatzkosten",
                   "Sicherheit durch Vermittlung geprüfter Fahrzeuge",
                 ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-gray-600">
-                    <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <li key={i} className="flex items-start gap-2 text-white/90">
+                    <Check size={16} className="text-white mt-0.5 flex-shrink-0" />
                     <span className="text-sm">{item}</span>
                   </li>
                 ))}
