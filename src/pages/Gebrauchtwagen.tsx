@@ -238,10 +238,8 @@ export default function Gebrauchtwagen() {
           {/* Rechts: Berater + Telefon (zweizeilig, nur Desktop) */}
           {verkaeufer[0] && (
             <div className="hidden md:flex flex-col items-end text-right">
-              <span className="text-sm text-gray-700">
-                Ihr persönlicher Berater · <span className="font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
-              </span>
-              <span className="text-xs text-gray-500 mt-0.5">{verkaeufer[0].telefon}</span>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wider">Ihr Berater</span>
+              <span className="text-sm font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
             </div>
           )}
         </div>
