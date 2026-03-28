@@ -342,6 +342,10 @@ export default function Gebrauchtwagen() {
             {/* Rechts: Berater + Telefon (nur Desktop) */}
             {verkaeufer[0] && (
               <div className="hidden md:flex items-center gap-2.5">
+                <div className="flex flex-col items-end text-right">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">Ihr Berater</span>
+                  <span className="text-sm font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
+                </div>
                 {verkaeufer[0].avatar_url ? (
                   <img src={verkaeufer[0].avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
                 ) : (
@@ -349,10 +353,6 @@ export default function Gebrauchtwagen() {
                     {verkaeufer[0].vorname[0]}{verkaeufer[0].nachname[0]}
                   </div>
                 )}
-                <div className="flex flex-col items-end text-right">
-                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">Ihr Berater</span>
-                  <span className="text-sm font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
-                </div>
               </div>
             )}
 
