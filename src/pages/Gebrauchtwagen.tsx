@@ -208,7 +208,37 @@ export default function Gebrauchtwagen() {
   return (
     <TooltipProvider>
     <div className="min-h-screen bg-white">
-      {/* Header */}
+      {/* Audi Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          {/* Audi Rings Logo */}
+          <svg width="120" height="40" viewBox="0 0 240 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+            <circle cx="40" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+            <circle cx="80" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+            <circle cx="120" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+            <circle cx="160" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+          </svg>
+
+          {/* Standort */}
+          {branding?.name && (
+            <span className="text-sm md:text-base font-medium text-gray-900 text-center">
+              {branding.name}
+            </span>
+          )}
+
+          {/* Verkäufername - nur Desktop */}
+          {verkaeufer[0] && (
+            <div className="hidden md:flex flex-col items-end text-right">
+              <span className="text-xs text-gray-500">Ihr Berater</span>
+              <span className="text-sm font-medium text-gray-900">
+                {verkaeufer[0].vorname} {verkaeufer[0].nachname}
+              </span>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Fahrzeug Titel */}
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
           {fahrzeug.fahrzeugname}
