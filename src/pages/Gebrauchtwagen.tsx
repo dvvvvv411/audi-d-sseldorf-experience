@@ -701,7 +701,7 @@ export default function Gebrauchtwagen() {
 
     {/* Anfrage Dialog */}
     <Dialog open={anfrageOpen} onOpenChange={(open) => { setAnfrageOpen(open); if (!open) resetAnfrageForm(); }}>
-      <DialogContent className="max-w-2xl w-full sm:rounded-xl max-h-[90vh] overflow-y-auto md:max-h-none md:overflow-visible data-[state=open]:!slide-in-from-bottom-0 data-[state=open]:!slide-in-from-left-0 max-sm:h-full max-sm:max-h-full max-sm:rounded-none max-sm:border-0 [&>button]:top-5 [&>button]:right-5">
+      <DialogContent className="max-w-3xl w-full sm:rounded-xl max-h-[90vh] overflow-y-auto md:max-h-none md:overflow-visible data-[state=open]:!slide-in-from-bottom-0 data-[state=open]:!slide-in-from-left-0 max-sm:h-full max-sm:max-h-full max-sm:rounded-none max-sm:border-0 [&>button]:top-5 [&>button]:right-5">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gray-900">Schreiben Sie uns</DialogTitle>
         </DialogHeader>
@@ -715,6 +715,7 @@ export default function Gebrauchtwagen() {
                 value={anfrageForm.vorname}
                 onChange={(e) => setAnfrageForm(f => ({ ...f, vorname: e.target.value }))}
                 maxLength={100}
+                className="bg-white border-gray-300 text-gray-900"
               />
             </div>
             <div>
@@ -724,6 +725,7 @@ export default function Gebrauchtwagen() {
                 value={anfrageForm.nachname}
                 onChange={(e) => setAnfrageForm(f => ({ ...f, nachname: e.target.value }))}
                 maxLength={100}
+                className="bg-white border-gray-300 text-gray-900"
               />
             </div>
           </div>
@@ -737,6 +739,7 @@ export default function Gebrauchtwagen() {
                 value={anfrageForm.email}
                 onChange={(e) => setAnfrageForm(f => ({ ...f, email: e.target.value }))}
                 maxLength={255}
+                className="bg-white border-gray-300 text-gray-900"
               />
             </div>
             <div>
@@ -747,6 +750,7 @@ export default function Gebrauchtwagen() {
                 value={anfrageForm.telefon}
                 onChange={(e) => setAnfrageForm(f => ({ ...f, telefon: e.target.value }))}
                 maxLength={30}
+                className="bg-white border-gray-300 text-gray-900"
               />
             </div>
           </div>
@@ -757,7 +761,7 @@ export default function Gebrauchtwagen() {
               required
               value={anfrageForm.nachricht}
               onChange={(e) => setAnfrageForm(f => ({ ...f, nachricht: e.target.value }))}
-              className="min-h-[140px]"
+              className="min-h-[140px] bg-white border-gray-300 text-gray-900"
               maxLength={2000}
             />
           </div>
@@ -767,7 +771,7 @@ export default function Gebrauchtwagen() {
               id="datenschutz"
               checked={datenschutz}
               onCheckedChange={(v) => setDatenschutz(v === true)}
-              className="mt-0.5"
+              className="mt-0.5 border-gray-300 bg-white data-[state=checked]:bg-[#00527a] data-[state=checked]:border-[#00527a] data-[state=checked]:text-white"
             />
             <label htmlFor="datenschutz" className="text-sm text-gray-600 leading-relaxed">
               Ich bin damit einverstanden, dass die übermittelten Daten entsprechend der{" "}
