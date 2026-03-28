@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      anfragen: {
+        Row: {
+          auftragsnummer: string | null
+          branding_name: string
+          created_at: string
+          datenschutz_akzeptiert: boolean
+          email: string
+          fahrzeug_id: string
+          fahrzeug_name: string
+          fahrzeug_preis: number
+          id: string
+          nachname: string
+          nachricht: string
+          notizen: string | null
+          status: string
+          telefon: string
+          verkaeufer_id: string
+          verkaeufer_name: string
+          vorname: string
+        }
+        Insert: {
+          auftragsnummer?: string | null
+          branding_name: string
+          created_at?: string
+          datenschutz_akzeptiert?: boolean
+          email: string
+          fahrzeug_id: string
+          fahrzeug_name: string
+          fahrzeug_preis: number
+          id?: string
+          nachname: string
+          nachricht: string
+          notizen?: string | null
+          status?: string
+          telefon: string
+          verkaeufer_id: string
+          verkaeufer_name: string
+          vorname: string
+        }
+        Update: {
+          auftragsnummer?: string | null
+          branding_name?: string
+          created_at?: string
+          datenschutz_akzeptiert?: boolean
+          email?: string
+          fahrzeug_id?: string
+          fahrzeug_name?: string
+          fahrzeug_preis?: number
+          id?: string
+          nachname?: string
+          nachricht?: string
+          notizen?: string | null
+          status?: string
+          telefon?: string
+          verkaeufer_id?: string
+          verkaeufer_name?: string
+          vorname?: string
+        }
+        Relationships: []
+      }
       brandings: {
         Row: {
           absendername: string | null
