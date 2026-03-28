@@ -372,43 +372,84 @@ export default function Gebrauchtwagen() {
           </div>
 
           {/* Seller / Location 40% */}
-          <div className="lg:w-[40%] lg:sticky lg:top-4 lg:self-start">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Ihr Ansprechpartner</h2>
-            {verkaeufer.length > 0 ? (
-              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                {verkaeufer.map((v) => (
-                  <div key={v.id} className="flex items-center gap-4 mb-3">
-                    {v.avatar_url ? (
-                      <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-14 h-14 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold">
-                        {v.vorname[0]}{v.nachname[0]}
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-semibold text-gray-900">{v.vorname} {v.nachname}</p>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                        <Phone size={14} />
-                        <span>{v.telefon}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
-                        <Mail size={14} />
-                        <span>{v.email}</span>
+          <div className="lg:w-[40%] lg:sticky lg:top-20 lg:self-start space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Ihr Ansprechpartner</h2>
+              {verkaeufer.length > 0 ? (
+                <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                  {verkaeufer.map((v) => (
+                    <div key={v.id} className="flex items-center gap-4 mb-3">
+                      {v.avatar_url ? (
+                        <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-14 h-14 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold">
+                          {v.vorname[0]}{v.nachname[0]}
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-semibold text-gray-900">{v.vorname} {v.nachname}</p>
+                        <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                          <Phone size={14} />
+                          <span>{v.telefon}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
+                          <Mail size={14} />
+                          <span>{v.email}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
+                  <a
+                    href={`tel:${verkaeufer[0]?.telefon || ""}`}
+                    className="w-full bg-[#00527a] text-white text-sm font-medium py-2.5 px-4 rounded flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors"
+                  >
+                    <Phone size={14} />
+                    Anrufen
+                  </a>
+                </div>
+              ) : (
+                <p className="text-gray-500">Kein Ansprechpartner vorhanden.</p>
+              )}
+            </div>
+
+            {/* Unsere Leistungen */}
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Unsere Leistungen</h3>
+              <ul className="space-y-2">
+                {[
+                  "3 Jahre Audi Gebrauchtwagengarantie",
+                  "inklusive Kostenfreie Lieferung in Deutschland, Österreich und der Schweiz",
+                  "Attraktive Konditionen auch für Gewerbekunden",
+                  "Direkte Vermittlung im Kundenauftrag (ohne Zwischenhandel)",
+                  "Persönlicher Ansprechpartner von Auswahl bis Auslieferung",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-gray-600">
+                    <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">{item}</span>
+                  </li>
                 ))}
-                <a
-                  href={`tel:${verkaeufer[0]?.telefon || ""}`}
-                  className="w-full bg-[#00527a] text-white text-sm font-medium py-2.5 px-4 rounded flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors"
-                >
-                  <Phone size={14} />
-                  Anrufen
-                </a>
-              </div>
-            ) : (
-              <p className="text-gray-500">Kein Ansprechpartner vorhanden.</p>
-            )}
+              </ul>
+            </div>
+
+            {/* Ihre Vorteile */}
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Ihre Vorteile</h3>
+              <ul className="space-y-2">
+                {[
+                  "Direkter Zugang zu exklusiven Kundenfahrzeugen",
+                  "Attraktive Preisvorteile gegenüber dem klassischen Handel",
+                  "Individuelle Beratung abgestimmt auf Ihre Wünsche",
+                  "Schnelle und flexible Fahrzeugübergabe",
+                  "Kauf ohne versteckte Zusatzkosten",
+                  "Sicherheit durch Vermittlung geprüfter Fahrzeuge",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-gray-600">
+                    <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
