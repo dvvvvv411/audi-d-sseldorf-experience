@@ -1,26 +1,19 @@
 
 
-## Alle Popups/Dialoge auf weisses, modernes Design umstellen
+## Abbrechen-Button in Popups fixen
 
 ### Problem
-Die CSS-Variablen definieren ein globales dunkles Theme (`--background: 0 0% 5%`, `--popover: 0 0% 8%`). Dadurch sind alle Dialoge schwarz — das sieht auf den Admin-Seiten unpassend aus.
+Der `outline`-Button-Variant nutzt CSS-Variablen (`bg-background`, `border-input`), die im dunklen globalen Theme auf Schwarz stehen. Im weissen Dialog ist der Button dadurch schwarz mit schwarzem Text — unlesbar.
 
 ### Loesung
-Die Dialog-Komponente (`dialog.tsx`) und Alert-Dialog-Komponente (`alert-dialog.tsx`) erhalten explizit weisse Hintergruende mit dunklem Text, unabhaengig vom globalen Theme. So bleiben die Popups universell hell und modern.
+In `src/components/ui/button.tsx` die `outline`-Variante auf explizite helle Farben setzen:
 
-### Aenderungen
+```
+outline: "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+```
 
-**1. `src/components/ui/dialog.tsx`**
-- `DialogOverlay`: Overlay leicht abdunkeln (`bg-black/50` statt `bg-black/80`) fuer moderneren Look
-- `DialogContent`: Explizit `bg-white text-gray-900 border-gray-200 rounded-xl shadow-2xl` setzen
-- Close-Button: Dunkle Farbe (`text-gray-400 hover:text-gray-900`)
+Das macht den Abbrechen-Button in allen Dialogen sofort hell und lesbar, konsistent mit dem weissen Popup-Design.
 
-**2. `src/components/ui/alert-dialog.tsx`**
-- Gleiche Anpassungen: `AlertDialogOverlay` auf `bg-black/50`, `AlertDialogContent` auf `bg-white text-gray-900 rounded-xl`
-
-**3. Input-Felder in Dialogen**
-- Die Seiten `AdminBrandings.tsx` und `AdminVerkaeufer.tsx` verwenden bereits `bg-gray-50 border-gray-200` auf den Inputs — das passt zum weissen Dialog und bleibt unveraendert.
-
-### Ergebnis
-Alle Dialoge im gesamten Projekt erscheinen weiss mit sauberer Typografie, abgerundeten Ecken und einem dezenten Schatten — modern und konsistent.
+### Datei
+- `src/components/ui/button.tsx` — Zeile 14, outline-Variant anpassen
 
