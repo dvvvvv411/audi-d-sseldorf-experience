@@ -1,18 +1,29 @@
 
 
-## Mobile Sidebar auf helles Theme umstellen
+## Mobile Sidebar optimieren
 
-### Aenderung in `src/pages/Gebrauchtwagen.tsx`
+### Probleme
+Die Sidebar nutzt aktuell das Standard-Sheet mit dunklem X-Button und hat kein optimiertes Mobile-Layout. Auf 390px Breite wirkt der Inhalt gedraengt.
 
-Die `SheetContent` bekommt explizit helle Farben, da das globale Theme dunkel ist:
+### Aenderungen in `src/pages/Gebrauchtwagen.tsx` (Zeilen 262-343)
 
-- Container: `className="w-full sm:max-w-md overflow-y-auto bg-white text-gray-900"`
-- SheetTitle und alle Texte erben dadurch dunkle Farben
-- Falls einzelne Elemente noch dunkle Theme-Farben nutzen, werden diese auf explizit helle Werte gesetzt (z.B. `text-gray-600`, `text-gray-500`)
+**Layout-Verbesserungen:**
+- `SheetContent`: Padding optimieren (`p-6`), volle Breite auf Mobile (`w-full sm:max-w-md`)
+- Ansprechpartner-Bereich: Avatar zentriert oben, Name und Kontaktdaten darunter (zentriertes Layout statt horizontal nebeneinander)
+- "Anrufen"-Button: volle Breite, groesser (`py-3`)
+- Trennlinie (`border-t`) zwischen Ansprechpartner und den blauen Cards
+- Blaue Cards: Padding auf `p-5` reduzieren, `rounded-xl` fuer weicheren Look
+- `space-y-5` statt `space-y-6` fuer kompaktere Abstände
+
+**Visuelles:**
+- SheetTitle zentriert statt links
+- Avatar groesser auf `w-16 h-16`
+- Name und Kontaktdaten zentriert unter Avatar
+- Kleine Separator-Linie zwischen Sektionen
 
 ### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Zeile 264: `bg-white text-gray-900` auf SheetContent setzen |
+| `src/pages/Gebrauchtwagen.tsx` | Zeilen 262-343: Sidebar-Layout fuer Mobile optimieren |
 
