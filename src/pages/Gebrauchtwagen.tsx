@@ -119,6 +119,7 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
 }
 
 export default function Gebrauchtwagen() {
+  const navigate = useNavigate();
   const [fahrzeug, setFahrzeug] = useState<Fahrzeug | null>(null);
   const [verkaeufer, setVerkaeufer] = useState<VerkaeuferMitBranding[]>([]);
   const [mainImage, setMainImage] = useState<string | null>(null);
