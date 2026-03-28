@@ -1,17 +1,18 @@
 
 
-## Checkbox per Text-Klick aktivierbar machen
+## Toast-Notification hell machen
 
 ### Problem
-Obwohl `htmlFor`/`id` gesetzt sind, kann es bei Radix Checkbox vorkommen, dass der native Label-Klick nicht zuverlaessig weitergeleitet wird.
+Die Toast-Notification nutzt `bg-background text-foreground`, was im dunklen Theme schwarz ergibt.
 
-### Aenderung in `src/pages/Gebrauchtwagen.tsx`
+### Aenderung in `src/components/ui/toast.tsx`
 
-**Label (Zeile 776):**
-- `onClick={() => setDatenschutz(!datenschutz)}` und `cursor-pointer` zum `<label>` hinzufuegen
-- Der Link innerhalb des Labels behaelt `e.stopPropagation()` damit ein Klick auf "Datenschutzbestimmungen" nur den Link oeffnet und nicht die Checkbox toggled
+**Zeile 30 — default variant:**
+- `"border bg-background text-foreground"` ersetzen durch `"border border-gray-200 bg-white text-gray-900"`
+
+### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | `onClick` + `cursor-pointer` auf Label, `stopPropagation` auf Link |
+| `src/components/ui/toast.tsx` | Default-Variant auf helle Farben umstellen |
 
