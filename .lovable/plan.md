@@ -1,23 +1,18 @@
 
 
-## Sheet durch Popover ersetzen (Mobile)
+## Zurueck-Button ueber dem Fahrzeugtitel
 
-### Aenderungen in `src/pages/Gebrauchtwagen.tsx`
+### Aenderung in `src/pages/Gebrauchtwagen.tsx`
 
-**1. Imports anpassen**
-- `Sheet, SheetContent, SheetHeader, SheetTitle` entfernen
-- `Popover, PopoverTrigger, PopoverContent` aus `@/components/ui/popover` importieren
-- `BadgeEuro` aus lucide-react Import entfernen (nicht mehr gebraucht)
-
-**2. Hamburger-Button + Sidebar ersetzen (Zeilen 250-345)**
-- Den `sidebarOpen` State und den separaten `<Sheet>` Block entfernen
-- Den Hamburger-Button in einen `PopoverTrigger` wrappen
-- `PopoverContent`: heller Hintergrund (`bg-white`), abgerundete Ecken, Schatten, Breite ~`w-72`
-- Inhalt: nur Ansprechpartner (Avatar, Name, Telefon, Mail, Anrufen-Button) — keine Fahrzeug-Zusammenfassung, kein Anfrage-Button
+**Zeile 296 (vor dem `<h1>`):**
+- `useNavigate` aus `react-router-dom` importieren
+- `ArrowLeft` aus `lucide-react` importieren
+- Einen Button mit `onClick={() => navigate(-1)}` einfuegen: Pfeil-Icon + "Zurueck"-Text
+- Stil: `text-sm text-gray-500 hover:text-gray-900`, inline-flex mit gap, kein Hintergrund
 
 ### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Sheet durch Popover ersetzen, Inhalt auf Ansprechpartner reduzieren |
+| `src/pages/Gebrauchtwagen.tsx` | `useNavigate` + `ArrowLeft` importieren, Zurueck-Button vor `<h1>` einfuegen |
 
