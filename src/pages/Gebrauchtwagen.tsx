@@ -219,20 +219,32 @@ export default function Gebrauchtwagen() {
       </div>
 
       {/* Hero Section 60/40 */}
-      <div className="max-w-7xl mx-auto px-4 pb-6">
+      <div className="max-w-7xl mx-auto px-4 pb-8">
         <div className="flex flex-col lg:flex-row gap-0 rounded-lg overflow-hidden">
-          {/* Main Image 60% */}
-          <div className="lg:w-[60%] bg-gray-100">
-            {mainImage ? (
-              <img
-                src={mainImage}
-                alt={fahrzeug.fahrzeugname}
-                className="w-full h-full object-cover min-h-[300px] lg:min-h-[500px]"
+          {/* Left Column: Main Image + Thumbnails */}
+          <div className="lg:w-[60%] flex flex-col">
+            <div className="bg-gray-100">
+              {mainImage ? (
+                <img
+                  src={mainImage}
+                  alt={fahrzeug.fahrzeugname}
+                  className="w-full h-full object-cover min-h-[250px] lg:min-h-[500px]"
+                />
+              ) : (
+                <div className="w-full h-full min-h-[250px] lg:min-h-[500px] flex items-center justify-center text-gray-400">
+                  Kein Bild vorhanden
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnails directly under image, no gap */}
+            {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
+              <ThumbnailGallery
+                bilder={fahrzeug.bilder}
+                fahrzeugname={fahrzeug.fahrzeugname}
+                mainImage={mainImage}
+                onSelect={setMainImage}
               />
-            ) : (
-              <div className="w-full h-full min-h-[300px] lg:min-h-[500px] flex items-center justify-center text-gray-400">
-                Kein Bild vorhanden
-              </div>
             )}
           </div>
 
@@ -277,16 +289,6 @@ export default function Gebrauchtwagen() {
           </div>
         </div>
       </div>
-
-      {/* Thumbnail Gallery with Embla Carousel */}
-      {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
-        <ThumbnailGallery
-          bilder={fahrzeug.bilder}
-          fahrzeugname={fahrzeug.fahrzeugname}
-          mainImage={mainImage}
-          onSelect={setMainImage}
-        />
-      )}
 
       {/* Details Section 60/40 */}
       <div className="max-w-7xl mx-auto px-4 pb-16">
