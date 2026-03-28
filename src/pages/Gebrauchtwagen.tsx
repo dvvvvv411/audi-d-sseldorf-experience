@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import {
@@ -6,6 +6,7 @@ import {
   Palette, Cog, Hash, Mail, Phone, MapPin, Check
 } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import useEmblaCarousel from "embla-carousel-react";
 
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
