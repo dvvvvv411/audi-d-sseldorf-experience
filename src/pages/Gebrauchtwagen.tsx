@@ -202,7 +202,7 @@ export default function Gebrauchtwagen() {
     { icon: Settings2, label: fahrzeug.getriebe || "–", tooltip: "Getriebe" },
     { icon: Palette, label: fahrzeug.farbe || "–", tooltip: "Farbe" },
     { icon: Cog, label: fahrzeug.antrieb || "–", tooltip: "Antrieb" },
-    { icon: Hash, label: fahrzeug.auftragsnummer || "–", tooltip: "Auftragsnummer" },
+    { icon: Star, label: fahrzeug.auftragsnummer || "–", tooltip: "Auftragsnummer" },
   ];
 
   return (
