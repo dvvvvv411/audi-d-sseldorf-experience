@@ -1,55 +1,36 @@
 
 
-## 2 neue Rechtsseiten + Zurueck-Button + Scroll-to-Top
+## Zwei neue Cards in der rechten Spalte (40%)
 
-### Neue Seiten
+### Aenderung in `src/pages/Gebrauchtwagen.tsx` (Zeilen 374-412)
 
-| Route | Datei |
-|---|---|
-| `/rechtliches/digital-services-act` | `src/pages/rechtliches/DigitalServicesAct.tsx` |
-| `/rechtliches/eu-data-act` | `src/pages/rechtliches/EuDataAct.tsx` |
+Die rechte 40%-Spalte (`lg:sticky lg:top-4 lg:self-start`) enthaelt aktuell nur "Ihr Ansprechpartner". Darunter werden zwei weitere Cards eingefuegt:
 
-Gleiche Layout-Vorlage wie bestehende Rechtsseiten (Audi-Logo, `max-w-4xl`, weiss).
+**Card 1: "Unsere Leistungen"**
+- Ueberschrift: `text-xl font-bold`
+- 5 Punkte mit Check-Icons (gleicher Stil wie Beschreibung):
+  - 3 Jahre Audi Gebrauchtwagengarantie
+  - inklusive Kostenfreie Lieferung in Deutschland, Oesterreich und der Schweiz
+  - Attraktive Konditionen auch fuer Gewerbekunden
+  - Direkte Vermittlung im Kundenauftrag (ohne Zwischenhandel)
+  - Persoenlicher Ansprechpartner von Auswahl bis Auslieferung
 
-### Zurueck-Button auf allen Rechtsseiten
+**Card 2: "Ihre Vorteile"**
+- Gleicher Stil, 6 Punkte mit Check-Icons:
+  - Direkter Zugang zu exklusiven Kundenfahrzeugen
+  - Attraktive Preisvorteile gegenueber dem klassischen Handel
+  - Individuelle Beratung abgestimmt auf Ihre Wuensche
+  - Schnelle und flexible Fahrzeuguebergabe
+  - Kauf ohne versteckte Zusatzkosten
+  - Sicherheit durch Vermittlung gepruefter Fahrzeuge
 
-Auf **allen 7 Rechtsseiten** (Impressum, Rechtliches, Datenschutzinformation, CookieRichtlinie, Barrierefreiheit + 2 neue) einen Zurueck-Button einfuegen:
-- Neben oder unter dem Audi-Logo: `← Zurück` als Link zurueck zu `/gebrauchtwagen`
-- Oder: `useNavigate()` mit `navigate(-1)` fuer Browser-History-basiertes Zurueckgehen
+**Sticky-Verhalten**: Die gesamte rechte Spalte bleibt sticky — alle 3 Cards (Ansprechpartner + Leistungen + Vorteile) scrollen zusammen mit. `space-y-6` zwischen den Cards.
 
-### Scroll-to-Top bei Seitenwechsel
+Beide Cards nutzen `bg-gray-50 rounded-lg p-6` wie die Ansprechpartner-Card.
 
-Ein `ScrollToTop`-Komponente erstellen, die bei jedem Routenwechsel `window.scrollTo(0, 0)` ausfuehrt:
-
-```tsx
-// src/components/ScrollToTop.tsx
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
-export default function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
-  return null;
-}
-```
-
-In `App.tsx` innerhalb des `<BrowserRouter>` einbinden.
-
-### Footer-Update
-
-"Digital Services Act" und "EU Data Act" als Links zu den neuen Seiten.
-
-### Dateien
+### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/rechtliches/DigitalServicesAct.tsx` | Neu: DSA-Seite mit Zurueck-Button |
-| `src/pages/rechtliches/EuDataAct.tsx` | Neu: EU Data Act mit Zurueck-Button |
-| `src/components/ScrollToTop.tsx` | Neu: Scroll-to-Top bei Routenwechsel |
-| `src/App.tsx` | 2 neue Routes + ScrollToTop einbinden |
-| `src/pages/Gebrauchtwagen.tsx` | Footer: DSA + EU Data Act verlinken |
-| `src/pages/rechtliches/Impressum.tsx` | Zurueck-Button hinzufuegen |
-| `src/pages/rechtliches/Rechtliches.tsx` | Zurueck-Button hinzufuegen |
-| `src/pages/rechtliches/Datenschutzinformation.tsx` | Zurueck-Button hinzufuegen |
-| `src/pages/rechtliches/CookieRichtlinie.tsx` | Zurueck-Button hinzufuegen |
-| `src/pages/rechtliches/Barrierefreiheit.tsx` | Zurueck-Button hinzufuegen |
+| `src/pages/Gebrauchtwagen.tsx` | 2 neue Cards nach der Ansprechpartner-Card in der rechten Spalte (Zeile ~411) |
 
