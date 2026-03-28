@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      brandings: {
+        Row: {
+          absendername: string | null
+          amtsgericht: string
+          created_at: string
+          email: string
+          email_absender: string | null
+          geschaeftsfuehrer: string
+          handelsregister: string
+          id: string
+          name: string
+          plz: string
+          resend_api_key: string | null
+          sevenio_absendername: string | null
+          stadt: string
+          strasse: string
+          ust_id: string
+        }
+        Insert: {
+          absendername?: string | null
+          amtsgericht: string
+          created_at?: string
+          email: string
+          email_absender?: string | null
+          geschaeftsfuehrer: string
+          handelsregister: string
+          id?: string
+          name: string
+          plz: string
+          resend_api_key?: string | null
+          sevenio_absendername?: string | null
+          stadt: string
+          strasse: string
+          ust_id: string
+        }
+        Update: {
+          absendername?: string | null
+          amtsgericht?: string
+          created_at?: string
+          email?: string
+          email_absender?: string | null
+          geschaeftsfuehrer?: string
+          handelsregister?: string
+          id?: string
+          name?: string
+          plz?: string
+          resend_api_key?: string | null
+          sevenio_absendername?: string | null
+          stadt?: string
+          strasse?: string
+          ust_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -31,6 +85,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      verkaeufer: {
+        Row: {
+          avatar_url: string | null
+          branding_id: string | null
+          created_at: string
+          email: string
+          id: string
+          nachname: string
+          telefon: string
+          vorname: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          branding_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          nachname: string
+          telefon: string
+          vorname: string
+        }
+        Update: {
+          avatar_url?: string | null
+          branding_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          nachname?: string
+          telefon?: string
+          vorname?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verkaeufer_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
