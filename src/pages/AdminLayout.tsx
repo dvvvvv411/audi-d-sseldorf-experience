@@ -1,6 +1,6 @@
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, LogOut, Menu, Users, Building2, Car } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare } from "lucide-react";
 import { useState } from "react";
 
 const AudiRingsSmall = () => (
@@ -17,6 +17,7 @@ const navItems = [
   { label: "Verkäufer", icon: Users, path: "/admin/verkaeufer" },
   { label: "Brandings", icon: Building2, path: "/admin/brandings" },
   { label: "Fahrzeugbestand", icon: Car, path: "/admin/fahrzeugbestand" },
+  { label: "Anfragen", icon: MessageSquare, path: "/admin/anfragen" },
 ];
 
 const AdminLayout = () => {
