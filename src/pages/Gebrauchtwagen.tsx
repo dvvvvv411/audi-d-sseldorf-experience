@@ -5,6 +5,7 @@ import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
   Palette, Cog, Hash, Mail, Phone, MapPin, Check
 } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
