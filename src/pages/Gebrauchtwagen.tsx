@@ -209,32 +209,35 @@ export default function Gebrauchtwagen() {
     <TooltipProvider>
     <div className="min-h-screen bg-white">
       {/* Audi Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Audi Rings Logo */}
-          <svg width="120" height="40" viewBox="0 0 240 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-            <circle cx="40" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
-            <circle cx="80" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
-            <circle cx="120" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
-            <circle cx="160" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
-          </svg>
+      <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          {/* Audi Rings Logo — klickbar, scrollt nach oben */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+            aria-label="Nach oben scrollen"
+          >
+            <svg width="140" height="46" viewBox="0 0 240 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+              <circle cx="80" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+              <circle cx="120" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+              <circle cx="160" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+            </svg>
+          </button>
 
-          {/* Standort */}
-          {branding?.name && (
-            <span className="text-sm md:text-base font-medium text-gray-900 text-center">
-              {branding.name}
-            </span>
-          )}
-
-          {/* Verkäufername - nur Desktop */}
-          {verkaeufer[0] && (
-            <div className="hidden md:flex flex-col items-end text-right">
-              <span className="text-xs text-gray-500">Ihr Berater</span>
-              <span className="text-sm font-medium text-gray-900">
-                {verkaeufer[0].vorname} {verkaeufer[0].nachname}
+          {/* Rechte Seite: Standort + Berater */}
+          <div className="flex flex-col items-end text-right">
+            {branding?.name && (
+              <span className="text-[10px] md:text-xs font-semibold tracking-[0.15em] uppercase text-gray-500">
+                {branding.name}
               </span>
-            </div>
-          )}
+            )}
+            {verkaeufer[0] && (
+              <span className="hidden md:block text-sm text-gray-700 mt-0.5">
+                Ihr persönlicher Berater · <span className="font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
+              </span>
+            )}
+          </div>
         </div>
       </header>
 
