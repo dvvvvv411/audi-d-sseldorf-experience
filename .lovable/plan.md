@@ -1,19 +1,22 @@
 
 
-## Cards "Unsere Leistungen" & "Ihre Vorteile" in Blau
+## Hamburger-Menue mit Fullscreen-Sidebar (Mobile)
 
-### Aenderung
+### Aenderung in `src/pages/Gebrauchtwagen.tsx`
 
-Beide Cards bekommen den Projekt-Blauton `#00527a` als Hintergrund mit weisser Schrift:
+**Header (Zeile 213-247):**
+- Rechts im Header ein Hamburger-Icon (`Menu` aus lucide-react) hinzufuegen, nur sichtbar auf Mobile (`lg:hidden`)
+- State `sidebarOpen` verwalten
 
-- Container: `bg-[#00527a] rounded-lg p-6` (statt `bg-gray-50`)
-- Ueberschrift: `text-white` (statt `text-gray-900`)
-- Listentext: `text-white/90` (statt `text-gray-600`)
-- Check-Icons: `text-white` (statt `text-green-600`)
+**Fullscreen Sidebar:**
+- Sheet-Komponente (`@/components/ui/sheet`) mit `side="right"` und voller Hoehe
+- Inhalt: exakt die gleichen Infos wie die Ansprechpartner-Card (Avatar, Name, Telefon, Mail, Anrufen-Button)
+- Plus die "Unsere Leistungen" und "Ihre Vorteile" Sektionen
+- Schliesst sich bei Klick auf X oder Overlay
 
 ### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Zeilen 416, 426-428, 435, 446-448: Farben der beiden Cards anpassen |
+| `src/pages/Gebrauchtwagen.tsx` | `Menu`-Icon importieren, `sidebarOpen` State, Sheet-Komponente im Header mit Ansprechpartner-Infos |
 
