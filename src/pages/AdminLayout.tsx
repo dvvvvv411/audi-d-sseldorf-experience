@@ -17,6 +17,7 @@ const navItems = [
   { label: "Verkäufer", icon: Users, path: "/admin/verkaeufer" },
   { label: "Brandings", icon: Building2, path: "/admin/brandings" },
   { label: "Fahrzeugbestand", icon: Car, path: "/admin/fahrzeugbestand" },
+  { label: "Anfragen", icon: MessageSquare, path: "/admin/anfragen" },
 ];
 
 const AdminLayout = () => {

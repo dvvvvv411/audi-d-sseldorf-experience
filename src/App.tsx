@@ -50,6 +50,8 @@ const App = () => (
             <Route path="verkaeufer" element={<AdminVerkaeufer />} />
             <Route path="brandings" element={<AdminBrandings />} />
             <Route path="fahrzeugbestand" element={<AdminFahrzeugbestand />} />
+            <Route path="anfragen" element={<AdminAnfragen />} />
+            <Route path="anfragen/:id" element={<AdminAnfrageDetail />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
