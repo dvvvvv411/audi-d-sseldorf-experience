@@ -261,7 +261,7 @@ export default function Gebrauchtwagen() {
 
       {/* Mobile Sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto bg-white text-gray-900">
           <SheetHeader>
             <SheetTitle className="text-left">Ihr Ansprechpartner</SheetTitle>
           </SheetHeader>
