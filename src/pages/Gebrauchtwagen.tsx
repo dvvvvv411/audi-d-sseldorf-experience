@@ -218,7 +218,7 @@ export default function Gebrauchtwagen() {
               className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
               aria-label="Nach oben scrollen"
             >
-              <svg width="120" height="40" viewBox="0 0 240 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="100" height="34" viewBox="0 0 188 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="40" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
                 <circle cx="80" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
                 <circle cx="120" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
@@ -227,7 +227,7 @@ export default function Gebrauchtwagen() {
             </button>
             {branding?.name && (
               <>
-                <div className="border-l border-gray-300 h-8 mx-2" />
+                <div className="border-l border-gray-300 h-8 ml-1.5 mr-2" />
                 <span className="text-[10px] md:text-xs font-semibold tracking-[0.15em] uppercase text-gray-500">
                   {branding.name}
                 </span>
