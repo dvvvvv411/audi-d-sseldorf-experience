@@ -192,7 +192,7 @@ export default function Gebrauchtwagen() {
                         <span className="text-xs leading-tight">{item.label}</span>
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent>{item.tooltip}</TooltipContent>
+                    <TooltipContent className="bg-[#00527a] text-white border-[#00527a]">{item.tooltip}</TooltipContent>
                   </Tooltip>
                 );
               })}
