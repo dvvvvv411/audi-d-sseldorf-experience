@@ -14,6 +14,8 @@ import Gebrauchtwagen from "./pages/Gebrauchtwagen.tsx";
 import Impressum from "./pages/rechtliches/Impressum.tsx";
 import Rechtliches from "./pages/rechtliches/Rechtliches.tsx";
 import Datenschutzinformation from "./pages/rechtliches/Datenschutzinformation.tsx";
+import CookieRichtlinie from "./pages/rechtliches/CookieRichtlinie.tsx";
+import Barrierefreiheit from "./pages/rechtliches/Barrierefreiheit.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
