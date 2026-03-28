@@ -11,6 +11,9 @@ import AdminVerkaeufer from "./pages/AdminVerkaeufer.tsx";
 import AdminBrandings from "./pages/AdminBrandings.tsx";
 import AdminFahrzeugbestand from "./pages/AdminFahrzeugbestand.tsx";
 import Gebrauchtwagen from "./pages/Gebrauchtwagen.tsx";
+import Impressum from "./pages/rechtliches/Impressum.tsx";
+import Rechtliches from "./pages/rechtliches/Rechtliches.tsx";
+import Datenschutzinformation from "./pages/rechtliches/Datenschutzinformation.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
