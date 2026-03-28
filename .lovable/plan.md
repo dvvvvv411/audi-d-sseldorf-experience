@@ -1,53 +1,48 @@
 
 
-## Gebrauchtwagen: Thumbnails direkt unter Vorschaubild + Scrollbar integriert
+## Thumbnails unter die Hero-Sektion verschieben (Desktop)
 
-### Aktuelles Problem
-- Thumbnails haben Abstand zum Vorschaubild (`pb-6` auf Hero, `px-4 pb-8` auf Gallery)
-- Progress-Bar ist eine separate Sektion unter den Thumbnails
-- Auf Mobile: Info-Box (3x3 Grid) kommt VOR den Thumbnails (weil flex-col die Info-Box direkt nach dem Bild rendert)
+### Problem
+Aktuell sind die Thumbnails innerhalb der linken 60%-Spalte der Hero-Sektion (innerhalb des `flex-row` mit `rounded-lg overflow-hidden`). Auf Desktop sollen sie aber UNTER der gesamten 60/40-Sektion stehen — ohne Abstand.
 
-### Aenderungen in `src/pages/Gebrauchtwagen.tsx`
+### Loesung
 
-**1. Mobile Layout-Reihenfolge**
-- Hero-Section aufteilen: Hauptbild und Thumbnails kommen zusammen, Info-Box danach
-- Auf Mobile (`flex-col`): Bild → Thumbnails → Info-Box
-- Auf Desktop (`lg:flex-row`): Bild+Thumbnails links (60%), Info-Box rechts (40%)
-- Thumbnails werden Teil der linken Spalte, direkt unter dem Hauptbild ohne Abstand
-
-**2. Kein Abstand zwischen Bild und Thumbnails**
-- `pb-6` vom Hero-Container entfernen
-- Gallery-Container: `px-4 pb-8` → kein padding-top, kein gap
-- Thumbnails direkt am unteren Rand des Hauptbildes
-
-**3. Progress-Bar in die Thumbnails integrieren**
-- Progress-Bar (`mt-3`) → `mt-0`, absolute positioniert am unteren Rand der Thumbnail-Reihe (quasi ueberlappend)
-- Container der Thumbnails bekommt `relative`, Progress-Bar wird `absolute bottom-0`
-
-**4. Mobile Thumbnails kleiner**
-- Thumbnail-Groesse: `h-16 w-28 md:h-28 md:w-48` damit auf Mobile 5,5 Bilder sichtbar bleiben
-
-### Struktur (neu)
+Die Thumbnails aus der linken Spalte herausnehmen und als eigene Zeile direkt unter den `flex-row`-Container setzen. Kein Abstand (`gap-0`, kein margin/padding dazwischen).
 
 ```text
 Desktop:
-+--[Hauptbild]------------------+--[Info-Box 40%]--+
++--[Hauptbild 60%]--------------+--[Info-Box 40%]--+
 |                                |  3x3 Grid        |
-+--[Thumbnails, kein Abstand]---+  Preis, CTA      |
-|  [====progress====]           |                   |
+|                                |  Preis, CTA      |
 +-------------------------------+-------------------+
++--[Thumbnails, volle Breite, kein Abstand]---------+
+|  [====progress====]                               |
++---------------------------------------------------+
 
-Mobile:
+Mobile (bleibt gleich):
 +--[Hauptbild]------------------+
 +--[Thumbnails, kein Abstand]---+
-|  [====progress====]           |
-+-------------------------------+
 +--[Info-Box, full width]-------+
 ```
+
+### Aenderung in `src/pages/Gebrauchtwagen.tsx`
+
+1. Thumbnails aus `<div className="lg:w-[60%]">` entfernen
+2. Thumbnails direkt nach dem `flex-row`-Container platzieren, innerhalb desselben aeusseren Wrapper (`pb-8` div), sodass kein Abstand entsteht
+3. Auf Mobile bleiben sie per `order` oder einfacher Struktur zwischen Bild und Info-Box — dafuer auf Mobile die Thumbnails weiterhin in der linken Spalte belassen via `lg:hidden`, und eine zweite Instanz `hidden lg:block` unter der Sektion zeigen. Oder besser: eine einzige Instanz die auf Mobile (`flex-col`) zwischen Bild und Info kommt und auf Desktop unter dem gesamten Block.
+
+Einfachste Loesung: Thumbnails bleiben im linken Container (damit Mobile-Reihenfolge stimmt), aber auf Desktop werden sie per `lg:absolute` oder besser: die gesamte Struktur wird leicht angepasst — Thumbnails kommen nach dem `flex-row` div, und auf Mobile wird die Info-Box per `order-last` nach unten geschoben.
+
+**Konkreter Ansatz:**
+- Thumbnails AUS der linken Spalte nehmen
+- Thumbnails NACH dem `flex flex-col lg:flex-row` Container platzieren (kein gap/margin)
+- Info-Box bekommt `order-last lg:order-none` damit sie auf Mobile nach den Thumbnails kommt
+- Auf Mobile: Bild → Thumbnails → Info-Box (via order)
+- Auf Desktop: [Bild|Info-Box] → Thumbnails darunter
 
 ### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Layout-Restructuring: Thumbnails in linke Spalte verschieben, Abstaende entfernen, Progress-Bar overlay, responsive Thumbnail-Groessen |
+| `src/pages/Gebrauchtwagen.tsx` | Thumbnails nach dem flex-row Container verschieben, CSS order fuer Mobile-Reihenfolge |
 
