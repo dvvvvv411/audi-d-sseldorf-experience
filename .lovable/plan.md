@@ -1,22 +1,18 @@
 
 
-## Hamburger-Menue mit Fullscreen-Sidebar (Mobile)
+## Mobile Sidebar auf helles Theme umstellen
 
 ### Aenderung in `src/pages/Gebrauchtwagen.tsx`
 
-**Header (Zeile 213-247):**
-- Rechts im Header ein Hamburger-Icon (`Menu` aus lucide-react) hinzufuegen, nur sichtbar auf Mobile (`lg:hidden`)
-- State `sidebarOpen` verwalten
+Die `SheetContent` bekommt explizit helle Farben, da das globale Theme dunkel ist:
 
-**Fullscreen Sidebar:**
-- Sheet-Komponente (`@/components/ui/sheet`) mit `side="right"` und voller Hoehe
-- Inhalt: exakt die gleichen Infos wie die Ansprechpartner-Card (Avatar, Name, Telefon, Mail, Anrufen-Button)
-- Plus die "Unsere Leistungen" und "Ihre Vorteile" Sektionen
-- Schliesst sich bei Klick auf X oder Overlay
+- Container: `className="w-full sm:max-w-md overflow-y-auto bg-white text-gray-900"`
+- SheetTitle und alle Texte erben dadurch dunkle Farben
+- Falls einzelne Elemente noch dunkle Theme-Farben nutzen, werden diese auf explizit helle Werte gesetzt (z.B. `text-gray-600`, `text-gray-500`)
 
 ### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | `Menu`-Icon importieren, `sidebarOpen` State, Sheet-Komponente im Header mit Ansprechpartner-Infos |
+| `src/pages/Gebrauchtwagen.tsx` | Zeile 264: `bg-white text-gray-900` auf SheetContent setzen |
 
