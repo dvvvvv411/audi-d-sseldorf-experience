@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
@@ -10,9 +12,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Mail, Phone, Trash2, Pencil, Loader2, Upload, User } from "lucide-react";
+import { Plus, Mail, Phone, Trash2, Pencil, Loader2, Upload, User, Car } from "lucide-react";
 
 type Branding = { id: string; name: string };
+type Fahrzeug = { id: string; fahrzeugname: string; preis: number };
 type Verkaeufer = {
   id: string;
   vorname: string;
@@ -27,6 +30,7 @@ type Verkaeufer = {
 const AdminVerkaeufer = () => {
   const [verkaeufer, setVerkaeufer] = useState<Verkaeufer[]>([]);
   const [brandings, setBrandings] = useState<Branding[]>([]);
+  const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -34,18 +38,37 @@ const AdminVerkaeufer = () => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
+  // Vehicle assignment state
+  const [carDialogOpen, setCarDialogOpen] = useState(false);
+  const [carDialogVerkaeufer, setCarDialogVerkaeufer] = useState<Verkaeufer | null>(null);
+  const [selectedFahrzeuge, setSelectedFahrzeuge] = useState<string[]>([]);
+  const [savingCars, setSavingCars] = useState(false);
+  const [assignmentCounts, setAssignmentCounts] = useState<Record<string, number>>({});
+
   const [form, setForm] = useState({
     vorname: "", nachname: "", email: "", telefon: "", branding_id: "",
   });
 
   const fetchData = async () => {
     setLoading(true);
-    const [vRes, bRes] = await Promise.all([
+    const [vRes, bRes, fRes, aRes] = await Promise.all([
       supabase.from("verkaeufer").select("*, brandings(id, name)").order("created_at", { ascending: false }),
       supabase.from("brandings").select("id, name").order("name"),
+      supabase.from("fahrzeuge").select("id, fahrzeugname, preis").order("fahrzeugname"),
+      supabase.from("verkaeufer_fahrzeuge").select("verkaeufer_id"),
     ]);
     if (vRes.data) setVerkaeufer(vRes.data as Verkaeufer[]);
     if (bRes.data) setBrandings(bRes.data);
+    if (fRes.data) setFahrzeuge(fRes.data);
+
+    // Count assignments per seller
+    if (aRes.data) {
+      const counts: Record<string, number> = {};
+      aRes.data.forEach((r: any) => {
+        counts[r.verkaeufer_id] = (counts[r.verkaeufer_id] || 0) + 1;
+      });
+      setAssignmentCounts(counts);
+    }
     setLoading(false);
   };
 
@@ -135,6 +158,52 @@ const AdminVerkaeufer = () => {
     fetchData();
   };
 
+  // Vehicle assignment
+  const openCarDialog = async (v: Verkaeufer) => {
+    setCarDialogVerkaeufer(v);
+    const { data } = await supabase
+      .from("verkaeufer_fahrzeuge")
+      .select("fahrzeug_id")
+      .eq("verkaeufer_id", v.id);
+    setSelectedFahrzeuge(data?.map((r: any) => r.fahrzeug_id) ?? []);
+    setCarDialogOpen(true);
+  };
+
+  const toggleFahrzeug = (id: string) => {
+    setSelectedFahrzeuge((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+    );
+  };
+
+  const handleSaveCars = async () => {
+    if (!carDialogVerkaeufer) return;
+    setSavingCars(true);
+    const vid = carDialogVerkaeufer.id;
+
+    // Delete all existing, then insert selected
+    const { error: delErr } = await supabase
+      .from("verkaeufer_fahrzeuge")
+      .delete()
+      .eq("verkaeufer_id", vid);
+    if (delErr) { toast.error(delErr.message); setSavingCars(false); return; }
+
+    if (selectedFahrzeuge.length > 0) {
+      const rows = selectedFahrzeuge.map((fid) => ({
+        verkaeufer_id: vid,
+        fahrzeug_id: fid,
+      }));
+      const { error: insErr } = await supabase
+        .from("verkaeufer_fahrzeuge")
+        .insert(rows);
+      if (insErr) { toast.error(insErr.message); setSavingCars(false); return; }
+    }
+
+    toast.success("Fahrzeuge zugewiesen");
+    setSavingCars(false);
+    setCarDialogOpen(false);
+    fetchData();
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>;
   }
@@ -176,7 +245,16 @@ const AdminVerkaeufer = () => {
                 <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-gray-400" /><span className="truncate">{v.email}</span></div>
                 <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-gray-400" /><span>{v.telefon}</span></div>
               </div>
+              {assignmentCounts[v.id] > 0 && (
+                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <Car className="w-3.5 h-3.5" />
+                  <span>{assignmentCounts[v.id]} Fahrzeug{assignmentCounts[v.id] !== 1 ? "e" : ""}</span>
+                </div>
+              )}
               <div className="flex gap-2 mt-auto pt-2 border-t border-gray-100">
+                <Button variant="ghost" size="sm" onClick={() => openCarDialog(v)} className="text-gray-500 hover:text-gray-900">
+                  <Car className="w-4 h-4" />
+                </Button>
                 <Button variant="ghost" size="sm" onClick={() => openEdit(v)} className="text-gray-500 hover:text-gray-900">
                   <Pencil className="w-4 h-4" />
                 </Button>
@@ -189,7 +267,7 @@ const AdminVerkaeufer = () => {
         </div>
       )}
 
-      {/* Dialog */}
+      {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -197,7 +275,6 @@ const AdminVerkaeufer = () => {
             <DialogDescription>Geben Sie die Daten des Verkäufers ein.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Avatar */}
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 bg-gray-100 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
                 {avatarPreview ? (
@@ -249,6 +326,49 @@ const AdminVerkaeufer = () => {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Abbrechen</Button>
             <Button onClick={handleSave} disabled={saving} className="bg-black text-white hover:bg-gray-800">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editId ? "Speichern" : "Hinzufügen"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Vehicle Assignment Dialog */}
+      <Dialog open={carDialogOpen} onOpenChange={setCarDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Fahrzeuge zuweisen</DialogTitle>
+            <DialogDescription>
+              {carDialogVerkaeufer
+                ? `Fahrzeuge für ${carDialogVerkaeufer.vorname} ${carDialogVerkaeufer.nachname} auswählen`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          {fahrzeuge.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-6">Keine Fahrzeuge im Bestand</p>
+          ) : (
+            <ScrollArea className="max-h-[340px]">
+              <div className="space-y-2 pr-3">
+                {fahrzeuge.map((f) => (
+                  <label
+                    key={f.id}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={selectedFahrzeuge.includes(f.id)}
+                      onCheckedChange={() => toggleFahrzeug(f.id)}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{f.fahrzeugname}</p>
+                      <p className="text-xs text-gray-400">{Number(f.preis).toLocaleString("de-DE")} €</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCarDialogOpen(false)}>Abbrechen</Button>
+            <Button onClick={handleSaveCars} disabled={savingCars} className="bg-black text-white hover:bg-gray-800">
+              {savingCars ? <Loader2 className="w-4 h-4 animate-spin" /> : "Speichern"}
             </Button>
           </DialogFooter>
         </DialogContent>
