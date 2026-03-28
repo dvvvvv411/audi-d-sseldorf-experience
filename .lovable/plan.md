@@ -1,32 +1,55 @@
 
 
-## Neue Rechtliche Seiten + Footer Update
+## 2 neue Rechtsseiten + Zurueck-Button + Scroll-to-Top
 
-### Aenderungen
+### Neue Seiten
 
-**1. Footer in `src/pages/Gebrauchtwagen.tsx` (Zeile 483)**
-- "Cookie-Einstellungen" entfernen
-- "Cookie-Richtlinie" und "Barrierefreiheit" als Links zu den neuen Seiten
+| Route | Datei |
+|---|---|
+| `/rechtliches/digital-services-act` | `src/pages/rechtliches/DigitalServicesAct.tsx` |
+| `/rechtliches/eu-data-act` | `src/pages/rechtliches/EuDataAct.tsx` |
 
-**2. Neue Seite: `src/pages/rechtliches/CookieRichtlinie.tsx`**
-- Kompletter Cookie-Richtlinie-Text (Abschnitte 1-4 inkl. aller Cookie-Tabellen)
-- Tabellen als `<table>` mit Borders, gleicher Stil wie Impressum/Datenschutz
-- Gleiche Layout-Vorlage: Audi-Logo oben, `max-w-4xl`, weisser Hintergrund
+Gleiche Layout-Vorlage wie bestehende Rechtsseiten (Audi-Logo, `max-w-4xl`, weiss).
 
-**3. Neue Seite: `src/pages/rechtliches/Barrierefreiheit.tsx`**
-- "Informationen zur Barrierefreiheit" — erklaerter Dienst, Nutzungshinweise (wahrnehmbar, bedienbar, verstaendlich, robust), Marktaufsichtsbehoerde, Kontakt
-- Gleiche Layout-Vorlage
+### Zurueck-Button auf allen Rechtsseiten
 
-**4. Routing in `src/App.tsx`**
-- `/rechtliches/cookie-richtlinie` → CookieRichtlinie
-- `/rechtliches/barrierefreiheit` → Barrierefreiheit
+Auf **allen 7 Rechtsseiten** (Impressum, Rechtliches, Datenschutzinformation, CookieRichtlinie, Barrierefreiheit + 2 neue) einen Zurueck-Button einfuegen:
+- Neben oder unter dem Audi-Logo: `← Zurück` als Link zurueck zu `/gebrauchtwagen`
+- Oder: `useNavigate()` mit `navigate(-1)` fuer Browser-History-basiertes Zurueckgehen
+
+### Scroll-to-Top bei Seitenwechsel
+
+Ein `ScrollToTop`-Komponente erstellen, die bei jedem Routenwechsel `window.scrollTo(0, 0)` ausfuehrt:
+
+```tsx
+// src/components/ScrollToTop.tsx
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+export default function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+```
+
+In `App.tsx` innerhalb des `<BrowserRouter>` einbinden.
+
+### Footer-Update
+
+"Digital Services Act" und "EU Data Act" als Links zu den neuen Seiten.
 
 ### Dateien
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/rechtliches/CookieRichtlinie.tsx` | Neu: Cookie-Richtlinie mit Tabellen |
-| `src/pages/rechtliches/Barrierefreiheit.tsx` | Neu: Barrierefreiheit-Seite |
-| `src/App.tsx` | 2 neue Routes |
-| `src/pages/Gebrauchtwagen.tsx` | Footer: "Cookie-Einstellungen" entfernen, Cookie-Richtlinie + Barrierefreiheit verlinken |
+| `src/pages/rechtliches/DigitalServicesAct.tsx` | Neu: DSA-Seite mit Zurueck-Button |
+| `src/pages/rechtliches/EuDataAct.tsx` | Neu: EU Data Act mit Zurueck-Button |
+| `src/components/ScrollToTop.tsx` | Neu: Scroll-to-Top bei Routenwechsel |
+| `src/App.tsx` | 2 neue Routes + ScrollToTop einbinden |
+| `src/pages/Gebrauchtwagen.tsx` | Footer: DSA + EU Data Act verlinken |
+| `src/pages/rechtliches/Impressum.tsx` | Zurueck-Button hinzufuegen |
+| `src/pages/rechtliches/Rechtliches.tsx` | Zurueck-Button hinzufuegen |
+| `src/pages/rechtliches/Datenschutzinformation.tsx` | Zurueck-Button hinzufuegen |
+| `src/pages/rechtliches/CookieRichtlinie.tsx` | Zurueck-Button hinzufuegen |
+| `src/pages/rechtliches/Barrierefreiheit.tsx` | Zurueck-Button hinzufuegen |
 
