@@ -227,7 +227,7 @@ export default function Gebrauchtwagen() {
             </button>
             {branding?.name && (
               <>
-                <div className="border-l border-gray-300 h-8 mx-3" />
+                <div className="border-l border-gray-300 h-8 mx-2" />
                 <span className="text-[10px] md:text-xs font-semibold tracking-[0.15em] uppercase text-gray-500">
                   {branding.name}
                 </span>
