@@ -1,30 +1,19 @@
 
 
-## Header umgestalten — Logo + Trennstrich + Branding links, Berater rechts zweizeilig
+## Header-Feinschliff: Abstände + Berater-Anzeige
 
-### Neues Layout
+### Aenderungen in `src/pages/Gebrauchtwagen.tsx`
 
-```text
-Desktop:
-+--[Audi ::::] | Audi Zentrum Duesseldorf ———————— Ihr persoenlicher Berater --+
-|                                                          +49 123 456789      |
-+--- shadow-sm border-b ——————————————————————————————————————————————————————-+
+**1. Abstand zwischen Logo, Strich und Branding verkleinern (Zeile 230)**
+- `mx-3` aendern zu `mx-2` auf dem Divider
 
-Mobile:
-+--[Audi ::::] | Audi Zentrum Duesseldorf ————————————————————————————————————-+
-+--- shadow-sm border-b ——————————————————————————————————————————————————————-+
-```
-
-### Aenderungen in `src/pages/Gebrauchtwagen.tsx` (Zeilen 213-241)
-
-**Links:** Audi-Logo + vertikaler Strich (`border-l border-gray-300 h-8 mx-3`) + Branding-Name — alles in einer `flex items-center` Gruppe
-
-**Rechts:** Zweizeilig, rechtsbuendig:
-- Zeile 1: "Ihr persoenlicher Berater · Max Mustermann"
-- Zeile 2: Telefonnummer (aus `verkaeufer[0].telefon`)
-- Auf Mobile hidden
+**2. Rechte Seite umbauen (Zeilen 239-245)**
+- Telefonnummer entfernen
+- "Ihr persoenlicher Berater ·" aendern zu zweizeilig:
+  - Zeile 1: "Ihr Berater" (klein, grau)
+  - Zeile 2: Vorname Nachname (medium, dunkel)
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Header-Layout umbauen: Logo + Divider + Branding links, Berater + Telefon rechts zweizeilig |
+| `src/pages/Gebrauchtwagen.tsx` | Divider `mx-3`→`mx-2`, rechte Seite: "Ihr Berater" oben, Name unten, Telefon weg |
 
