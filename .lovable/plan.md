@@ -1,16 +1,17 @@
 
 
-## Blur-Effekt entfernen, Hintergrund abdunkeln
+## Checkbox per Text-Klick aktivierbar machen
 
-### Aenderung in `src/components/ui/dialog.tsx`
+### Problem
+Obwohl `htmlFor`/`id` gesetzt sind, kann es bei Radix Checkbox vorkommen, dass der native Label-Klick nicht zuverlaessig weitergeleitet wird.
 
-**DialogOverlay (Zeile 22-27):**
-- `backdrop-blur-sm` entfernen
-- `bg-black/50` beibehalten (oder auf `bg-black/60` erhoehen fuer staerkere Abdunklung)
+### Aenderung in `src/pages/Gebrauchtwagen.tsx`
 
-### Datei
+**Label (Zeile 776):**
+- `onClick={() => setDatenschutz(!datenschutz)}` und `cursor-pointer` zum `<label>` hinzufuegen
+- Der Link innerhalb des Labels behaelt `e.stopPropagation()` damit ein Klick auf "Datenschutzbestimmungen" nur den Link oeffnet und nicht die Checkbox toggled
 
 | Datei | Aenderung |
 |---|---|
-| `src/components/ui/dialog.tsx` | `backdrop-blur-sm` aus DialogOverlay entfernen |
+| `src/pages/Gebrauchtwagen.tsx` | `onClick` + `cursor-pointer` auf Label, `stopPropagation` auf Link |
 
