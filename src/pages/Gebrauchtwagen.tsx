@@ -221,8 +221,8 @@ export default function Gebrauchtwagen() {
       {/* Hero Section 60/40 */}
       <div className="max-w-7xl mx-auto px-4 pb-8">
         <div className="flex flex-col lg:flex-row gap-0 rounded-lg overflow-hidden">
-          {/* Left Column: Main Image + Thumbnails */}
-          <div className="lg:w-[60%] flex flex-col">
+          {/* Main Image */}
+          <div className="lg:w-[60%] order-1">
             <div className="bg-gray-100">
               {mainImage ? (
                 <img
@@ -236,20 +236,22 @@ export default function Gebrauchtwagen() {
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Thumbnails directly under image, no gap */}
-            {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
+          {/* Thumbnails - between image and info on mobile */}
+          {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
+            <div className="order-2 lg:hidden">
               <ThumbnailGallery
                 bilder={fahrzeug.bilder}
                 fahrzeugname={fahrzeug.fahrzeugname}
                 mainImage={mainImage}
                 onSelect={setMainImage}
               />
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Info Box 40% */}
-          <div className="lg:w-[40%] bg-[#323232] text-white p-6 flex flex-col">
+          <div className="lg:w-[40%] bg-[#323232] text-white p-6 flex flex-col order-3 lg:order-2">
             <h2 className="text-xl font-semibold mb-6">{fahrzeug.fahrzeugname}</h2>
 
             {/* 3x3 Spec Grid */}
@@ -288,6 +290,18 @@ export default function Gebrauchtwagen() {
             </button>
           </div>
         </div>
+
+        {/* Thumbnails - below entire hero section on desktop, no gap */}
+        {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
+          <div className="hidden lg:block">
+            <ThumbnailGallery
+              bilder={fahrzeug.bilder}
+              fahrzeugname={fahrzeug.fahrzeugname}
+              mainImage={mainImage}
+              onSelect={setMainImage}
+            />
+          </div>
+        )}
       </div>
 
       {/* Details Section 60/40 */}
