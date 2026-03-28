@@ -703,7 +703,7 @@ export default function Gebrauchtwagen() {
     <Dialog open={anfrageOpen} onOpenChange={(open) => { setAnfrageOpen(open); if (!open) resetAnfrageForm(); }}>
       <DialogContent className="max-w-3xl w-full sm:rounded-xl max-h-[90vh] overflow-y-auto md:max-h-none md:overflow-visible max-sm:h-full max-sm:max-h-full max-sm:rounded-none max-sm:border-0 max-sm:data-[state=open]:!animate-none max-sm:data-[state=closed]:!animate-none [&>button]:top-5 [&>button]:right-5">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900">Schreiben Sie uns</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold text-gray-900">Schreiben Sie uns</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleAnfrageSubmit} className="space-y-5 mt-2">
