@@ -1,47 +1,30 @@
 
 
-## Header Redesign — Modern & Premium Audi-Look
+## Header umgestalten — Logo + Trennstrich + Branding links, Berater rechts zweizeilig
 
-### Aktuelles Problem
-Der Header ist zu simpel: nur eine Zeile mit Logo, Standort, Beratername — sieht aus wie ein Platzhalter.
-
-### Neues Design
-
-Zweizeiliger Header mit klarer Hierarchie:
+### Neues Layout
 
 ```text
 Desktop:
-+================================================================================+
-| [Audi ::::] (klickbar, scroll-to-top)          Audi Zentrum Duesseldorf        |
-|                                          ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ |
-|                                    Ihr persoenlicher Berater · Max Mustermann  |
-+------- subtle shadow + border-b --────────────────────────────────────────────-+
++--[Audi ::::] | Audi Zentrum Duesseldorf ———————— Ihr persoenlicher Berater --+
+|                                                          +49 123 456789      |
++--- shadow-sm border-b ——————————————————————————————————————————————————————-+
 
 Mobile:
-+============================================+
-| [Audi ::::] (klickbar)                     |
-| Audi Zentrum Duesseldorf                   |
-+--- shadow --──────────────────────────────-+
++--[Audi ::::] | Audi Zentrum Duesseldorf ————————————————————————————————————-+
++--- shadow-sm border-b ——————————————————————————————————————————————————————-+
 ```
 
-### Aenderungen
+### Aenderungen in `src/pages/Gebrauchtwagen.tsx` (Zeilen 213-241)
 
-**Header-Struktur (`src/pages/Gebrauchtwagen.tsx`, Zeilen 211-239):**
+**Links:** Audi-Logo + vertikaler Strich (`border-l border-gray-300 h-8 mx-3`) + Branding-Name — alles in einer `flex items-center` Gruppe
 
-1. **Audi-Logo klickbar** — `<button>` mit `onClick` → `window.scrollTo({ top: 0, behavior: 'smooth' })`, cursor-pointer
-2. **Moderner Look:**
-   - Hoehere Padding (`py-4` statt `py-3`)
-   - Subtiler Shadow statt nur border: `shadow-sm border-b border-gray-100`
-   - Logo etwas groesser (width 140)
-   - Standort mit leichtem Letter-Spacing (`tracking-wide uppercase text-xs`) fuer Premium-Gefuehl
-   - Verkaeufername mit einem dezenten Trennpunkt (`·`) und kleinerem "Ihr persoenlicher Berater" Label
-   - Rechte Seite: Standort UEBER Beratername, beide rechtsbuendig
-3. **Desktop**: Links Logo, Rechts zweizeilig (Standort oben in Caps/Tracking, Beratername darunter kleiner)
-4. **Mobile**: Logo links, Standort rechts (kompakt), Berater hidden
-
-### Datei
+**Rechts:** Zweizeilig, rechtsbuendig:
+- Zeile 1: "Ihr persoenlicher Berater · Max Mustermann"
+- Zeile 2: Telefonnummer (aus `verkaeufer[0].telefon`)
+- Auf Mobile hidden
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Header komplett umbauen: klickbares Logo mit scroll-to-top, modernes zweizeiliges Layout mit shadow, tracking, bessere Typografie |
+| `src/pages/Gebrauchtwagen.tsx` | Header-Layout umbauen: Logo + Divider + Branding links, Berater + Telefon rechts zweizeilig |
 
