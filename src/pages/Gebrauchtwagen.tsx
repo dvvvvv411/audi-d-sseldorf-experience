@@ -4,8 +4,9 @@ import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
 import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
-  Palette, Cog, Star, Mail, Phone, Check
+  Palette, Cog, Star, Mail, Phone, Check, Menu
 } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import useEmblaCarousel from "embla-carousel-react";
 
@@ -122,6 +123,7 @@ export default function Gebrauchtwagen() {
   const [verkaeufer, setVerkaeufer] = useState<VerkaeuferMitBranding[]>([]);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -236,15 +238,110 @@ export default function Gebrauchtwagen() {
             )}
           </div>
 
-          {/* Rechts: Berater + Telefon (zweizeilig, nur Desktop) */}
-          {verkaeufer[0] && (
-            <div className="hidden md:flex flex-col items-end text-right">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wider">Ihr Berater</span>
-              <span className="text-sm font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {/* Rechts: Berater + Telefon (nur Desktop) */}
+            {verkaeufer[0] && (
+              <div className="hidden md:flex flex-col items-end text-right">
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider">Ihr Berater</span>
+                <span className="text-sm font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
+              </div>
+            )}
+
+            {/* Hamburger Icon (nur Mobile) */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+              aria-label="Menü öffnen"
+            >
+              <Menu size={24} className="text-gray-700" />
+            </button>
+          </div>
         </div>
       </header>
+
+      {/* Mobile Sidebar */}
+      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="text-left">Ihr Ansprechpartner</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 space-y-6">
+            {/* Ansprechpartner */}
+            {verkaeufer.length > 0 && (
+              <div className="space-y-4">
+                {verkaeufer.map((v) => (
+                  <div key={v.id} className="flex items-center gap-4">
+                    {v.avatar_url ? (
+                      <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-14 h-14 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold">
+                        {v.vorname[0]}{v.nachname[0]}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-semibold text-gray-900">{v.vorname} {v.nachname}</p>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                        <Phone size={14} />
+                        <span>{v.telefon}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
+                        <Mail size={14} />
+                        <span>{v.email}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <a
+                  href={`tel:${verkaeufer[0]?.telefon || ""}`}
+                  className="w-full bg-[#00527a] text-white text-sm font-medium py-2.5 px-4 rounded flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors"
+                >
+                  <Phone size={14} />
+                  Anrufen
+                </a>
+              </div>
+            )}
+
+            {/* Unsere Leistungen */}
+            <div className="bg-[#00527a] rounded-lg p-6">
+              <h3 className="text-xl font-bold text-white mb-4">Unsere Leistungen</h3>
+              <ul className="space-y-2">
+                {[
+                  "3 Jahre Audi Gebrauchtwagengarantie",
+                  "inklusive Kostenfreie Lieferung in Deutschland",
+                  "Attraktive Konditionen auch für Gewerbekunden",
+                  "Direkte Vermittlung im Kundenauftrag (ohne Zwischenhandel)",
+                  "Persönlicher Ansprechpartner von Auswahl bis Auslieferung",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-white/90">
+                    <Check size={16} className="text-white mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Ihre Vorteile */}
+            <div className="bg-[#00527a] rounded-lg p-6">
+              <h3 className="text-xl font-bold text-white mb-4">Ihre Vorteile</h3>
+              <ul className="space-y-2">
+                {[
+                  "Direkter Zugang zu exklusiven Kundenfahrzeugen",
+                  "Attraktive Preisvorteile gegenüber dem klassischen Handel",
+                  "Individuelle Beratung abgestimmt auf Ihre Wünsche",
+                  "Schnelle und flexible Fahrzeugübergabe",
+                  "Kauf ohne versteckte Zusatzkosten",
+                  "Sicherheit durch Vermittlung geprüfter Fahrzeuge",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-white/90">
+                    <Check size={16} className="text-white mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Fahrzeug Titel */}
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
