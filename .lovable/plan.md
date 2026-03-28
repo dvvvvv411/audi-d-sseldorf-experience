@@ -1,29 +1,22 @@
 
 
-## Mobile Sidebar optimieren
+## Sidebar fixen: schwarzen Rand entfernen + Cards raus
 
-### Probleme
-Die Sidebar nutzt aktuell das Standard-Sheet mit dunklem X-Button und hat kein optimiertes Mobile-Layout. Auf 390px Breite wirkt der Inhalt gedraengt.
+### Problem
+Der schwarze Rand kommt von der `border-l` Klasse im Sheet-Variant (`sheetVariants` fuer `right`), die auf die dunkle `--border` CSS-Variable (18% schwarz) zugreift.
 
-### Aenderungen in `src/pages/Gebrauchtwagen.tsx` (Zeilen 262-343)
+### Aenderungen
 
-**Layout-Verbesserungen:**
-- `SheetContent`: Padding optimieren (`p-6`), volle Breite auf Mobile (`w-full sm:max-w-md`)
-- Ansprechpartner-Bereich: Avatar zentriert oben, Name und Kontaktdaten darunter (zentriertes Layout statt horizontal nebeneinander)
-- "Anrufen"-Button: volle Breite, groesser (`py-3`)
-- Trennlinie (`border-t`) zwischen Ansprechpartner und den blauen Cards
-- Blaue Cards: Padding auf `p-5` reduzieren, `rounded-xl` fuer weicheren Look
-- `space-y-5` statt `space-y-6` fuer kompaktere Abstände
+**1. `src/pages/Gebrauchtwagen.tsx` (Zeile 264)**
+- `border-none` zur SheetContent className hinzufuegen um den schwarzen Rand zu entfernen
 
-**Visuelles:**
-- SheetTitle zentriert statt links
-- Avatar groesser auf `w-16 h-16`
-- Name und Kontaktdaten zentriert unter Avatar
-- Kleine Separator-Linie zwischen Sektionen
+**2. `src/pages/Gebrauchtwagen.tsx` (Zeilen 302-341)**
+- Die Trennlinie und beide blauen Cards ("Unsere Leistungen" + "Ihre Vorteile") komplett entfernen
+- Nur der Ansprechpartner-Bereich bleibt in der Sidebar
 
-### Datei
+### Dateien
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Zeilen 262-343: Sidebar-Layout fuer Mobile optimieren |
+| `src/pages/Gebrauchtwagen.tsx` | `border-none` auf SheetContent, Leistungen+Vorteile Cards entfernen |
 
