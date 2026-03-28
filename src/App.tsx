@@ -30,6 +30,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/gebrauchtwagen" element={<Gebrauchtwagen />} />
@@ -38,6 +39,8 @@ const App = () => (
           <Route path="/rechtliches/datenschutzinformation" element={<Datenschutzinformation />} />
           <Route path="/rechtliches/cookie-richtlinie" element={<CookieRichtlinie />} />
           <Route path="/rechtliches/barrierefreiheit" element={<Barrierefreiheit />} />
+          <Route path="/rechtliches/digital-services-act" element={<DigitalServicesAct />} />
+          <Route path="/rechtliches/eu-data-act" element={<EuDataAct />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
