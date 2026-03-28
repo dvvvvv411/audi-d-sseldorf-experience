@@ -333,5 +333,6 @@ export default function Gebrauchtwagen() {
         </div>
       </div>
     </div>
+    </TooltipProvider>
   );
 }
