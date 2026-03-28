@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import {
@@ -6,6 +6,7 @@ import {
   Palette, Cog, Hash, Mail, Phone, MapPin, Check
 } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import useEmblaCarousel from "embla-carousel-react";
 
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
@@ -23,7 +24,12 @@ const formatKm = (km: number) =>
 
 const formatErstzulassung = (ez: string | null) => {
   if (!ez) return "–";
-  // Try to parse various formats
+  // Handle dd.mm.yyyy format
+  const dotMatch = ez.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (dotMatch) {
+    return `${dotMatch[2].padStart(2, "0")}/${dotMatch[3]}`;
+  }
+  // Handle yyyy-mm-dd or other parseable formats
   const d = new Date(ez);
   if (!isNaN(d.getTime())) {
     return `${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
@@ -47,6 +53,68 @@ const parseBeschreibung = (text: string | null) => {
     return { title, items };
   });
 };
+
+function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
+  bilder: string[];
+  fahrzeugname: string;
+  mainImage: string | null;
+  onSelect: (img: string) => void;
+}) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    containScroll: "trimSnaps",
+    dragFree: true,
+  });
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const onScroll = useCallback(() => {
+    if (!emblaApi) return;
+    const progress = Math.max(0, Math.min(1, emblaApi.scrollProgress()));
+    setScrollProgress(progress);
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("scroll", onScroll);
+    emblaApi.on("reInit", onScroll);
+    onScroll();
+    return () => {
+      emblaApi.off("scroll", onScroll);
+      emblaApi.off("reInit", onScroll);
+    };
+  }, [emblaApi, onScroll]);
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 pb-8">
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex gap-2">
+          {bilder.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => onSelect(img)}
+              className={`flex-shrink-0 rounded overflow-hidden border-2 transition-colors ${
+                mainImage === img ? "border-[#00527a]" : "border-transparent"
+              }`}
+            >
+              <img
+                src={img}
+                alt={`${fahrzeugname} Bild ${i + 1}`}
+                className="h-28 w-48 object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+      {/* Progress Bar */}
+      <div className="mt-3 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-[#00527a] transition-all duration-150"
+          style={{ width: `${Math.max(10, (1 / Math.max(bilder.length - 4, 1)) * 100)}%`, marginLeft: `${scrollProgress * (100 - (1 / Math.max(bilder.length - 4, 1)) * 100)}%` }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function Gebrauchtwagen() {
   const [fahrzeug, setFahrzeug] = useState<Fahrzeug | null>(null);
@@ -186,7 +254,7 @@ export default function Gebrauchtwagen() {
                         <span className="text-xs leading-tight">{item.label}</span>
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent>{item.tooltip}</TooltipContent>
+                    <TooltipContent className="bg-[#00527a] text-white border-[#00527a]">{item.tooltip}</TooltipContent>
                   </Tooltip>
                 );
               })}
@@ -210,27 +278,14 @@ export default function Gebrauchtwagen() {
         </div>
       </div>
 
-      {/* Thumbnail Gallery */}
+      {/* Thumbnail Gallery with Embla Carousel */}
       {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
-        <div className="max-w-7xl mx-auto px-4 pb-8">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-petrol">
-            {fahrzeug.bilder.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setMainImage(img)}
-                className={`flex-shrink-0 rounded overflow-hidden border-2 transition-colors ${
-                  mainImage === img ? "border-[#00527a]" : "border-transparent"
-                }`}
-              >
-                <img
-                  src={img}
-                  alt={`${fahrzeug.fahrzeugname} Bild ${i + 1}`}
-                  className="h-28 w-48 object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
+        <ThumbnailGallery
+          bilder={fahrzeug.bilder}
+          fahrzeugname={fahrzeug.fahrzeugname}
+          mainImage={mainImage}
+          onSelect={setMainImage}
+        />
       )}
 
       {/* Details Section 60/40 */}
