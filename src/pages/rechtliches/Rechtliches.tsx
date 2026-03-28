@@ -16,6 +16,11 @@ export default function Rechtliches() {
           </svg>
         </Link>
 
+        <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors mb-8">
+          <ArrowLeft className="w-4 h-4" />
+          Zurück
+        </button>
+
         <h1 className="text-2xl font-bold text-gray-900 mb-8">Haftungsausschluss</h1>
 
         <div className="text-sm text-gray-700 leading-relaxed space-y-4">
