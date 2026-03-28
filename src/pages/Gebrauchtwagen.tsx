@@ -4,7 +4,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
-  Palette, Cog, Star, Mail, Phone, Check, Menu
+  Palette, Cog, Star, Mail, Phone, Check, Menu, ArrowLeft
 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
