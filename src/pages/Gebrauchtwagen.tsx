@@ -247,102 +247,50 @@ export default function Gebrauchtwagen() {
               </div>
             )}
 
-            {/* Hamburger Icon (nur Mobile) */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
-              aria-label="Menü öffnen"
-            >
-              <Menu size={24} className="text-gray-700" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Sidebar */}
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto bg-white text-gray-900 p-6 border-none">
-          <SheetHeader className="text-center pb-2">
-            <SheetTitle className="text-center text-gray-900">Ihr Ansprechpartner</SheetTitle>
-          </SheetHeader>
-          <div className="mt-4 space-y-5">
-            {/* Ansprechpartner */}
-            {verkaeufer.length > 0 && (
-              <div className="flex flex-col items-center text-center space-y-3">
-                {verkaeufer.map((v) => (
-                  <div key={v.id} className="flex flex-col items-center">
+            {/* Hamburger Icon (nur Mobile) → Popover */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+                  aria-label="Menü öffnen"
+                >
+                  <Menu size={24} className="text-gray-700" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72 bg-white text-gray-900 p-5 rounded-xl shadow-lg border border-gray-100">
+                <p className="text-xs text-gray-400 uppercase tracking-wider text-center mb-3">Ihr Ansprechpartner</p>
+                {verkaeufer.length > 0 && verkaeufer.map((v) => (
+                  <div key={v.id} className="flex flex-col items-center text-center space-y-2">
                     {v.avatar_url ? (
-                      <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-16 h-16 rounded-full object-cover mb-2" />
+                      <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-14 h-14 rounded-full object-cover" />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold mb-2">
+                      <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center text-white text-sm font-bold">
                         {v.vorname[0]}{v.nachname[0]}
                       </div>
                     )}
-                    <p className="font-semibold text-gray-900 text-lg">{v.vorname} {v.nachname}</p>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                    <p className="font-semibold text-gray-900">{v.vorname} {v.nachname}</p>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
                       <Phone size={14} />
                       <span>{v.telefon}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
                       <Mail size={14} />
                       <span>{v.email}</span>
                     </div>
+                    <a
+                      href={`tel:${v.telefon}`}
+                      className="w-full bg-[#00527a] text-white text-sm font-semibold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors mt-1"
+                    >
+                      <Phone size={15} />
+                      Anrufen
+                    </a>
                   </div>
                 ))}
-                <a
-                  href={`tel:${verkaeufer[0]?.telefon || ""}`}
-                  className="w-full bg-[#00527a] text-white text-sm font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors mt-2"
-                >
-                  <Phone size={16} />
-                  Anrufen
-                </a>
-              </div>
-            )}
-
-            {/* Fahrzeug-Zusammenfassung */}
-            <div className="border-t border-gray-200 pt-4 space-y-2">
-              <h3 className="text-lg font-semibold text-gray-900">{fahrzeug.fahrzeugname}</h3>
-              <ul className="space-y-1.5 text-sm text-gray-600">
-                <li className="flex items-center gap-2">
-                  <BadgeEuro size={15} className="text-gray-400 shrink-0" />
-                  <span className="font-medium">{fahrzeug.preis?.toLocaleString("de-DE")} €</span>
-                </li>
-                {fahrzeug.km_stand != null && (
-                  <li className="flex items-center gap-2">
-                    <Gauge size={15} className="text-gray-400 shrink-0" />
-                    <span>{fahrzeug.km_stand.toLocaleString("de-DE")} km</span>
-                  </li>
-                )}
-                {fahrzeug.erstzulassung && (
-                  <li className="flex items-center gap-2">
-                    <Calendar size={15} className="text-gray-400 shrink-0" />
-                    <span>EZ {fahrzeug.erstzulassung}</span>
-                  </li>
-                )}
-                {fahrzeug.kraftstoff && (
-                  <li className="flex items-center gap-2">
-                    <Fuel size={15} className="text-gray-400 shrink-0" />
-                    <span>{fahrzeug.kraftstoff}</span>
-                  </li>
-                )}
-                {(fahrzeug.ps || fahrzeug.kw) && (
-                  <li className="flex items-center gap-2">
-                    <Zap size={15} className="text-gray-400 shrink-0" />
-                    <span>{fahrzeug.ps ? `${fahrzeug.ps} PS` : ""}{fahrzeug.ps && fahrzeug.kw ? " / " : ""}{fahrzeug.kw ? `${fahrzeug.kw} kW` : ""}</span>
-                  </li>
-                )}
-              </ul>
-              <a
-                href={`mailto:${verkaeufer[0]?.email || ""}?subject=Anfrage: ${encodeURIComponent(fahrzeug.fahrzeugname)}${fahrzeug.auftragsnummer ? ` (${fahrzeug.auftragsnummer})` : ""}`}
-                className="w-full bg-[#00527a] text-white text-sm font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors mt-4"
-              >
-                <Mail size={16} />
-                Fahrzeug anfragen
-              </a>
-            </div>
+              </PopoverContent>
+            </Popover>
           </div>
-        </SheetContent>
-      </Sheet>
+        </div>
+      </header>
 
       {/* Fahrzeug Titel */}
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
