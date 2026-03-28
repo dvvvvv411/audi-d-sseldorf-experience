@@ -61,31 +61,31 @@ export default function AdminAnfragen() {
       ) : (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>E-Mail</TableHead>
-                <TableHead>Telefon</TableHead>
-                <TableHead>Nachricht</TableHead>
-                <TableHead>Verkäufer</TableHead>
-                <TableHead className="text-right">Preis</TableHead>
-                <TableHead>Fahrzeug</TableHead>
-                <TableHead>Branding</TableHead>
-                <TableHead>Status</TableHead>
+            <TableHeader className="bg-gray-50">
+              <TableRow className="border-gray-200">
+                <TableHead className="text-gray-600 font-semibold">Name</TableHead>
+                <TableHead className="text-gray-600 font-semibold">E-Mail</TableHead>
+                <TableHead className="text-gray-600 font-semibold">Telefon</TableHead>
+                <TableHead className="text-gray-600 font-semibold">Nachricht</TableHead>
+                <TableHead className="text-gray-600 font-semibold">Verkäufer</TableHead>
+                <TableHead className="text-right text-gray-600 font-semibold">Preis</TableHead>
+                <TableHead className="text-gray-600 font-semibold">Fahrzeug</TableHead>
+                <TableHead className="text-gray-600 font-semibold">Branding</TableHead>
+                <TableHead className="text-gray-600 font-semibold">Status</TableHead>
                 <TableHead className="w-12" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {anfragen.map((a) => (
-                <TableRow key={a.id}>
-                  <TableCell className="font-medium whitespace-nowrap">{a.vorname} {a.nachname}</TableCell>
-                  <TableCell>{a.email}</TableCell>
-                  <TableCell className="whitespace-nowrap">{a.telefon}</TableCell>
+                <TableRow key={a.id} className="border-gray-100">
+                  <TableCell className="font-medium whitespace-nowrap text-gray-900">{a.vorname} {a.nachname}</TableCell>
+                  <TableCell className="text-gray-700">{a.email}</TableCell>
+                  <TableCell className="whitespace-nowrap text-gray-700">{a.telefon}</TableCell>
                   <TableCell className="text-gray-500">{truncate(a.nachricht)}</TableCell>
-                  <TableCell className="whitespace-nowrap">{a.verkaeufer_name}</TableCell>
-                  <TableCell className="text-right whitespace-nowrap">{formatPrice(a.fahrzeug_preis)} €</TableCell>
-                  <TableCell className="whitespace-nowrap">{a.fahrzeug_name}</TableCell>
-                  <TableCell>{a.branding_name}</TableCell>
+                  <TableCell className="whitespace-nowrap text-gray-700">{a.verkaeufer_name}</TableCell>
+                  <TableCell className="text-right whitespace-nowrap text-gray-900">{formatPrice(a.fahrzeug_preis)} €</TableCell>
+                  <TableCell className="whitespace-nowrap text-gray-700">{a.fahrzeug_name}</TableCell>
+                  <TableCell className="text-gray-700">{a.branding_name}</TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
                       {a.status}
@@ -95,6 +95,7 @@ export default function AdminAnfragen() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
                       onClick={() => navigate(`/admin/anfragen/${a.id}`)}
                     >
                       <Eye className="w-4 h-4" />
