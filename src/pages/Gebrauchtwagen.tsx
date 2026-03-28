@@ -480,7 +480,7 @@ export default function Gebrauchtwagen() {
           <p className="text-xs text-gray-500 font-medium">© 2026 AUDI AG. Alle Rechte vorbehalten</p>
 
           <p className="text-xs text-gray-400">
-            <Link to="/rechtliches/impressum" className="hover:text-gray-600 transition-colors">Impressum</Link> · <Link to="/rechtliches" className="hover:text-gray-600 transition-colors">Rechtliches</Link> · <Link to="/rechtliches/datenschutzinformation" className="hover:text-gray-600 transition-colors">Datenschutzinformation</Link> · <Link to="/rechtliches/cookie-richtlinie" className="hover:text-gray-600 transition-colors">Cookie-Richtlinie</Link> · <Link to="/rechtliches/barrierefreiheit" className="hover:text-gray-600 transition-colors">Barrierefreiheit</Link> · Digital Services Act · EU Data Act
+            <Link to="/rechtliches/impressum" className="hover:text-gray-600 transition-colors">Impressum</Link> · <Link to="/rechtliches" className="hover:text-gray-600 transition-colors">Rechtliches</Link> · <Link to="/rechtliches/datenschutzinformation" className="hover:text-gray-600 transition-colors">Datenschutzinformation</Link> · <Link to="/rechtliches/cookie-richtlinie" className="hover:text-gray-600 transition-colors">Cookie-Richtlinie</Link> · <Link to="/rechtliches/barrierefreiheit" className="hover:text-gray-600 transition-colors">Barrierefreiheit</Link> · <Link to="/rechtliches/digital-services-act" className="hover:text-gray-600 transition-colors">Digital Services Act</Link> · <Link to="/rechtliches/eu-data-act" className="hover:text-gray-600 transition-colors">EU Data Act</Link>
           </p>
 
           <p className="text-[11px] text-gray-400 leading-relaxed">
