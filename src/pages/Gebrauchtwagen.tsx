@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
-  Palette, Cog, Star, Mail, Phone, Check, Menu
+  Palette, Cog, Star, Mail, Phone, Check, Menu, ArrowLeft
 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
@@ -119,6 +119,7 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
 }
 
 export default function Gebrauchtwagen() {
+  const navigate = useNavigate();
   const [fahrzeug, setFahrzeug] = useState<Fahrzeug | null>(null);
   const [verkaeufer, setVerkaeufer] = useState<VerkaeuferMitBranding[]>([]);
   const [mainImage, setMainImage] = useState<string | null>(null);
@@ -294,6 +295,13 @@ export default function Gebrauchtwagen() {
 
       {/* Fahrzeug Titel */}
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-3"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Zurück
+        </button>
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
           {fahrzeug.fahrzeugname}
         </h1>
