@@ -475,7 +475,10 @@ export default function Gebrauchtwagen() {
             </div>
 
             {/* CTA Button */}
-            <button className="mt-4 w-full bg-white text-gray-700 font-semibold py-3 px-6 rounded-sm flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors">
+            <button
+              onClick={() => setAnfrageOpen(true)}
+              className="mt-4 w-full bg-white text-gray-700 font-semibold py-3 px-6 rounded-sm flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
+            >
               <Mail size={18} />
               Fahrzeug anfragen
             </button>
