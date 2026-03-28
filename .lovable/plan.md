@@ -1,43 +1,47 @@
 
 
-## Header fuer /gebrauchtwagen — Weiss mit Audi-Logo, Standort + Verkaeufername
+## Header Redesign — Modern & Premium Audi-Look
 
-### Design
+### Aktuelles Problem
+Der Header ist zu simpel: nur eine Zeile mit Logo, Standort, Beratername — sieht aus wie ein Platzhalter.
 
-Weisser Header mit:
-- **Links**: Audi-Ringe Logo (SVG, schwarz)
-- **Mitte**: Standortname aus Branding (`branding.name`, z.B. "Audi Zentrum Duesseldorf")
-- **Rechts**: Verkaeufername (`vorname nachname`) mit kleinem Label "Ihr Berater"
-- **Unten**: 1px hellgraue Trennlinie (`border-b border-gray-200`)
+### Neues Design
 
-Auf Mobile: Logo links, Standort darunter, Verkaeufername entfaellt (ist ja unten im Ansprechpartner-Bereich sichtbar).
+Zweizeiliger Header mit klarer Hierarchie:
 
 ```text
 Desktop:
-+--[Audi ::::] -------- Audi Zentrum Duesseldorf -------- Ihr Berater: Max Mustermann --+
-+--- border-b border-gray-200 ---------------------------------------------------------+
++================================================================================+
+| [Audi ::::] (klickbar, scroll-to-top)          Audi Zentrum Duesseldorf        |
+|                                          ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ |
+|                                    Ihr persoenlicher Berater · Max Mustermann  |
++------- subtle shadow + border-b --────────────────────────────────────────────-+
 
 Mobile:
-+--[Audi ::::] --- Audi Zentrum Duesseldorf --+
-+--- border-b border-gray-200 ---------------+
++============================================+
+| [Audi ::::] (klickbar)                     |
+| Audi Zentrum Duesseldorf                   |
++--- shadow --──────────────────────────────-+
 ```
 
-### Umsetzung
+### Aenderungen
 
-**Datei: `src/pages/Gebrauchtwagen.tsx`**
-- Neuen Header-Bereich am Anfang des Returns einfuegen (vor dem Titel)
-- Audi-Ringe als inline SVG (4 Ringe, schwarz, ca. 120px breit)
-- Standort aus `branding.name` (bereits geladen via `verkaeufer[0]?.branding`)
-- Verkaeufername aus `verkaeufer[0]?.vorname` + `nachname`
-- Sticky Header mit `sticky top-0 z-50 bg-white` damit er beim Scrollen oben bleibt
+**Header-Struktur (`src/pages/Gebrauchtwagen.tsx`, Zeilen 211-239):**
 
-### Daten
+1. **Audi-Logo klickbar** — `<button>` mit `onClick` → `window.scrollTo({ top: 0, behavior: 'smooth' })`, cursor-pointer
+2. **Moderner Look:**
+   - Hoehere Padding (`py-4` statt `py-3`)
+   - Subtiler Shadow statt nur border: `shadow-sm border-b border-gray-100`
+   - Logo etwas groesser (width 140)
+   - Standort mit leichtem Letter-Spacing (`tracking-wide uppercase text-xs`) fuer Premium-Gefuehl
+   - Verkaeufername mit einem dezenten Trennpunkt (`·`) und kleinerem "Ihr persoenlicher Berater" Label
+   - Rechte Seite: Standort UEBER Beratername, beide rechtsbuendig
+3. **Desktop**: Links Logo, Rechts zweizeilig (Standort oben in Caps/Tracking, Beratername darunter kleiner)
+4. **Mobile**: Logo links, Standort rechts (kompakt), Berater hidden
 
-Alle Daten sind bereits vorhanden:
-- `branding.name` → Standortname (z.B. "Audi Zentrum Duesseldorf")
-- `verkaeufer[0].vorname / nachname` → Beratername
+### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Header-Komponente mit Audi-SVG-Logo, Standort, Verkaeufername einfuegen |
+| `src/pages/Gebrauchtwagen.tsx` | Header komplett umbauen: klickbares Logo mit scroll-to-top, modernes zweizeiliges Layout mit shadow, tracking, bessere Typografie |
 
