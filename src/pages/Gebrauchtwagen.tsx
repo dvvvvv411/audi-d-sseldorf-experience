@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import {
   Car, Gauge, Calendar, Zap, Fuel, Settings2,
-  Palette, Cog, Hash, Mail, Phone, MapPin, Check
+  Palette, Cog, Star, Mail, Phone, Check
 } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import useEmblaCarousel from "embla-carousel-react";
@@ -202,7 +202,7 @@ export default function Gebrauchtwagen() {
     { icon: Settings2, label: fahrzeug.getriebe || "–", tooltip: "Getriebe" },
     { icon: Palette, label: fahrzeug.farbe || "–", tooltip: "Farbe" },
     { icon: Cog, label: fahrzeug.antrieb || "–", tooltip: "Antrieb" },
-    { icon: Hash, label: fahrzeug.auftragsnummer || "–", tooltip: "Auftragsnummer" },
+    { icon: Star, label: fahrzeug.auftragsnummer || "–", tooltip: "Auftragsnummer" },
   ];
 
   return (
@@ -335,70 +335,41 @@ export default function Gebrauchtwagen() {
 
           {/* Seller / Location 40% */}
           <div className="lg:w-[40%]">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Standort</h2>
-            {branding ? (
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Ihr Ansprechpartner</h2>
+            {verkaeufer.length > 0 ? (
               <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                <p className="font-bold text-gray-900 text-lg">{branding.name}</p>
-                <div className="space-y-2 text-gray-600 text-sm">
-                  <div className="flex items-start gap-2">
-                    <MapPin size={16} className="mt-0.5 flex-shrink-0" />
+                {verkaeufer.map((v) => (
+                  <div key={v.id} className="flex items-center gap-4 mb-3">
+                    {v.avatar_url ? (
+                      <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-14 h-14 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold">
+                        {v.vorname[0]}{v.nachname[0]}
+                      </div>
+                    )}
                     <div>
-                      <p>{branding.strasse}</p>
-                      <p>{branding.plz} {branding.stadt}</p>
+                      <p className="font-semibold text-gray-900">{v.vorname} {v.nachname}</p>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                        <Phone size={14} />
+                        <span>{v.telefon}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
+                        <Mail size={14} />
+                        <span>{v.email}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Phone size={16} className="flex-shrink-0" />
-                    <p>{branding.email}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Mail size={16} className="flex-shrink-0" />
-                    <p>{branding.email}</p>
-                  </div>
-                </div>
-
-                {verkaeufer.length > 0 && (
-                  <div className="border-t border-gray-200 pt-4 mt-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">Ihr Ansprechpartner</p>
-                    {verkaeufer.map((v) => (
-                      <div key={v.id} className="flex items-center gap-3 mb-3">
-                        {v.avatar_url ? (
-                          <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-10 h-10 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white text-sm font-bold">
-                            {v.vorname[0]}{v.nachname[0]}
-                          </div>
-                        )}
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{v.vorname} {v.nachname}</p>
-                          <p className="text-xs text-gray-500">{v.telefon}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex gap-2 pt-2">
-                  <a
-                    href={`tel:${verkaeufer[0]?.telefon || ""}`}
-                    className="flex-1 bg-[#00527a] text-white text-sm font-medium py-2.5 px-4 rounded flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors"
-                  >
-                    <Phone size={14} />
-                    Anrufen
-                  </a>
-                  <a
-                    href={`https://maps.google.com/?q=${encodeURIComponent(`${branding.strasse}, ${branding.plz} ${branding.stadt}`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-white border border-gray-300 text-gray-700 text-sm font-medium py-2.5 px-4 rounded flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
-                  >
-                    <MapPin size={14} />
-                    Route berechnen
-                  </a>
-                </div>
+                ))}
+                <a
+                  href={`tel:${verkaeufer[0]?.telefon || ""}`}
+                  className="w-full bg-[#00527a] text-white text-sm font-medium py-2.5 px-4 rounded flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors"
+                >
+                  <Phone size={14} />
+                  Anrufen
+                </a>
               </div>
             ) : (
-              <p className="text-gray-500">Keine Standortinformationen vorhanden.</p>
+              <p className="text-gray-500">Kein Ansprechpartner vorhanden.</p>
             )}
           </div>
         </div>
