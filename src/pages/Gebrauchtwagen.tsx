@@ -761,7 +761,7 @@ export default function Gebrauchtwagen() {
               required
               value={anfrageForm.nachricht}
               onChange={(e) => setAnfrageForm(f => ({ ...f, nachricht: e.target.value }))}
-              className="min-h-[140px]"
+              className="min-h-[140px] bg-white border-gray-300 text-gray-900"
               maxLength={2000}
             />
           </div>
