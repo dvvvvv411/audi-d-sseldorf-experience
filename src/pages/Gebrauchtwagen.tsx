@@ -85,30 +85,30 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
   }, [emblaApi, onScroll]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 pb-8">
+    <div className="relative">
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           {bilder.map((img, i) => (
             <button
               key={i}
               onClick={() => onSelect(img)}
-              className={`flex-shrink-0 rounded overflow-hidden border-2 transition-colors ${
+              className={`flex-shrink-0 overflow-hidden border-2 transition-colors ${
                 mainImage === img ? "border-[#00527a]" : "border-transparent"
               }`}
             >
               <img
                 src={img}
                 alt={`${fahrzeugname} Bild ${i + 1}`}
-                className="h-28 w-48 object-cover"
+                className="h-16 w-28 md:h-28 md:w-48 object-cover"
               />
             </button>
           ))}
         </div>
       </div>
-      {/* Progress Bar */}
-      <div className="mt-3 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+      {/* Progress Bar overlaid at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
         <div
-          className="h-full rounded-full bg-[#00527a] transition-all duration-150"
+          className="h-full bg-[#00527a] transition-all duration-150"
           style={{ width: `${Math.max(10, (1 / Math.max(bilder.length - 4, 1)) * 100)}%`, marginLeft: `${scrollProgress * (100 - (1 / Math.max(bilder.length - 4, 1)) * 100)}%` }}
         />
       </div>
@@ -219,20 +219,32 @@ export default function Gebrauchtwagen() {
       </div>
 
       {/* Hero Section 60/40 */}
-      <div className="max-w-7xl mx-auto px-4 pb-6">
+      <div className="max-w-7xl mx-auto px-4 pb-8">
         <div className="flex flex-col lg:flex-row gap-0 rounded-lg overflow-hidden">
-          {/* Main Image 60% */}
-          <div className="lg:w-[60%] bg-gray-100">
-            {mainImage ? (
-              <img
-                src={mainImage}
-                alt={fahrzeug.fahrzeugname}
-                className="w-full h-full object-cover min-h-[300px] lg:min-h-[500px]"
+          {/* Left Column: Main Image + Thumbnails */}
+          <div className="lg:w-[60%] flex flex-col">
+            <div className="bg-gray-100">
+              {mainImage ? (
+                <img
+                  src={mainImage}
+                  alt={fahrzeug.fahrzeugname}
+                  className="w-full h-full object-cover min-h-[250px] lg:min-h-[500px]"
+                />
+              ) : (
+                <div className="w-full h-full min-h-[250px] lg:min-h-[500px] flex items-center justify-center text-gray-400">
+                  Kein Bild vorhanden
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnails directly under image, no gap */}
+            {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
+              <ThumbnailGallery
+                bilder={fahrzeug.bilder}
+                fahrzeugname={fahrzeug.fahrzeugname}
+                mainImage={mainImage}
+                onSelect={setMainImage}
               />
-            ) : (
-              <div className="w-full h-full min-h-[300px] lg:min-h-[500px] flex items-center justify-center text-gray-400">
-                Kein Bild vorhanden
-              </div>
             )}
           </div>
 
@@ -277,16 +289,6 @@ export default function Gebrauchtwagen() {
           </div>
         </div>
       </div>
-
-      {/* Thumbnail Gallery with Embla Carousel */}
-      {fahrzeug.bilder && fahrzeug.bilder.length > 1 && (
-        <ThumbnailGallery
-          bilder={fahrzeug.bilder}
-          fahrzeugname={fahrzeug.fahrzeugname}
-          mainImage={mainImage}
-          onSelect={setMainImage}
-        />
-      )}
 
       {/* Details Section 60/40 */}
       <div className="max-w-7xl mx-auto px-4 pb-16">
