@@ -698,6 +698,105 @@ export default function Gebrauchtwagen() {
         </div>
       </footer>
     </div>
+
+    {/* Anfrage Dialog */}
+    <Dialog open={anfrageOpen} onOpenChange={(open) => { setAnfrageOpen(open); if (!open) resetAnfrageForm(); }}>
+      <DialogContent className="max-w-2xl w-full sm:rounded-xl max-h-[90vh] overflow-y-auto md:max-h-none md:overflow-visible data-[state=open]:!slide-in-from-bottom-0 data-[state=open]:!slide-in-from-left-0 max-sm:h-full max-sm:max-h-full max-sm:rounded-none max-sm:border-0 [&>button]:top-5 [&>button]:right-5">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-gray-900">Schreiben Sie uns</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleAnfrageSubmit} className="space-y-5 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Vorname <span className="text-red-500">*</span></label>
+              <Input
+                required
+                value={anfrageForm.vorname}
+                onChange={(e) => setAnfrageForm(f => ({ ...f, vorname: e.target.value }))}
+                maxLength={100}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nachname <span className="text-red-500">*</span></label>
+              <Input
+                required
+                value={anfrageForm.nachname}
+                onChange={(e) => setAnfrageForm(f => ({ ...f, nachname: e.target.value }))}
+                maxLength={100}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">E-Mail <span className="text-red-500">*</span></label>
+              <Input
+                type="email"
+                required
+                value={anfrageForm.email}
+                onChange={(e) => setAnfrageForm(f => ({ ...f, email: e.target.value }))}
+                maxLength={255}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Rückrufnummer <span className="text-red-500">*</span></label>
+              <Input
+                type="tel"
+                required
+                value={anfrageForm.telefon}
+                onChange={(e) => setAnfrageForm(f => ({ ...f, telefon: e.target.value }))}
+                maxLength={30}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Ihre Nachricht <span className="text-red-500">*</span></label>
+            <Textarea
+              required
+              value={anfrageForm.nachricht}
+              onChange={(e) => setAnfrageForm(f => ({ ...f, nachricht: e.target.value }))}
+              className="min-h-[140px]"
+              maxLength={2000}
+            />
+          </div>
+
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="datenschutz"
+              checked={datenschutz}
+              onCheckedChange={(v) => setDatenschutz(v === true)}
+              className="mt-0.5"
+            />
+            <label htmlFor="datenschutz" className="text-sm text-gray-600 leading-relaxed">
+              Ich bin damit einverstanden, dass die übermittelten Daten entsprechend der{" "}
+              <Link to="/rechtliches/datenschutzinformation" className="text-[#00527a] underline hover:text-[#003d5c]" target="_blank">
+                Datenschutzbestimmungen
+              </Link>{" "}
+              gespeichert und verarbeitet werden dürfen. Zudem gebe ich meine Zustimmung über die angegebenen Möglichkeiten kontaktiert zu werden. <span className="text-red-500">*</span>
+            </label>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-xs text-gray-400"><span className="text-red-500">*</span> benötigte Angaben</p>
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={resetAnfrageForm}>
+                Zurücksetzen
+              </Button>
+              <Button
+                type="submit"
+                disabled={submitting || !datenschutz}
+                className="bg-[#00527a] hover:bg-[#003d5c] text-white"
+              >
+                {submitting ? "Senden..." : "Abschicken"}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+
     </TooltipProvider>
   );
 }
