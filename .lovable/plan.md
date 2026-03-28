@@ -1,33 +1,36 @@
 
 
-## CO₂-Balken korrigieren + Sektion dezenter gestalten
+## Footer fuer /gebrauchtwagen
 
-### Problem
-1. Balken sind viel zu breit — im Screenshot nehmen sie nur ca. 120px Gesamtbreite ein, unsere spannen sich ueber die ganze Spalte
-2. Es fehlt der Pfeil-Effekt (rechte Seite jedes Balkens hat eine Pfeilspitze)
-3. Die Sektion soll visuell zurueckgenommener sein als der Rest
+Einfacher Footer mit Trennlinie, Copyright, Link-Labels (ohne Verlinkung), Hinweistext und nummerierten Fussnoten.
 
-### Loesung
+### Layout
 
-**1. Balken kuerzer machen**
-- Maximale Breite des Balken-Containers auf `max-w-[140px]` begrenzen
-- Breiten anpassen: A ~55%, B ~65%, C ~72%, D ~78%, E ~85%, F ~92%, G ~100%
+```text
+─────────────────────────────────────────────────
+© 2026 AUDI AG. Alle Rechte vorbehalten
 
-**2. Pfeil-Form hinzufuegen**
-Jeder Balken bekommt rechts eine Pfeilspitze via CSS `clip-path`:
-```css
-clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+Impressum · Rechtliches · Hinweisgebersystem · Datenschutzinformation · Cookie-Einstellungen · Cookie-Richtlinie · Barrierefreiheit · Digital Services Act · EU Data Act
+
+Hinweis: Die aktuelle Darstellung und Anordnung...
+
+¹ Die Angaben zu Kraftstoffverbrauch...
+² Gilt nur bei Bezahlung...
+³ Nur fuer Privatkunden...
+─────────────────────────────────────────────────
 ```
-Das erzeugt die typische Energielabel-Pfeilform.
 
-**3. Sektion dezenter/unauffaelliger gestalten**
-- Hintergrund auf `bg-gray-50` setzen (leicht grau, hebt sich dezent ab)
-- Text etwas kleiner/heller
-- Die darueberliegenden Sektionen bleiben weiss und wirken dadurch prominenter
+### Stil
+- `bg-gray-50` passend zur CO₂-Sektion darueber (nahtloser Uebergang)
+- Trennlinie oben via `border-t border-gray-200`
+- Copyright: `text-xs text-gray-500 font-medium`
+- Nav-Labels: `text-xs text-gray-400` mit `·` Trennern, inline
+- Hinweis + Fussnoten: `text-[11px] text-gray-400 leading-relaxed`
+- Padding: `py-10 px-4`, `max-w-7xl mx-auto`
 
 ### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Balken-Container `max-w-[140px]`, `clip-path` Pfeil auf jeden Balken, Sektion `bg-gray-50` mit voller Breite |
+| `src/pages/Gebrauchtwagen.tsx` | Footer-Block nach der CO₂-Sektion einfuegen, vor `</TooltipProvider>` |
 
