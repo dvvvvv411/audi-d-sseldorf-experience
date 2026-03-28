@@ -413,8 +413,8 @@ export default function Gebrauchtwagen() {
             </div>
 
             {/* Unsere Leistungen */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Unsere Leistungen</h3>
+            <div className="bg-[#00527a] rounded-lg p-6">
+              <h3 className="text-xl font-bold text-white mb-4">Unsere Leistungen</h3>
               <ul className="space-y-2">
                 {[
                   "3 Jahre Audi Gebrauchtwagengarantie",
@@ -423,8 +423,8 @@ export default function Gebrauchtwagen() {
                   "Direkte Vermittlung im Kundenauftrag (ohne Zwischenhandel)",
                   "Persönlicher Ansprechpartner von Auswahl bis Auslieferung",
                 ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-gray-600">
-                    <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <li key={i} className="flex items-start gap-2 text-white/90">
+                    <Check size={16} className="text-white mt-0.5 flex-shrink-0" />
                     <span className="text-sm">{item}</span>
                   </li>
                 ))}
