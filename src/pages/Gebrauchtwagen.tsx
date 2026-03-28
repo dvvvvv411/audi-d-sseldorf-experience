@@ -299,46 +299,6 @@ export default function Gebrauchtwagen() {
               </div>
             )}
 
-            <div className="border-t border-gray-200" />
-
-            {/* Unsere Leistungen */}
-            <div className="bg-[#00527a] rounded-xl p-5">
-              <h3 className="text-lg font-bold text-white mb-3">Unsere Leistungen</h3>
-              <ul className="space-y-2">
-                {[
-                  "3 Jahre Audi Gebrauchtwagengarantie",
-                  "inklusive Kostenfreie Lieferung in Deutschland",
-                  "Attraktive Konditionen auch für Gewerbekunden",
-                  "Direkte Vermittlung im Kundenauftrag (ohne Zwischenhandel)",
-                  "Persönlicher Ansprechpartner von Auswahl bis Auslieferung",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-white/90">
-                    <Check size={16} className="text-white mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Ihre Vorteile */}
-            <div className="bg-[#00527a] rounded-xl p-5">
-              <h3 className="text-lg font-bold text-white mb-3">Ihre Vorteile</h3>
-              <ul className="space-y-2">
-                {[
-                  "Direkter Zugang zu exklusiven Kundenfahrzeugen",
-                  "Attraktive Preisvorteile gegenüber dem klassischen Handel",
-                  "Individuelle Beratung abgestimmt auf Ihre Wünsche",
-                  "Schnelle und flexible Fahrzeugübergabe",
-                  "Kauf ohne versteckte Zusatzkosten",
-                  "Sicherheit durch Vermittlung geprüfter Fahrzeuge",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-white/90">
-                    <Check size={16} className="text-white mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
         </SheetContent>
       </Sheet>
