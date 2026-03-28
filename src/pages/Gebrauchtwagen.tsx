@@ -138,6 +138,7 @@ export default function Gebrauchtwagen() {
   ];
 
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
