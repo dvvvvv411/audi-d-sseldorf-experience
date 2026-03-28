@@ -126,15 +126,15 @@ export default function Gebrauchtwagen() {
   const beschreibung = parseBeschreibung(fahrzeug.beschreibung);
 
   const specItems = [
-    { icon: Car, label: "Gebrauchtwagen" },
-    { icon: Gauge, label: fahrzeug.km_stand ? `${formatKm(fahrzeug.km_stand)} km` : "–" },
-    { icon: Calendar, label: formatErstzulassung(fahrzeug.erstzulassung) },
-    { icon: Zap, label: fahrzeug.kw && fahrzeug.ps ? `${fahrzeug.kw} kW / ${fahrzeug.ps} PS` : "–" },
-    { icon: Fuel, label: fahrzeug.kraftstoff || "–" },
-    { icon: Settings2, label: fahrzeug.getriebe || "–" },
-    { icon: Palette, label: fahrzeug.farbe || "–" },
-    { icon: Cog, label: fahrzeug.antrieb || "–" },
-    { icon: Hash, label: fahrzeug.auftragsnummer || "–" },
+    { icon: Car, label: "Gebrauchtwagen", tooltip: "Fahrzeugart" },
+    { icon: Gauge, label: fahrzeug.km_stand ? `${formatKm(fahrzeug.km_stand)} km` : "–", tooltip: "Kilometerstand" },
+    { icon: Calendar, label: formatErstzulassung(fahrzeug.erstzulassung), tooltip: "Erstzulassung" },
+    { icon: Zap, label: fahrzeug.kw && fahrzeug.ps ? `${fahrzeug.kw} kW / ${fahrzeug.ps} PS` : "–", tooltip: "Leistung" },
+    { icon: Fuel, label: fahrzeug.kraftstoff || "–", tooltip: "Kraftstoff" },
+    { icon: Settings2, label: fahrzeug.getriebe || "–", tooltip: "Getriebe" },
+    { icon: Palette, label: fahrzeug.farbe || "–", tooltip: "Farbe" },
+    { icon: Cog, label: fahrzeug.antrieb || "–", tooltip: "Antrieb" },
+    { icon: Hash, label: fahrzeug.auftragsnummer || "–", tooltip: "Auftragsnummer" },
   ];
 
   return (
