@@ -1,22 +1,25 @@
 
 
-## Sidebar fixen: schwarzen Rand entfernen + Cards raus
+## Fahrzeug-Zusammenfassung + Anfrage-Button in Mobile Sidebar
 
-### Problem
-Der schwarze Rand kommt von der `border-l` Klasse im Sheet-Variant (`sheetVariants` fuer `right`), die auf die dunkle `--border` CSS-Variable (18% schwarz) zugreift.
+### Aenderung in `src/pages/Gebrauchtwagen.tsx` (Zeilen 268-302)
 
-### Aenderungen
+Nach dem Ansprechpartner-Bereich und vor dem schliessenden `</div>` werden eingefuegt:
 
-**1. `src/pages/Gebrauchtwagen.tsx` (Zeile 264)**
-- `border-none` zur SheetContent className hinzufuegen um den schwarzen Rand zu entfernen
+**1. Fahrzeug-Zusammenfassung**
+- Trennlinie (`border-t border-gray-200 pt-4`)
+- Fahrzeugname als Ueberschrift (`text-lg font-semibold`)
+- Kompakte Info-Liste mit Icons: Preis, km-Stand, Erstzulassung, Kraftstoff, Leistung (PS/kW)
+- Stil: `text-sm text-gray-600`, Icons in `text-gray-400`
 
-**2. `src/pages/Gebrauchtwagen.tsx` (Zeilen 302-341)**
-- Die Trennlinie und beide blauen Cards ("Unsere Leistungen" + "Ihre Vorteile") komplett entfernen
-- Nur der Ansprechpartner-Bereich bleibt in der Sidebar
+**2. "Fahrzeug anfragen"-Button**
+- Volle Breite, petrolblau (`bg-[#00527a]`), weisse Schrift
+- Oeffnet `mailto:` mit dem Verkaeufer-Email und vorausgefuelltem Betreff (Fahrzeugname + Auftragsnummer)
+- Unter der Zusammenfassung, mit `mt-4`
 
-### Dateien
+### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | `border-none` auf SheetContent, Leistungen+Vorteile Cards entfernen |
+| `src/pages/Gebrauchtwagen.tsx` | Zeile ~301: Fahrzeug-Kurzinfos + Anfrage-Button in Sidebar einfuegen |
 
