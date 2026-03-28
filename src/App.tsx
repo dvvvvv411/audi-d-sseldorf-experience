@@ -33,6 +33,8 @@ const App = () => (
           <Route path="/rechtliches" element={<Rechtliches />} />
           <Route path="/rechtliches/impressum" element={<Impressum />} />
           <Route path="/rechtliches/datenschutzinformation" element={<Datenschutzinformation />} />
+          <Route path="/rechtliches/cookie-richtlinie" element={<CookieRichtlinie />} />
+          <Route path="/rechtliches/barrierefreiheit" element={<Barrierefreiheit />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
