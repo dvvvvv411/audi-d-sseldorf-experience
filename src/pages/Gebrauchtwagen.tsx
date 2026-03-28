@@ -418,7 +418,7 @@ export default function Gebrauchtwagen() {
               <ul className="space-y-2">
                 {[
                   "3 Jahre Audi Gebrauchtwagengarantie",
-                  "inklusive Kostenfreie Lieferung in Deutschland, Österreich und der Schweiz",
+                  "inklusive Kostenfreie Lieferung in Deutschland",
                   "Attraktive Konditionen auch für Gewerbekunden",
                   "Direkte Vermittlung im Kundenauftrag (ohne Zwischenhandel)",
                   "Persönlicher Ansprechpartner von Auswahl bis Auslieferung",
