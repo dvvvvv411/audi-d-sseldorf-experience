@@ -1,25 +1,23 @@
 
 
-## Fahrzeug-Zusammenfassung + Anfrage-Button in Mobile Sidebar
+## Sheet durch Popover ersetzen (Mobile)
 
-### Aenderung in `src/pages/Gebrauchtwagen.tsx` (Zeilen 268-302)
+### Aenderungen in `src/pages/Gebrauchtwagen.tsx`
 
-Nach dem Ansprechpartner-Bereich und vor dem schliessenden `</div>` werden eingefuegt:
+**1. Imports anpassen**
+- `Sheet, SheetContent, SheetHeader, SheetTitle` entfernen
+- `Popover, PopoverTrigger, PopoverContent` aus `@/components/ui/popover` importieren
+- `BadgeEuro` aus lucide-react Import entfernen (nicht mehr gebraucht)
 
-**1. Fahrzeug-Zusammenfassung**
-- Trennlinie (`border-t border-gray-200 pt-4`)
-- Fahrzeugname als Ueberschrift (`text-lg font-semibold`)
-- Kompakte Info-Liste mit Icons: Preis, km-Stand, Erstzulassung, Kraftstoff, Leistung (PS/kW)
-- Stil: `text-sm text-gray-600`, Icons in `text-gray-400`
-
-**2. "Fahrzeug anfragen"-Button**
-- Volle Breite, petrolblau (`bg-[#00527a]`), weisse Schrift
-- Oeffnet `mailto:` mit dem Verkaeufer-Email und vorausgefuelltem Betreff (Fahrzeugname + Auftragsnummer)
-- Unter der Zusammenfassung, mit `mt-4`
+**2. Hamburger-Button + Sidebar ersetzen (Zeilen 250-345)**
+- Den `sidebarOpen` State und den separaten `<Sheet>` Block entfernen
+- Den Hamburger-Button in einen `PopoverTrigger` wrappen
+- `PopoverContent`: heller Hintergrund (`bg-white`), abgerundete Ecken, Schatten, Breite ~`w-72`
+- Inhalt: nur Ansprechpartner (Avatar, Name, Telefon, Mail, Anrufen-Button) — keine Fahrzeug-Zusammenfassung, kein Anfrage-Button
 
 ### Datei
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Zeile ~301: Fahrzeug-Kurzinfos + Anfrage-Button in Sidebar einfuegen |
+| `src/pages/Gebrauchtwagen.tsx` | Sheet durch Popover ersetzen, Inhalt auf Ansprechpartner reduzieren |
 
