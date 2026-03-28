@@ -123,7 +123,7 @@ export default function Gebrauchtwagen() {
   const [verkaeufer, setVerkaeufer] = useState<VerkaeuferMitBranding[]>([]);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
 
   useEffect(() => {
     const load = async () => {
