@@ -145,7 +145,7 @@ export default function Gebrauchtwagen() {
           {fahrzeug.fahrzeugname}
         </h1>
         <p className="text-gray-500 mt-1">
-          {branding?.name && `${branding.name} · `}ab {formatPrice(fahrzeug.preis)} EUR
+          ab {formatPrice(fahrzeug.preis)} EUR
         </p>
       </div>
 
