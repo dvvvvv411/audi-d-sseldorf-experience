@@ -100,14 +100,30 @@ export default function Fahrzeugbestand() {
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: fzData }, { data: brData }, { data: vkData }] = await Promise.all([
+      const [{ data: fzData }, { data: brData }, { data: vkData }, { data: vfData }] = await Promise.all([
         supabase.from("fahrzeuge").select("*").order("created_at", { ascending: false }),
         supabase.from("brandings").select("*").limit(1).single(),
         supabase.from("verkaeufer").select("*").limit(1),
+        supabase.from("verkaeufer_fahrzeuge").select("*"),
       ]);
       setFahrzeuge(fzData || []);
       setBranding(brData);
       setVerkaeufer(vkData || []);
+
+      // Build fahrzeug_id → sellerSlug map
+      const allVerkaeufer = vkData || [];
+      const map: Record<string, string> = {};
+      if (vfData && allVerkaeufer.length > 0) {
+        // We only have first seller loaded; fetch all sellers for slug building
+        const sellerIds = [...new Set(vfData.map(vf => vf.verkaeufer_id))];
+        const { data: allSellers } = await supabase.from("verkaeufer").select("id, vorname, nachname").in("id", sellerIds);
+        const sellerMap = new Map((allSellers || []).map(s => [s.id, `${s.vorname}_${s.nachname}`.toLowerCase()]));
+        vfData.forEach(vf => {
+          const slug = sellerMap.get(vf.verkaeufer_id);
+          if (slug) map[vf.fahrzeug_id] = slug;
+        });
+      }
+      setVfMap(map);
       setLoading(false);
     };
     load();
