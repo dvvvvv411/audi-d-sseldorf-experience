@@ -1,19 +1,20 @@
 
 
-## Dynamischer Seitentitel auf /gebrauchtwagen/:sellerSlug/:auftragsnummer
+## Fahrzeugbestand-Titel ändern + Fahrzeuganzahl anzeigen
 
-### Konzept
-Statt `usePageMeta` statisch beim Rendern aufzurufen, wird der Seitentitel dynamisch gesetzt, nachdem `fahrzeug` und `branding` geladen sind. Format: `SQ5 TDI Q - Audi Zentrum Düsseldorf`.
+### Änderungen in `src/pages/Fahrzeugbestand.tsx`
 
-### Änderung in `src/pages/Gebrauchtwagen.tsx`
+**Zeile 289:** Titel und Anzahl-Anzeige aktualisieren:
+- `<h1>Fahrzeugbestand</h1>` → `<h1>Alle Fahrzeuge</h1>`
+- Darüber eine dezente Zeile mit der Fahrzeuganzahl einfügen: `<p className="text-sm text-gray-400 mb-1">{fahrzeuge.length} Fahrzeuge</p>`
 
-1. **Zeile 130:** Statischen `usePageMeta(...)` Aufruf entfernen
-2. **Neuer `useEffect`** nach dem Datenladen: Setzt `document.title` und Meta-Tags dynamisch basierend auf `fahrzeug.fahrzeugname` und `branding.name`
-   - Titel: `{fahrzeugname} - {branding_name}` (z.B. "SQ5 TDI Q - Audi Zentrum Düsseldorf")
-   - Description: `{fahrzeugname} kaufen bei {branding_name}. Geprüfter Gebrauchtwagen mit Garantie.`
-   - Fallback wenn kein Fahrzeug/Branding: bisheriger statischer Text
+```text
+Vorher:                          Nachher:
+                                 <p class="text-sm text-gray-400 mb-1">12 Fahrzeuge</p>
+<h1>Fahrzeugbestand</h1>        <h1>Alle Fahrzeuge</h1>
+```
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Statischen `usePageMeta` durch dynamischen `useEffect` ersetzen, der auf `fahrzeug` und `verkaeufer` reagiert |
+| `src/pages/Fahrzeugbestand.tsx` | Titel → "Alle Fahrzeuge", Fahrzeuganzahl darüber |
 
