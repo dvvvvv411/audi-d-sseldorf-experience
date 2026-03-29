@@ -1,25 +1,15 @@
 
 
-## Loading-Spinner durch Audi-Logo-Animation ersetzen
+## Loading-Spinner auf /gebrauchtwagen durch Audi-Logo ersetzen
 
-### Konzept
-Der aktuelle Spinner (drehender Kreis) wird durch eine pulsierende Audi-Ringe-Animation ersetzt. Das bereits vorhandene `AudiLogo`-SVG wird wiederverwendet und mit einer sanften Puls-Animation versehen.
+### Änderung in `src/pages/Gebrauchtwagen.tsx`
 
-### Umsetzung in `src/pages/Fahrzeugbestand.tsx`
+**Zeilen 280-285** — Gleiche Behandlung wie bei /fahrzeugbestand:
+- `animate-spin rounded-full border` Kreis ersetzen durch `AudiLogo` mit `animate-pulse opacity-40 fill="#999"` + "Wird geladen..." Text
 
-**Zeilen 132-137** — Loading-State ersetzen:
-- Statt `animate-spin border` Kreis → `AudiLogo` Komponente mit `animate-pulse` und `opacity-40`
-- Darunter optional kleiner Text "Wird geladen..." in grau
-- Logo in grau (`fill="#999"`) dargestellt, pulsierend
+Voraussetzung: `AudiLogo` Komponente ist in Gebrauchtwagen.tsx bereits vorhanden (wird dort im Header verwendet).
 
-```text
-Vorher:                              Nachher:
-Drehender Kreis (border)             Audi-Logo (80x28)
-animate-spin                         animate-pulse, opacity-40
-                                     fill="#999", sanftes Pulsieren
-```
-
-| Datei | Aenderung |
+| Datei | Änderung |
 |---|---|
-| `src/pages/Fahrzeugbestand.tsx` | Loading-Spinner durch pulsierende AudiLogo-Komponente ersetzen |
+| `src/pages/Gebrauchtwagen.tsx` | Loading-Spinner (Zeile 283) durch pulsierende AudiLogo-Animation ersetzen, identisch zu Fahrzeugbestand |
 
