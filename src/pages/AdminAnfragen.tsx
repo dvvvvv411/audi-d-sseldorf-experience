@@ -32,11 +32,15 @@ export default function AdminAnfragen() {
   const { toast } = useToast();
   const [anfragen, setAnfragen] = useState<Anfrage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAnfrage, setSelectedAnfrage] = useState<Anfrage | null>(null);
-  const [notizenText, setNotizenText] = useState("");
+  const [selectedAnfrageId, setSelectedAnfrageId] = useState<string | null>(null);
+  const [selectedAnfrageName, setSelectedAnfrageName] = useState("");
+  const [notizen, setNotizen] = useState<{ id: string; text: string; created_at: string }[]>([]);
+  const [neueNotiz, setNeueNotiz] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loadingNotizen, setLoadingNotizen] = useState(false);
   const [mailboxClicks, setMailboxClicks] = useState<Record<string, string[]>>({});
   const [mailboxPopupAnfrageId, setMailboxPopupAnfrageId] = useState<string | null>(null);
+  const [notizenCounts, setNotizenCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const load = async () => {
