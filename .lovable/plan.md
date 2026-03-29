@@ -1,18 +1,22 @@
 
 
-## Fix: Datenschutz-Checkbox wird beim Klick auf Label-Text doppelt getoggled
+## Notizen-Button + Popup in der Anfragen-Tabelle
 
-### Problem
-Die `<label>` hat sowohl `htmlFor="datenschutz"` als auch einen eigenen `onClick`-Handler. Beim Klick auf den Text passiert Folgendes:
-1. `htmlFor` triggert die Checkbox nativ (toggle an)
-2. `onClick` auf dem Label toggled den State nochmal zurück (toggle aus)
+### Konzept
+Neben dem Auge-Button (Detail-Ansicht) wird ein neuer Button mit `StickyNote`-Icon eingefügt. Beim Klick öffnet sich ein Dialog/Popup, das die vorhandenen Notizen der Anfrage anzeigt und ein Textfeld zum Hinzufügen/Bearbeiten bietet. Die Notizen werden direkt aus dem `notizen`-Feld der `anfragen`-Tabelle gelesen und dort gespeichert.
 
-Ergebnis: Checkbox bleibt unverändert.
+### Änderungen in `src/pages/AdminAnfragen.tsx`
 
-### Lösung
-Den redundanten `onClick={() => setDatenschutz(!datenschutz)}` vom `<label>` entfernen. Das native `htmlFor="datenschutz"` reicht aus, um die Checkbox beim Klick auf den Text zu aktivieren.
+1. **Interface erweitern**: `notizen: string | null` zum `Anfrage`-Interface hinzufügen
+2. **State für Popup**: `selectedAnfrage` (welche Anfrage offen ist), `notizenText` (aktueller Text), `saving` (Speicherstatus)
+3. **Notizen-Button**: Neben dem Eye-Button ein `StickyNote`-Icon-Button einfügen. Falls Notizen vorhanden, visueller Indikator (z.B. andere Farbe)
+4. **Dialog-Popup**: Zeigt bestehende Notizen an, Textarea zum Bearbeiten, Speichern-Button. Nach Speichern wird der lokale State aktualisiert
+5. **Speichern**: `supabase.from("anfragen").update({ notizen }).eq("id", id)` — gleiche Logik wie in AdminAnfrageDetail
+
+### Spalte in Tabelle
+Die letzte Spalte (`w-12`) wird breiter (`w-24`), um beide Buttons nebeneinander zu zeigen.
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Zeile 807: `onClick` vom Label entfernen, `htmlFor` bleibt |
+| `src/pages/AdminAnfragen.tsx` | Notizen-Button + Dialog hinzufügen, Interface erweitern, Speicherlogik |
 
