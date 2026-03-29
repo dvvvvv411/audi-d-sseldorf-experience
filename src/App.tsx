@@ -56,6 +56,7 @@ const App = () => (
             <Route path="fahrzeugbestand" element={<AdminFahrzeugbestand />} />
             <Route path="anfragen" element={<AdminAnfragen />} />
             <Route path="anfragen/:id" element={<AdminAnfrageDetail />} />
+            <Route path="email-templates" element={<AdminEmailTemplates />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

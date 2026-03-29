@@ -18,6 +18,7 @@ const navItems = [
   { label: "Brandings", icon: Building2, path: "/admin/brandings" },
   { label: "Fahrzeugbestand", icon: Car, path: "/admin/fahrzeugbestand" },
   { label: "Anfragen", icon: MessageSquare, path: "/admin/anfragen" },
+  { label: "Email Templates", icon: Mail, path: "/admin/email-templates" },
 ];
 
 const AdminLayout = () => {
