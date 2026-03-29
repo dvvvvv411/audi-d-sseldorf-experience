@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, StickyNote, Save } from "lucide-react";
+import { Eye, StickyNote, Save, Mail } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 interface Anfrage {
   id: string;
@@ -33,18 +35,37 @@ export default function AdminAnfragen() {
   const [selectedAnfrage, setSelectedAnfrage] = useState<Anfrage | null>(null);
   const [notizenText, setNotizenText] = useState("");
   const [saving, setSaving] = useState(false);
+  const [mailboxClicks, setMailboxClicks] = useState<Record<string, string[]>>({});
+  const [mailboxPopupAnfrageId, setMailboxPopupAnfrageId] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
-        .from("anfragen")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (data) setAnfragen(data);
+      const [anfrRes, clicksRes] = await Promise.all([
+        supabase.from("anfragen").select("*").order("created_at", { ascending: false }),
+        supabase.from("mailbox_clicks").select("*").order("clicked_at", { ascending: false }),
+      ]);
+      if (anfrRes.data) setAnfragen(anfrRes.data);
+      if (clicksRes.data) {
+        const grouped: Record<string, string[]> = {};
+        for (const c of clicksRes.data) {
+          if (!grouped[c.anfrage_id]) grouped[c.anfrage_id] = [];
+          grouped[c.anfrage_id].push(c.clicked_at);
+        }
+        setMailboxClicks(grouped);
+      }
       setLoading(false);
     };
     load();
   }, []);
+
+  const handleMailboxClick = async (anfrageId: string) => {
+    const now = new Date().toISOString();
+    await supabase.from("mailbox_clicks").insert({ anfrage_id: anfrageId } as any);
+    setMailboxClicks((prev) => ({
+      ...prev,
+      [anfrageId]: [now, ...(prev[anfrageId] || [])],
+    }));
+  };
 
   const openNotizen = (a: Anfrage) => {
     setSelectedAnfrage(a);
