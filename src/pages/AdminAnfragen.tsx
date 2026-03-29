@@ -167,14 +167,21 @@ export default function AdminAnfragen() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`hover:bg-gray-100 ${a.notizen ? "text-amber-500 hover:text-amber-700" : "text-gray-400 hover:text-gray-600"}`}
-                        onClick={() => openNotizen(a)}
-                      >
-                        <StickyNote className="w-4 h-4" />
-                      </Button>
+                      <div className="relative">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={`hover:bg-gray-100 ${(notizenCounts[a.id] || 0) > 0 ? "text-amber-500 hover:text-amber-700" : "text-gray-400 hover:text-gray-600"}`}
+                          onClick={() => openNotizen(a)}
+                        >
+                          <StickyNote className="w-4 h-4" />
+                        </Button>
+                        {(notizenCounts[a.id] || 0) > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                            {notizenCounts[a.id]}
+                          </span>
+                        )}
+                      </div>
                       <div className="relative">
                         <Button
                           variant="ghost"
