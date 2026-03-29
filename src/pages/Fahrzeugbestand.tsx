@@ -59,30 +59,27 @@ function FahrzeugCard({ fahrzeug }: { fahrzeug: Fahrzeug }) {
       {/* Title */}
       <div className="px-4 pt-3 pb-2">
         <h3 className="font-bold text-gray-900 text-sm leading-tight">{fahrzeug.fahrzeugname}</h3>
-        {fahrzeug.beschreibung && (
-          <p className="text-xs text-gray-500 mt-1 line-clamp-1">{fahrzeug.beschreibung}</p>
-        )}
       </div>
 
       {/* Specs Grid */}
-      <div className="px-4 pb-3">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+      <div className="bg-[#323232]">
+        <div className="grid grid-cols-3 grid-rows-2">
           {specs.map((spec, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <spec.icon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <span className="text-xs text-gray-600 truncate">{spec.label}</span>
+            <div key={i} className="flex flex-col items-center justify-center gap-1 py-3 px-2 border border-[#3a3a3a]">
+              <spec.icon className="w-5 h-5 text-white/70" />
+              <span className="text-[10px] text-white/70 text-center leading-tight">{spec.label}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Price Footer */}
-      <div className="bg-gray-800 px-4 py-3 flex items-center justify-between">
+      <div className="bg-[#323232] hover:bg-[#00527a] transition-colors cursor-pointer px-4 py-3 flex items-center justify-between">
         <div>
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider">Preis</p>
-          <p className="text-[10px] text-gray-400">inkl. MwSt.</p>
+          <p className="text-white text-xs">Preis</p>
+          <p className="text-white/70 text-xs">inkl. MwSt.</p>
         </div>
-        <p className="text-white font-bold text-lg">{formatPrice(fahrzeug.preis)} €</p>
+        <p className="text-white font-bold text-xl">{formatPrice(fahrzeug.preis)} €</p>
       </div>
     </div>
   );
