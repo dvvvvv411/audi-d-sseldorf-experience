@@ -285,6 +285,7 @@ export default function AdminAnfragen() {
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow className="border-gray-200">
+                <TableHead className="text-gray-600 font-semibold">Datum</TableHead>
                 <TableHead className="text-gray-600 font-semibold">Name</TableHead>
                 <TableHead className="text-gray-600 font-semibold">E-Mail</TableHead>
                 <TableHead className="text-gray-600 font-semibold">Telefon</TableHead>
