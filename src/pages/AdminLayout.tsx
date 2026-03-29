@@ -32,7 +32,7 @@ const AdminLayout = () => {
       const { count } = await supabase
         .from("anfragen")
         .select("id", { count: "exact", head: true })
-        .eq("status", "NEU");
+        .in("status", ["NEU", "Neu"]);
       setNeuCount(count ?? 0);
     };
     fetchCount();

@@ -178,9 +178,27 @@ export default function AdminAnfragen() {
                   <TableCell className="whitespace-nowrap text-gray-700">{a.fahrzeug_name}</TableCell>
                   <TableCell className="text-gray-700">{a.branding_name}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
-                      {a.status}
-                    </Badge>
+                    <Select
+                      value={displayStatus(a.status)}
+                      onValueChange={async (val) => {
+                        const { error } = await supabase.from("anfragen").update({ status: val }).eq("id", a.id);
+                        if (error) {
+                          toast({ title: "Fehler", description: "Status konnte nicht aktualisiert werden.", variant: "destructive" });
+                        } else {
+                          setAnfragen((prev) => prev.map((x) => x.id === a.id ? { ...x, status: val } : x));
+                          toast({ title: "Status aktualisiert", description: `Status auf "${val}" gesetzt.` });
+                        }
+                      }}
+                    >
+                      <SelectTrigger className={`w-[170px] h-8 text-xs font-medium border-0 ${statusColors[displayStatus(a.status)] || "bg-gray-100 text-gray-800"}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell>
                     <TooltipProvider delayDuration={300}>
