@@ -127,7 +127,7 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
 }
 
 export default function Gebrauchtwagen() {
-  usePageMeta("Gebrauchtwagen · Audi Düsseldorf", "Geprüfte Audi Gebrauchtwagen in Düsseldorf. Alle Modelle mit Garantie und Top-Ausstattung.");
+  // Dynamic page title/meta set via useEffect below
   const navigate = useNavigate();
   const { toast } = useToast();
   const { sellerSlug, auftragsnummer } = useParams<{ sellerSlug?: string; auftragsnummer?: string }>();
