@@ -95,6 +95,7 @@ export default function Fahrzeugbestand() {
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [branding, setBranding] = useState<Branding | null>(null);
   const [verkaeufer, setVerkaeufer] = useState<Verkaeufer[]>([]);
+  const [vfMap, setVfMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
