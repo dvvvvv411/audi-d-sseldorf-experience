@@ -192,13 +192,17 @@ export default function AdminAnfragen() {
       }));
       const email = await getUserEmail();
       const now = new Date().toISOString();
-      await logAktivitaet("notiz_hinzugefuegt", neueNotiz.trim(), selectedAnfrageId);
+      const anfrage = anfragen.find((x) => x.id === selectedAnfrageId);
+      const detailText = anfrage
+        ? `${anfrage.vorname} ${anfrage.nachname}: ${neueNotiz.trim()}`
+        : neueNotiz.trim();
+      await logAktivitaet("notiz_hinzugefuegt", detailText, selectedAnfrageId);
       addLogEntry({
         id: crypto.randomUUID(),
         created_at: now,
         user_email: email,
         aktion: "notiz_hinzugefuegt",
-        details: neueNotiz.trim(),
+        details: detailText,
         anfrage_id: selectedAnfrageId,
       });
     }
