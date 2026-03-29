@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Phone, MapPin, ChevronDown } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const AudiRings = () => (
   <svg viewBox="0 0 200 50" className="w-36 md:w-44 h-auto opacity-90" fill="none" xmlns="http://www.w3.org/2000/svg">
