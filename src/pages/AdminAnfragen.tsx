@@ -44,11 +44,19 @@ export default function AdminAnfragen() {
 
   useEffect(() => {
     const load = async () => {
-      const [anfrRes, clicksRes] = await Promise.all([
+      const [anfrRes, clicksRes, notizenRes] = await Promise.all([
         supabase.from("anfragen").select("*").order("created_at", { ascending: false }),
         supabase.from("mailbox_clicks").select("*").order("clicked_at", { ascending: false }),
+        supabase.from("anfrage_notizen").select("anfrage_id"),
       ]);
       if (anfrRes.data) setAnfragen(anfrRes.data);
+      if (notizenRes.data) {
+        const counts: Record<string, number> = {};
+        for (const n of notizenRes.data) {
+          counts[n.anfrage_id] = (counts[n.anfrage_id] || 0) + 1;
+        }
+        setNotizenCounts(counts);
+      }
       if (clicksRes.data) {
         const grouped: Record<string, string[]> = {};
         for (const c of clicksRes.data) {
