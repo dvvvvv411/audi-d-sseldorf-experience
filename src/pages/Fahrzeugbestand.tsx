@@ -223,7 +223,7 @@ export default function Fahrzeugbestand() {
 
       {/* Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Fahrzeugbestand</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6 animate-fade-in">Fahrzeugbestand</h1>
 
         {fahrzeuge.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
