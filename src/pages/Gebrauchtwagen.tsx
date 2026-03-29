@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { usePageMeta } from "@/hooks/usePageMeta";
+
 import { Tables } from "@/integrations/supabase/types";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
@@ -127,7 +127,6 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
 }
 
 export default function Gebrauchtwagen() {
-  usePageMeta("Gebrauchtwagen · Audi Düsseldorf", "Geprüfte Audi Gebrauchtwagen in Düsseldorf. Alle Modelle mit Garantie und Top-Ausstattung.");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { sellerSlug, auftragsnummer } = useParams<{ sellerSlug?: string; auftragsnummer?: string }>();
@@ -136,6 +135,21 @@ export default function Gebrauchtwagen() {
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Dynamic page meta based on loaded data
+  useEffect(() => {
+    if (fahrzeug && verkaeufer.length > 0 && verkaeufer[0].branding) {
+      const brandingName = verkaeufer[0].branding.name;
+      const title = `${fahrzeug.fahrzeugname} - ${brandingName}`;
+      const desc = `${fahrzeug.fahrzeugname} kaufen bei ${brandingName}. Geprüfter Gebrauchtwagen mit Garantie.`;
+      document.title = title;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute("content", desc);
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute("content", title);
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      if (ogDesc) ogDesc.setAttribute("content", desc);
+    }
+  }, [fahrzeug, verkaeufer]);
   // Anfrage Dialog
   const [anfrageOpen, setAnfrageOpen] = useState(false);
   const [anfrageForm, setAnfrageForm] = useState({ vorname: "", nachname: "", email: "", telefon: "", nachricht: "" });
