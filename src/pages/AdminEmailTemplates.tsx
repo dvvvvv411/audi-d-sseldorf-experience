@@ -104,7 +104,7 @@ const generateAnfrageEmail = (branding: Branding, fahrzeug: Fahrzeug) => {
         <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid #e0e0e0;margin:0;"/></td></tr>
 
         <!-- Audi Vertriebssystem Hinweis -->
-        <tr><td style="padding:20px 40px 10px;text-align:center;">
+        <tr><td style="padding:20px 40px 10px;text-align:left;">
           <p style="font-size:12px;color:#999;margin:0;letter-spacing:0.5px;">
             Audi Vertriebssystem — Ein Service der AUDI AG
           </p>
@@ -112,7 +112,7 @@ const generateAnfrageEmail = (branding: Branding, fahrzeug: Fahrzeug) => {
 
         <!-- Footer -->
         <tr><td style="padding:10px 40px 30px;">
-          <p style="font-size:11px;color:#999;line-height:1.5;margin:0;text-align:center;">
+          <p style="font-size:11px;color:#999;line-height:1.5;margin:0;text-align:left;">
             AUDI AG<br/>
             Auto-Union-Straße 1, 85057 Ingolstadt<br/>
             www.audi.de<br/><br/>
