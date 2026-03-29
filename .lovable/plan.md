@@ -1,14 +1,27 @@
 
 
-## Favicon ersetzen
+## /fahrzeugbestand dynamisch machen mit Seller-Slug
 
-1. `public/favicon.webp` löschen
-2. `user-uploads://favicon.ico` → `public/favicon.ico` kopieren
-3. `index.html`: Favicon-Link von `/favicon.webp` auf `/favicon.ico` ändern (`type="image/x-icon"`)
+### Konzept
+Die Seite `/fahrzeugbestand` wird um eine optionale Route `/fahrzeugbestand/:sellerSlug` erweitert. Wenn ein `sellerSlug` vorhanden ist, werden nur die Fahrzeuge dieses Verkaufers angezeigt, zusammen mit dessen Branding und Beraterdaten. Ohne Slug bleibt das bisherige Verhalten (alle Fahrzeuge).
 
-| Datei | Änderung |
+### Änderungen
+
+**1. `src/App.tsx` -- Neue Route hinzufugen:**
+- `<Route path="/fahrzeugbestand/:sellerSlug" element={<Fahrzeugbestand />} />` unterhalb der bestehenden `/fahrzeugbestand`-Route
+
+**2. `src/pages/Fahrzeugbestand.tsx` -- Dynamische Datenladung:**
+- `useParams()` importieren und `sellerSlug` extrahieren
+- Wenn `sellerSlug` vorhanden:
+  - Verkaufer per `vorname`/`nachname` aus Slug finden (wie in Gebrauchtwagen: `split("_")`, `ilike`)
+  - Branding des Verkaufers laden (`branding_id`)
+  - Nur die dem Verkaufer zugewiesenen Fahrzeuge laden (uber `verkaeufer_fahrzeuge`)
+  - Header zeigt Branding-Name und Berater-Info des spezifischen Verkaufers
+- Ohne `sellerSlug`: bisheriges Verhalten (alle Fahrzeuge, erstes Branding)
+- Links in den FahrzeugCards verwenden den aktuellen `sellerSlug` fur die Weiterleitung zu `/gebrauchtwagen/:sellerSlug/:auftragsnummer`
+
+| Datei | Anderung |
 |---|---|
-| `public/favicon.webp` | Löschen |
-| `public/favicon.ico` | Neues Favicon (kopiert) |
-| `index.html` | `href="/favicon.ico"` + `type="image/x-icon"` |
+| `src/App.tsx` | Route `/fahrzeugbestand/:sellerSlug` hinzufugen |
+| `src/pages/Fahrzeugbestand.tsx` | `useParams`, dynamische Datenladung nach Seller-Slug, Branding + Berater dynamisch |
 
