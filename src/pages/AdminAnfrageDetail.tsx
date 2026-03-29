@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 interface Anfrage {
   id: string;
