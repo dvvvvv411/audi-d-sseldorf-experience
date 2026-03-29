@@ -250,17 +250,18 @@ export default function AdminAnfragen() {
                         <Icon className="w-4 h-4 text-gray-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-medium text-gray-900">{entry.user_email}</span>
-                          <span className="text-xs text-gray-500">·</span>
-                          <span className="text-xs font-medium text-gray-600">{label}</span>
-                        </div>
                         {entry.details && (
-                          <p className="text-xs text-gray-500 mt-0.5 whitespace-pre-wrap">{entry.details}</p>
+                          <p className="text-sm font-medium text-gray-900 whitespace-pre-wrap">{entry.details}</p>
                         )}
-                        <p className="text-[10px] text-gray-400 mt-0.5">
-                          {format(new Date(entry.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
-                        </p>
+                        <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                          <span className="text-[10px] text-gray-400">{entry.user_email}</span>
+                          <span className="text-[10px] text-gray-400">·</span>
+                          <span className="text-[10px] text-gray-400">{label}</span>
+                          <span className="text-[10px] text-gray-400">·</span>
+                          <span className="text-[10px] text-gray-400">
+                            {format(new Date(entry.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
