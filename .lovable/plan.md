@@ -1,40 +1,29 @@
 
 
-## SEO Meta-Daten für alle Seiten hinzufügen
+## Gesamte FahrzeugCard klickbar + Preis-Hover-Effekt
 
 ### Konzept
-Da es sich um eine React SPA handelt, wird ein kleiner `usePageMeta`-Hook erstellt, der `document.title` und die Meta-Description dynamisch pro Seite setzt. Jede öffentliche Seite ruft diesen Hook mit passenden Texten auf.
+Die gesamte Karte wird zu einem klickbaren Link. Beim Hover über **irgendeine Stelle** der Karte wechselt das Preis-Element von grau (`#323232`) zu blau (`#00527a`).
 
-### 1. Neuer Hook: `src/hooks/usePageMeta.ts`
-Setzt `document.title` und aktualisiert `<meta name="description">` + OG-Tags per `useEffect`.
+### Änderung in `src/pages/Fahrzeugbestand.tsx`
 
-### 2. Hook-Aufrufe pro Seite
+**FahrzeugCard-Komponente (Zeilen 45-94):**
 
-| Seite | Title | Description |
-|---|---|---|
-| `/` (Index) | Audi Düsseldorf – Ihr Premium-Partner | Willkommen bei Audi Düsseldorf. Entdecken Sie Neuwagen, Gebrauchtwagen, Service und Beratung bei Ihrem Audi Partner in Düsseldorf. |
-| `/fahrzeugbestand` | Fahrzeugbestand · Audi Düsseldorf | Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi bei Audi Düsseldorf. Große Auswahl an Neu- und Gebrauchtwagen. |
-| `/gebrauchtwagen` | Gebrauchtwagen · Audi Düsseldorf | Geprüfte Audi Gebrauchtwagen in Düsseldorf. Alle Modelle mit Garantie und Top-Ausstattung. |
-| `/gebrauchtwagen/:slug/:nr` | (dynamisch: Fahrzeugname) · Audi Düsseldorf | (dynamisch basierend auf Fahrzeugdaten) |
-| `/rechtliches` | Rechtliches · Audi Düsseldorf | Rechtliche Informationen von Audi Düsseldorf. |
-| `/rechtliches/impressum` | Impressum · Audi Düsseldorf | Impressum und Kontaktdaten von Audi Düsseldorf. |
-| `/rechtliches/datenschutzinformation` | Datenschutz · Audi Düsseldorf | Datenschutzinformationen und Ihre Rechte bei Audi Düsseldorf. |
-| `/rechtliches/cookie-richtlinie` | Cookie-Richtlinie · Audi Düsseldorf | Informationen zur Verwendung von Cookies auf audi-duesseldorf.de. |
-| `/rechtliches/barrierefreiheit` | Barrierefreiheit · Audi Düsseldorf | Erklärung zur Barrierefreiheit von Audi Düsseldorf. |
-| `/rechtliches/digital-services-act` | Digital Services Act · Audi Düsseldorf | Informationen zum Digital Services Act bei Audi Düsseldorf. |
-| `/rechtliches/eu-data-act` | EU Data Act · Audi Düsseldorf | Informationen zum EU Data Act bei Audi Düsseldorf. |
+1. Den äußeren `<div>` durch einen `<Link>` ersetzen, der auf die Produktseite verlinkt
+2. Den bestehenden `<Link>` am Preis-Footer durch ein normales `<div>` ersetzen (da die ganze Karte bereits ein Link ist)
+3. CSS `group`-Klasse auf den äußeren Link setzen, damit der Preis-Footer via `group-hover:bg-[#00527a]` bei Hover über die gesamte Karte blau wird
 
-### 3. `index.html` bleibt als Fallback
-Die bestehenden Meta-Tags in `index.html` bleiben als Standard-Fallback für Crawler, die kein JS ausführen.
-
-### Dateien
+```text
+Vorher:                              Nachher:
+<div> (nicht klickbar)               <Link className="group"> (gesamte Karte klickbar)
+  ...                                  ...
+  <Link> (nur Preis klickbar)          <div className="group-hover:bg-[#00527a]">
+    Preis-Footer                         Preis-Footer
+  </Link>                             </div>
+</div>                               </Link>
+```
 
 | Datei | Änderung |
 |---|---|
-| `src/hooks/usePageMeta.ts` | Neuer Hook: setzt title, description, OG-Tags |
-| `src/pages/Index.tsx` | `usePageMeta(...)` Aufruf |
-| `src/pages/Fahrzeugbestand.tsx` | `usePageMeta(...)` Aufruf |
-| `src/pages/Gebrauchtwagen.tsx` | `usePageMeta(...)` Aufruf |
-| `src/pages/rechtliches/*.tsx` | `usePageMeta(...)` Aufruf (6 Seiten) |
-| `src/pages/NotFound.tsx` | `usePageMeta(...)` Aufruf |
+| `src/pages/Fahrzeugbestand.tsx` | Äußeren Container → `Link` mit `group`, Preis-Footer → `div` mit `group-hover` |
 
