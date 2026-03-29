@@ -127,6 +127,14 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
 }
 
 export default function Gebrauchtwagen() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { sellerSlug, auftragsnummer } = useParams<{ sellerSlug?: string; auftragsnummer?: string }>();
+  const [fahrzeug, setFahrzeug] = useState<Fahrzeug | null>(null);
+  const [verkaeufer, setVerkaeufer] = useState<VerkaeuferMitBranding[]>([]);
+  const [mainImage, setMainImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
   // Dynamic page meta based on loaded data
   useEffect(() => {
     if (fahrzeug && verkaeufer.length > 0 && verkaeufer[0].branding) {
@@ -142,14 +150,6 @@ export default function Gebrauchtwagen() {
       if (ogDesc) ogDesc.setAttribute("content", desc);
     }
   }, [fahrzeug, verkaeufer]);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { sellerSlug, auftragsnummer } = useParams<{ sellerSlug?: string; auftragsnummer?: string }>();
-  const [fahrzeug, setFahrzeug] = useState<Fahrzeug | null>(null);
-  const [verkaeufer, setVerkaeufer] = useState<VerkaeuferMitBranding[]>([]);
-  const [mainImage, setMainImage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
   // Anfrage Dialog
   const [anfrageOpen, setAnfrageOpen] = useState(false);
   const [anfrageForm, setAnfrageForm] = useState({ vorname: "", nachname: "", email: "", telefon: "", nachricht: "" });
