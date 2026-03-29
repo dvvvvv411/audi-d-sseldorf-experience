@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye } from "lucide-react";
+import { Eye, StickyNote, Save } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 interface Anfrage {
   id: string;
@@ -19,12 +22,17 @@ interface Anfrage {
   verkaeufer_name: string;
   branding_name: string;
   status: string;
+  notizen: string | null;
 }
 
 export default function AdminAnfragen() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [anfragen, setAnfragen] = useState<Anfrage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAnfrage, setSelectedAnfrage] = useState<Anfrage | null>(null);
+  const [notizenText, setNotizenText] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -37,6 +45,23 @@ export default function AdminAnfragen() {
     };
     load();
   }, []);
+
+  const openNotizen = (a: Anfrage) => {
+    setSelectedAnfrage(a);
+    setNotizenText(a.notizen || "");
+  };
+
+  const saveNotizen = async () => {
+    if (!selectedAnfrage) return;
+    setSaving(true);
+    await supabase.from("anfragen").update({ notizen: notizenText }).eq("id", selectedAnfrage.id);
+    setAnfragen((prev) =>
+      prev.map((a) => (a.id === selectedAnfrage.id ? { ...a, notizen: notizenText } : a))
+    );
+    setSelectedAnfrage(null);
+    toast({ title: "Notizen gespeichert" });
+    setSaving(false);
+  };
 
   if (loading) {
     return (
@@ -72,7 +97,7 @@ export default function AdminAnfragen() {
                 <TableHead className="text-gray-600 font-semibold">Fahrzeug</TableHead>
                 <TableHead className="text-gray-600 font-semibold">Branding</TableHead>
                 <TableHead className="text-gray-600 font-semibold">Status</TableHead>
-                <TableHead className="w-12" />
+                <TableHead className="w-24" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -92,14 +117,24 @@ export default function AdminAnfragen() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-                      onClick={() => navigate(`/admin/anfragen/${a.id}`)}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`hover:bg-gray-100 ${a.notizen ? "text-amber-500 hover:text-amber-700" : "text-gray-400 hover:text-gray-600"}`}
+                        onClick={() => openNotizen(a)}
+                      >
+                        <StickyNote className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                        onClick={() => navigate(`/admin/anfragen/${a.id}`)}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -107,6 +142,28 @@ export default function AdminAnfragen() {
           </Table>
         </div>
       )}
+
+      <Dialog open={!!selectedAnfrage} onOpenChange={(open) => !open && setSelectedAnfrage(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Notizen – {selectedAnfrage?.vorname} {selectedAnfrage?.nachname}
+            </DialogTitle>
+          </DialogHeader>
+          <Textarea
+            value={notizenText}
+            onChange={(e) => setNotizenText(e.target.value)}
+            placeholder="Notizen zur Anfrage hinzufügen..."
+            className="min-h-[160px] bg-white border-gray-300 text-gray-900"
+          />
+          <div className="flex justify-end">
+            <Button onClick={saveNotizen} disabled={saving} className="bg-gray-900 text-white hover:bg-gray-800">
+              <Save className="w-4 h-4 mr-2" />
+              {saving ? "Speichern..." : "Notizen speichern"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
