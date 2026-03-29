@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, StickyNote, Save, Mail } from "lucide-react";
+import { Eye, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -28,6 +29,15 @@ interface Anfrage {
   notizen: string | null;
 }
 
+interface LogEntry {
+  id: string;
+  created_at: string;
+  user_email: string;
+  aktion: string;
+  details: string | null;
+  anfrage_id: string | null;
+}
+
 const statusOptions = [
   "Neu", "In Bearbeitung", "Möchte Daten", "Möchte Rechnung", "Rechnung versendet", "Bezahlt"
 ];
@@ -44,6 +54,43 @@ const statusColors: Record<string, string> = {
 
 const displayStatus = (s: string) => s === "NEU" ? "Neu" : s;
 
+const emailColors = [
+  "bg-red-500", "bg-blue-500", "bg-green-500", "bg-purple-500",
+  "bg-amber-500", "bg-pink-500", "bg-teal-500", "bg-indigo-500",
+];
+
+function getEmailColor(email: string): string {
+  let hash = 0;
+  for (let i = 0; i < email.length; i++) {
+    hash = email.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return emailColors[Math.abs(hash) % emailColors.length];
+}
+
+function getAktionLabel(aktion: string): { label: string; icon: typeof Settings } {
+  switch (aktion) {
+    case "status_geaendert": return { label: "Status geändert", icon: Settings };
+    case "notiz_hinzugefuegt": return { label: "Notiz hinzugefügt", icon: StickyNote };
+    case "mailbox_klick": return { label: "Mailbox geklickt", icon: Mail };
+    default: return { label: aktion, icon: Settings };
+  }
+}
+
+async function getUserEmail(): Promise<string> {
+  const { data } = await supabase.auth.getUser();
+  return data.user?.email || "unbekannt";
+}
+
+async function logAktivitaet(aktion: string, details?: string | null, anfrageId?: string) {
+  const email = await getUserEmail();
+  await supabase.from("aktivitaets_log" as any).insert({
+    user_email: email,
+    aktion,
+    details: details || null,
+    anfrage_id: anfrageId || null,
+  } as any);
+}
+
 export default function AdminAnfragen() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -58,13 +105,16 @@ export default function AdminAnfragen() {
   const [mailboxClicks, setMailboxClicks] = useState<Record<string, string[]>>({});
   const [mailboxPopupAnfrageId, setMailboxPopupAnfrageId] = useState<string | null>(null);
   const [notizenCounts, setNotizenCounts] = useState<Record<string, number>>({});
+  const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
+  const [logOpen, setLogOpen] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const [anfrRes, clicksRes, notizenRes] = await Promise.all([
+      const [anfrRes, clicksRes, notizenRes, logRes] = await Promise.all([
         supabase.from("anfragen").select("*").order("created_at", { ascending: false }),
         supabase.from("mailbox_clicks").select("*").order("clicked_at", { ascending: false }),
         supabase.from("anfrage_notizen").select("anfrage_id"),
+        supabase.from("aktivitaets_log" as any).select("*").order("created_at", { ascending: false }).limit(50),
       ]);
       if (anfrRes.data) setAnfragen(anfrRes.data);
       if (notizenRes.data) {
@@ -82,10 +132,15 @@ export default function AdminAnfragen() {
         }
         setMailboxClicks(grouped);
       }
+      if (logRes.data) setLogEntries(logRes.data as any);
       setLoading(false);
     };
     load();
   }, []);
+
+  const addLogEntry = (entry: LogEntry) => {
+    setLogEntries((prev) => [entry, ...prev].slice(0, 50));
+  };
 
   const handleMailboxClick = async (anfrageId: string) => {
     const now = new Date().toISOString();
@@ -94,6 +149,17 @@ export default function AdminAnfragen() {
       ...prev,
       [anfrageId]: [now, ...(prev[anfrageId] || [])],
     }));
+    const email = await getUserEmail();
+    const anfrage = anfragen.find((a) => a.id === anfrageId);
+    await logAktivitaet("mailbox_klick", anfrage ? `${anfrage.vorname} ${anfrage.nachname}` : null, anfrageId);
+    addLogEntry({
+      id: crypto.randomUUID(),
+      created_at: now,
+      user_email: email,
+      aktion: "mailbox_klick",
+      details: anfrage ? `${anfrage.vorname} ${anfrage.nachname}` : null,
+      anfrage_id: anfrageId,
+    });
   };
 
   const openNotizen = async (a: Anfrage) => {
@@ -124,6 +190,17 @@ export default function AdminAnfragen() {
         ...prev,
         [selectedAnfrageId]: (prev[selectedAnfrageId] || 0) + 1,
       }));
+      const email = await getUserEmail();
+      const now = new Date().toISOString();
+      await logAktivitaet("notiz_hinzugefuegt", neueNotiz.trim(), selectedAnfrageId);
+      addLogEntry({
+        id: crypto.randomUUID(),
+        created_at: now,
+        user_email: email,
+        aktion: "notiz_hinzugefuegt",
+        details: neueNotiz.trim(),
+        anfrage_id: selectedAnfrageId,
+      });
     }
     setNeueNotiz("");
     setSaving(false);
@@ -145,6 +222,55 @@ export default function AdminAnfragen() {
 
   return (
     <div>
+      {/* Aktivitätsprotokoll */}
+      <Collapsible open={logOpen} onOpenChange={setLogOpen} className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl font-bold text-gray-900">Aktivitätsprotokoll</h2>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm" className="text-gray-500">
+              {logOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </CollapsibleTrigger>
+        </div>
+        <CollapsibleContent>
+          <div className="bg-white rounded-lg border border-gray-200 p-4 max-h-[300px] overflow-y-auto">
+            {logEntries.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-4">Noch keine Aktivitäten protokolliert.</p>
+            ) : (
+              <div className="space-y-3">
+                {logEntries.map((entry) => {
+                  const { label, icon: Icon } = getAktionLabel(entry.aktion);
+                  const dotColor = getEmailColor(entry.user_email);
+                  return (
+                    <div key={entry.id} className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <div className={`w-3 h-3 rounded-full ${dotColor}`} />
+                      </div>
+                      <div className="flex-shrink-0 mt-0.5">
+                        <Icon className="w-4 h-4 text-gray-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-medium text-gray-900">{entry.user_email}</span>
+                          <span className="text-xs text-gray-500">·</span>
+                          <span className="text-xs font-medium text-gray-600">{label}</span>
+                        </div>
+                        {entry.details && (
+                          <p className="text-xs text-gray-500 mt-0.5 whitespace-pre-wrap">{entry.details}</p>
+                        )}
+                        <p className="text-[10px] text-gray-400 mt-0.5">
+                          {format(new Date(entry.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Anfragen</h2>
 
       {anfragen.length === 0 ? (
@@ -181,16 +307,28 @@ export default function AdminAnfragen() {
                     <Select
                       value={displayStatus(a.status)}
                       onValueChange={async (val) => {
+                        const oldStatus = displayStatus(a.status);
                         const { error } = await supabase.from("anfragen").update({ status: val }).eq("id", a.id);
                         if (error) {
                           toast({ title: "Fehler", description: "Status konnte nicht aktualisiert werden.", variant: "destructive" });
                         } else {
                           setAnfragen((prev) => prev.map((x) => x.id === a.id ? { ...x, status: val } : x));
                           toast({ title: "Status aktualisiert", description: `Status auf "${val}" gesetzt.` });
+                          const email = await getUserEmail();
+                          const now = new Date().toISOString();
+                          await logAktivitaet("status_geaendert", `${a.vorname} ${a.nachname}: ${oldStatus} → ${val}`, a.id);
+                          addLogEntry({
+                            id: crypto.randomUUID(),
+                            created_at: now,
+                            user_email: email,
+                            aktion: "status_geaendert",
+                            details: `${a.vorname} ${a.nachname}: ${oldStatus} → ${val}`,
+                            anfrage_id: a.id,
+                          });
                         }
                       }}
                     >
-                      <SelectTrigger className={`w-[170px] h-8 text-xs font-medium border-0 ${statusColors[displayStatus(a.status)] || "bg-gray-100 text-gray-800"}`}>
+                      <SelectTrigger className={`w-[170px] h-8 text-xs font-medium border border-gray-200 ${statusColors[displayStatus(a.status)] || "bg-gray-100 text-gray-800"}`}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
