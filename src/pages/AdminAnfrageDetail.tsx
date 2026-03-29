@@ -54,13 +54,14 @@ export default function AdminAnfrageDetail() {
         .single();
       if (data) {
         setAnfrage(data);
-        setNotizen(data.notizen || "");
-        const [fzRes, vkRes] = await Promise.all([
+        const [fzRes, vkRes, notizenRes] = await Promise.all([
           supabase.from("fahrzeuge").select("*").eq("id", data.fahrzeug_id).single(),
           supabase.from("verkaeufer").select("*").eq("id", data.verkaeufer_id).single(),
+          supabase.from("anfrage_notizen").select("*").eq("anfrage_id", data.id).order("created_at", { ascending: true }),
         ]);
         if (fzRes.data) setFahrzeug(fzRes.data);
         if (vkRes.data) setVerkaeufer(vkRes.data);
+        if (notizenRes.data) setNotizen(notizenRes.data);
       }
       setLoading(false);
     };
