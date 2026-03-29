@@ -220,23 +220,42 @@ export default function AdminAnfragen() {
         </div>
       )}
 
-      <Dialog open={!!selectedAnfrage} onOpenChange={(open) => !open && setSelectedAnfrage(null)}>
+      <Dialog open={!!selectedAnfrageId} onOpenChange={(open) => !open && setSelectedAnfrageId(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              Notizen – {selectedAnfrage?.vorname} {selectedAnfrage?.nachname}
-            </DialogTitle>
+            <DialogTitle>Notizen – {selectedAnfrageName}</DialogTitle>
           </DialogHeader>
-          <Textarea
-            value={notizenText}
-            onChange={(e) => setNotizenText(e.target.value)}
-            placeholder="Notizen zur Anfrage hinzufügen..."
-            className="min-h-[160px] bg-white border-gray-300 text-gray-900"
-          />
-          <div className="flex justify-end">
-            <Button onClick={saveNotizen} disabled={saving} className="bg-gray-900 text-white hover:bg-gray-800">
-              <Save className="w-4 h-4 mr-2" />
-              {saving ? "Speichern..." : "Notizen speichern"}
+          <div className="max-h-[300px] overflow-y-auto space-y-3">
+            {loadingNotizen ? (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900" />
+              </div>
+            ) : notizen.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-4">Noch keine Notizen vorhanden.</p>
+            ) : (
+              notizen.map((n) => (
+                <div key={n.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap">{n.text}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {format(new Date(n.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Textarea
+              value={neueNotiz}
+              onChange={(e) => setNeueNotiz(e.target.value)}
+              placeholder="Neue Notiz hinzufügen..."
+              className="min-h-[60px] bg-white border-gray-300 text-gray-900 flex-1"
+            />
+            <Button
+              onClick={addNotiz}
+              disabled={saving || !neueNotiz.trim()}
+              className="bg-gray-900 text-white hover:bg-gray-800 self-end"
+            >
+              <Save className="w-4 h-4" />
             </Button>
           </div>
         </DialogContent>

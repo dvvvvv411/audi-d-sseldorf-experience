@@ -270,16 +270,35 @@ export default function AdminAnfrageDetail() {
             <StickyNote className="w-4 h-4 text-gray-500" />
             Interne Notizen
           </h3>
-          <Textarea
-            value={notizen}
-            onChange={(e) => setNotizen(e.target.value)}
-            placeholder="Notizen zur Anfrage hinzufügen..."
-            className="min-h-[120px] mb-4 bg-white border-gray-300 text-gray-900"
-          />
-          <Button onClick={saveNotizen} disabled={saving} className="bg-gray-900 text-white hover:bg-gray-800">
-            <Save className="w-4 h-4 mr-2" />
-            {saving ? "Speichern..." : "Notizen speichern"}
-          </Button>
+          <div className="max-h-[300px] overflow-y-auto space-y-3 mb-4">
+            {notizen.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-4">Noch keine Notizen vorhanden.</p>
+            ) : (
+              notizen.map((n) => (
+                <div key={n.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap">{n.text}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {format(new Date(n.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Textarea
+              value={neueNotiz}
+              onChange={(e) => setNeueNotiz(e.target.value)}
+              placeholder="Neue Notiz hinzufügen..."
+              className="min-h-[60px] bg-white border-gray-300 text-gray-900 flex-1"
+            />
+            <Button
+              onClick={addNotiz}
+              disabled={saving || !neueNotiz.trim()}
+              className="bg-gray-900 text-white hover:bg-gray-800 self-end"
+            >
+              <Save className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
