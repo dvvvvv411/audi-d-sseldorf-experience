@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { usePageMeta } from "@/hooks/usePageMeta";
+
 import { Tables } from "@/integrations/supabase/types";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
