@@ -127,7 +127,21 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
 }
 
 export default function Gebrauchtwagen() {
-  // Dynamic page title/meta set via useEffect below
+  // Dynamic page meta based on loaded data
+  useEffect(() => {
+    if (fahrzeug && verkaeufer.length > 0 && verkaeufer[0].branding) {
+      const brandingName = verkaeufer[0].branding.name;
+      const title = `${fahrzeug.fahrzeugname} - ${brandingName}`;
+      const desc = `${fahrzeug.fahrzeugname} kaufen bei ${brandingName}. Geprüfter Gebrauchtwagen mit Garantie.`;
+      document.title = title;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute("content", desc);
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute("content", title);
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      if (ogDesc) ogDesc.setAttribute("content", desc);
+    }
+  }, [fahrzeug, verkaeufer]);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { sellerSlug, auftragsnummer } = useParams<{ sellerSlug?: string; auftragsnummer?: string }>();
