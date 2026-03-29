@@ -103,15 +103,22 @@ const generateAnfrageEmail = (branding: Branding, fahrzeug: Fahrzeug) => {
         <!-- Divider -->
         <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid #e0e0e0;margin:0;"/></td></tr>
 
+        <!-- Audi Vertriebssystem Hinweis -->
+        <tr><td style="padding:20px 40px 10px;text-align:center;">
+          <p style="font-size:12px;color:#999;margin:0;letter-spacing:0.5px;">
+            Audi Vertriebssystem — Ein Service der AUDI AG
+          </p>
+        </td></tr>
+
         <!-- Footer -->
-        <tr><td style="padding:25px 40px 30px;">
-          <p style="font-size:11px;color:#999;line-height:1.5;margin:0;">
-            ${branding.name}<br/>
-            ${branding.strasse}, ${branding.plz} ${branding.stadt}<br/>
-            ${branding.email}<br/><br/>
-            ${branding.amtsgericht} · ${branding.handelsregister}<br/>
-            Geschäftsführer: ${branding.geschaeftsfuehrer}<br/>
-            USt-IdNr.: ${branding.ust_id}
+        <tr><td style="padding:10px 40px 30px;">
+          <p style="font-size:11px;color:#999;line-height:1.5;margin:0;text-align:center;">
+            AUDI AG<br/>
+            Auto-Union-Straße 1, 85057 Ingolstadt<br/>
+            www.audi.de<br/><br/>
+            AG Ingolstadt · HRB 1<br/>
+            Vorstand: Gernot Döllner (Vorsitzender)<br/>
+            USt-IdNr.: DE 811 115 368
           </p>
         </td></tr>
 
