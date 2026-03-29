@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const AudiRingsSmall = () => (
   <svg viewBox="0 0 200 50" className="w-20 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -24,6 +24,18 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [neuCount, setNeuCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from("anfragen")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "NEU");
+      setNeuCount(count ?? 0);
+    };
+    fetchCount();
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -63,6 +75,11 @@ const AdminLayout = () => {
               >
                 <item.icon className="w-5 h-5" />
                 {item.label}
+                {item.label === "Anfragen" && neuCount > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                    {neuCount}
+                  </span>
+                )}
               </button>
             );
           })}
