@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function Rechtliches() {
+  usePageMeta("Rechtliches · Audi Düsseldorf", "Rechtliche Informationen von Audi Düsseldorf.");
   const navigate = useNavigate();
 
   return (

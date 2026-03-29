@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function Barrierefreiheit() {
+  usePageMeta("Barrierefreiheit · Audi Düsseldorf", "Erklärung zur Barrierefreiheit von Audi Düsseldorf.");
   const navigate = useNavigate();
 
   return (

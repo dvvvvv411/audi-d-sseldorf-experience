@@ -12,6 +12,7 @@ const AudiRings = () => (
 );
 
 const Index = () => {
+  usePageMeta("Audi Düsseldorf – Ihr Premium-Partner", "Willkommen bei Audi Düsseldorf. Entdecken Sie Neuwagen, Gebrauchtwagen, Service und Beratung bei Ihrem Audi Partner in Düsseldorf.");
   return (
     <div className="relative min-h-screen flex flex-col bg-background overflow-hidden">
       {/* Background gradient */}

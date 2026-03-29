@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const NotFound = () => {
+  usePageMeta("Seite nicht gefunden · Audi Düsseldorf", "Die angeforderte Seite wurde nicht gefunden.");
   const location = useLocation();
 
   useEffect(() => {
