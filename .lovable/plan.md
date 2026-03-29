@@ -1,27 +1,19 @@
 
 
-## /fahrzeugbestand dynamisch machen mit Seller-Slug
+## Dynamischer Seitentitel auf /gebrauchtwagen/:sellerSlug/:auftragsnummer
 
 ### Konzept
-Die Seite `/fahrzeugbestand` wird um eine optionale Route `/fahrzeugbestand/:sellerSlug` erweitert. Wenn ein `sellerSlug` vorhanden ist, werden nur die Fahrzeuge dieses Verkaufers angezeigt, zusammen mit dessen Branding und Beraterdaten. Ohne Slug bleibt das bisherige Verhalten (alle Fahrzeuge).
+Statt `usePageMeta` statisch beim Rendern aufzurufen, wird der Seitentitel dynamisch gesetzt, nachdem `fahrzeug` und `branding` geladen sind. Format: `SQ5 TDI Q - Audi Zentrum Düsseldorf`.
 
-### Änderungen
+### Änderung in `src/pages/Gebrauchtwagen.tsx`
 
-**1. `src/App.tsx` -- Neue Route hinzufugen:**
-- `<Route path="/fahrzeugbestand/:sellerSlug" element={<Fahrzeugbestand />} />` unterhalb der bestehenden `/fahrzeugbestand`-Route
+1. **Zeile 130:** Statischen `usePageMeta(...)` Aufruf entfernen
+2. **Neuer `useEffect`** nach dem Datenladen: Setzt `document.title` und Meta-Tags dynamisch basierend auf `fahrzeug.fahrzeugname` und `branding.name`
+   - Titel: `{fahrzeugname} - {branding_name}` (z.B. "SQ5 TDI Q - Audi Zentrum Düsseldorf")
+   - Description: `{fahrzeugname} kaufen bei {branding_name}. Geprüfter Gebrauchtwagen mit Garantie.`
+   - Fallback wenn kein Fahrzeug/Branding: bisheriger statischer Text
 
-**2. `src/pages/Fahrzeugbestand.tsx` -- Dynamische Datenladung:**
-- `useParams()` importieren und `sellerSlug` extrahieren
-- Wenn `sellerSlug` vorhanden:
-  - Verkaufer per `vorname`/`nachname` aus Slug finden (wie in Gebrauchtwagen: `split("_")`, `ilike`)
-  - Branding des Verkaufers laden (`branding_id`)
-  - Nur die dem Verkaufer zugewiesenen Fahrzeuge laden (uber `verkaeufer_fahrzeuge`)
-  - Header zeigt Branding-Name und Berater-Info des spezifischen Verkaufers
-- Ohne `sellerSlug`: bisheriges Verhalten (alle Fahrzeuge, erstes Branding)
-- Links in den FahrzeugCards verwenden den aktuellen `sellerSlug` fur die Weiterleitung zu `/gebrauchtwagen/:sellerSlug/:auftragsnummer`
-
-| Datei | Anderung |
+| Datei | Änderung |
 |---|---|
-| `src/App.tsx` | Route `/fahrzeugbestand/:sellerSlug` hinzufugen |
-| `src/pages/Fahrzeugbestand.tsx` | `useParams`, dynamische Datenladung nach Seller-Slug, Branding + Berater dynamisch |
+| `src/pages/Gebrauchtwagen.tsx` | Statischen `usePageMeta` durch dynamischen `useEffect` ersetzen, der auf `fahrzeug` und `verkaeufer` reagiert |
 
