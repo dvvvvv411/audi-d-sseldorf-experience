@@ -1,15 +1,23 @@
 
 
-## Specs-Grid Styling anpassen
+## Preis-Element klickbar machen → Weiterleitung zu Gebrauchtwagen-Detailseite
 
 ### Änderungen in `src/pages/Fahrzeugbestand.tsx`
 
-**Specs-Grid Zellen (FahrzeugCard):**
-- `border border-gray-200` entfernen — keine Outlines mehr
-- Icons: `w-5 h-5` → `w-6 h-6`, Farbe `text-gray-700` statt `text-gray-600`
-- Text: `text-[10px] text-gray-600` → `text-[11px] font-medium text-gray-700`
+**1. Verkäufer-Fahrzeug-Zuordnung laden**
+- Zusätzlich `verkaeufer_fahrzeuge` fetchen, um pro Fahrzeug den zugeordneten Verkäufer zu ermitteln.
+- Verkäufer-Daten (vorname, nachname) laden, um den Slug zu bauen.
+
+**2. FahrzeugCard erweitern**
+- Neue Props: `sellerSlug` und `auftragsnummer`
+- Das Preis-Footer-Element wird in einen `<Link>` gewrappt, der zu `/gebrauchtwagen/{sellerSlug}/{auftragsnummer}` navigiert.
+- Fallback-Slug: `markus_heber` falls kein Verkäufer zugeordnet ist.
+
+**3. Slug-Logik**
+- Slug-Format: `vorname_nachname` (lowercase), passend zur bestehenden Gebrauchtwagen-Routing-Logik.
+- Pro Fahrzeug: Lookup in `verkaeufer_fahrzeuge` → Verkäufer-ID → Slug bauen. Kein Match → `markus_heber`.
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/Fahrzeugbestand.tsx` | Border entfernen, Icons größer + dunkler, Text fetter + dunkler |
+| `src/pages/Fahrzeugbestand.tsx` | verkaeufer_fahrzeuge laden, Slug pro Fahrzeug berechnen, Preis-Element als Link zur Detailseite |
 
