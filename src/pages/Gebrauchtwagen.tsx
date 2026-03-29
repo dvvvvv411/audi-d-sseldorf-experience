@@ -108,6 +108,7 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
                 src={img}
                 alt={`${fahrzeugname} Bild ${i + 1}`}
                 className="h-16 w-28 md:h-28 md:w-48 object-cover"
+                onContextMenu={e => e.preventDefault()}
               />
             </button>
           ))}
@@ -431,6 +432,7 @@ export default function Gebrauchtwagen() {
                   src={mainImage}
                   alt={fahrzeug.fahrzeugname}
                   className="w-full h-full object-cover min-h-[250px] lg:min-h-[500px]"
+                  onContextMenu={e => e.preventDefault()}
                 />
               ) : (
                 <div className="w-full h-full min-h-[250px] lg:min-h-[500px] flex items-center justify-center text-gray-400">
