@@ -79,7 +79,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
       {/* Price Footer */}
       <Link
         to={`/gebrauchtwagen/${sellerSlug}/${fahrzeug.auftragsnummer || fahrzeug.id}`}
-        className="bg-[#323232] hover:bg-[#00527a] transition-colors cursor-pointer px-4 py-3 flex items-center justify-between block"
+        className="bg-[#323232] hover:bg-[#00527a] transition-colors cursor-pointer px-4 py-4 flex items-center justify-between block"
       >
         <div>
           <p className="text-white text-xs">Preis</p>
@@ -223,7 +223,7 @@ export default function Fahrzeugbestand() {
 
       {/* Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Fahrzeugbestand</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6 animate-fade-in">Fahrzeugbestand</h1>
 
         {fahrzeuge.length === 0 ? (
           <div className="text-center py-16 text-gray-400">
@@ -231,8 +231,10 @@ export default function Fahrzeugbestand() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {fahrzeuge.map((f) => (
-              <FahrzeugCard key={f.id} fahrzeug={f} sellerSlug={vfMap[f.id] || "markus_heber"} />
+            {fahrzeuge.map((f, index) => (
+              <div key={f.id} className="opacity-0 animate-fade-in" style={{ animationDelay: `${index * 80}ms` }}>
+                <FahrzeugCard fahrzeug={f} sellerSlug={vfMap[f.id] || "markus_heber"} />
+              </div>
             ))}
           </div>
         )}

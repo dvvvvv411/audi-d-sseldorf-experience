@@ -399,7 +399,7 @@ export default function Gebrauchtwagen() {
       </header>
 
       {/* Fahrzeug Titel */}
-      <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
+      <div className="max-w-7xl mx-auto px-4 pt-8 pb-4 animate-fade-in">
         <button
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-3"
@@ -416,7 +416,7 @@ export default function Gebrauchtwagen() {
       </div>
 
       {/* Hero Section 60/40 */}
-      <div className="max-w-7xl mx-auto px-4 pb-8">
+      <div className="max-w-7xl mx-auto px-4 pb-8 opacity-0 animate-fade-in" style={{ animationDelay: "150ms" }}>
         <div className="flex flex-col lg:flex-row gap-0 rounded-lg overflow-hidden">
           {/* Main Image */}
           <div className="lg:w-[60%] order-1">
