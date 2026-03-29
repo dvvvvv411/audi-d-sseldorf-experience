@@ -1,23 +1,15 @@
 
 
-## Fahrzeugbestand Header + Specs-Grid anpassen
+## Specs-Grid Styling anpassen
 
-### 1. Header erweitern — Berater + Mobile-Popover wie bei /gebrauchtwagen
+### Änderungen in `src/pages/Fahrzeugbestand.tsx`
 
-Die Seite muss auch Verkaeufer laden. Dazu:
-- Zusaetzlicher Fetch: `verkaeufer`-Tabelle (erster Eintrag als Fallback, da kein spezifischer Seller-Kontext)
-- Import von `Popover`, `PopoverTrigger`, `PopoverContent`, `Menu`, `Phone`, `Mail` Icons
-- Rechte Header-Seite: "Ihr Berater" + Name + Avatar (Desktop), Hamburger-Popover (Mobile) — 1:1 aus Gebrauchtwagen uebernommen
-- Header-Container bekommt `justify-between`
+**Specs-Grid Zellen (FahrzeugCard):**
+- `border border-gray-200` entfernen — keine Outlines mehr
+- Icons: `w-5 h-5` → `w-6 h-6`, Farbe `text-gray-700` statt `text-gray-600`
+- Text: `text-[10px] text-gray-600` → `text-[11px] font-medium text-gray-700`
 
-### 2. Specs-Grid Hintergrund aendern
-
-- Zeile 65: `bg-[#323232]` aendern zu `bg-[#fbfbfb]`
-- Zeile 68: Border und Icon/Text-Farben anpassen fuer hellen Hintergrund: `border-gray-200`, Icons und Text in `text-gray-600`
-
-### Aenderungen
-
-| Datei | Aenderung |
+| Datei | Änderung |
 |---|---|
-| `src/pages/Fahrzeugbestand.tsx` | Verkaeufer laden, Header mit Berater-Bereich + Popover erweitern, Specs-Grid bg auf #fbfbfb mit dunkler Schrift |
+| `src/pages/Fahrzeugbestand.tsx` | Border entfernen, Icons größer + dunkler, Text fetter + dunkler |
 
