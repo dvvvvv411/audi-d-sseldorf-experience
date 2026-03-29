@@ -79,20 +79,36 @@ export default function AdminAnfragen() {
     }));
   };
 
-  const openNotizen = (a: Anfrage) => {
-    setSelectedAnfrage(a);
-    setNotizenText(a.notizen || "");
+  const openNotizen = async (a: Anfrage) => {
+    setSelectedAnfrageId(a.id);
+    setSelectedAnfrageName(`${a.vorname} ${a.nachname}`);
+    setNeueNotiz("");
+    setLoadingNotizen(true);
+    const { data } = await supabase
+      .from("anfrage_notizen")
+      .select("*")
+      .eq("anfrage_id", a.id)
+      .order("created_at", { ascending: true });
+    setNotizen(data || []);
+    setLoadingNotizen(false);
   };
 
-  const saveNotizen = async () => {
-    if (!selectedAnfrage) return;
+  const addNotiz = async () => {
+    if (!selectedAnfrageId || !neueNotiz.trim()) return;
     setSaving(true);
-    await supabase.from("anfragen").update({ notizen: notizenText }).eq("id", selectedAnfrage.id);
-    setAnfragen((prev) =>
-      prev.map((a) => (a.id === selectedAnfrage.id ? { ...a, notizen: notizenText } : a))
-    );
-    setSelectedAnfrage(null);
-    toast({ title: "Notizen gespeichert" });
+    const { data } = await supabase
+      .from("anfrage_notizen")
+      .insert({ anfrage_id: selectedAnfrageId, text: neueNotiz.trim() } as any)
+      .select()
+      .single();
+    if (data) {
+      setNotizen((prev) => [...prev, data]);
+      setNotizenCounts((prev) => ({
+        ...prev,
+        [selectedAnfrageId]: (prev[selectedAnfrageId] || 0) + 1,
+      }));
+    }
+    setNeueNotiz("");
     setSaving(false);
   };
 
