@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
-import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus } from "lucide-react";
+import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 type Fahrzeug = Tables<"fahrzeuge">;
+type Verkaeufer = Tables<"verkaeufer">;
 type Branding = Tables<"brandings">;
 
 const formatPrice = (price: number) =>
