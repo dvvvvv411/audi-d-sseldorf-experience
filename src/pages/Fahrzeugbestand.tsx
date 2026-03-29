@@ -79,7 +79,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
       {/* Price Footer */}
       <Link
         to={`/gebrauchtwagen/${sellerSlug}/${fahrzeug.auftragsnummer || fahrzeug.id}`}
-        className="bg-[#323232] hover:bg-[#00527a] transition-colors cursor-pointer px-4 py-3 flex items-center justify-between block"
+        className="bg-[#323232] hover:bg-[#00527a] transition-colors cursor-pointer px-4 py-4 flex items-center justify-between block"
       >
         <div>
           <p className="text-white text-xs">Preis</p>
