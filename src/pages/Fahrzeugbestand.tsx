@@ -8,6 +8,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
 type Branding = Tables<"brandings">;
+type VerkaeuferFahrzeuge = Tables<"verkaeufer_fahrzeuge">;
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("de-DE", { minimumFractionDigits: 0 }).format(price);
