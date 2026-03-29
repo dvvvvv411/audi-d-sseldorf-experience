@@ -1,15 +1,13 @@
 
 
-## Loading-Spinner auf /gebrauchtwagen durch Audi-Logo ersetzen
+## Rechtsklick auf Bilder blockieren
 
-### Änderung in `src/pages/Gebrauchtwagen.tsx`
+Auf beiden Seiten wird `onContextMenu={(e) => e.preventDefault()}` auf alle `<img>`-Elemente gesetzt, um das Kontextmenü (Bild speichern, Google-Bildersuche etc.) zu unterbinden.
 
-**Zeilen 280-285** — Gleiche Behandlung wie bei /fahrzeugbestand:
-- `animate-spin rounded-full border` Kreis ersetzen durch `AudiLogo` mit `animate-pulse opacity-40 fill="#999"` + "Wird geladen..." Text
-
-Voraussetzung: `AudiLogo` Komponente ist in Gebrauchtwagen.tsx bereits vorhanden (wird dort im Header verwendet).
+### Änderungen
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/Gebrauchtwagen.tsx` | Loading-Spinner (Zeile 283) durch pulsierende AudiLogo-Animation ersetzen, identisch zu Fahrzeugbestand |
+| `src/pages/Fahrzeugbestand.tsx` | `onContextMenu={e => e.preventDefault()}` auf alle `<img>` Tags |
+| `src/pages/Gebrauchtwagen.tsx` | `onContextMenu={e => e.preventDefault()}` auf alle `<img>` Tags |
 
