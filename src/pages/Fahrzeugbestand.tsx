@@ -120,22 +120,83 @@ export default function Fahrzeugbestand() {
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header — identical to Gebrauchtwagen */}
       <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center">
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-            aria-label="Nach oben scrollen"
-          >
-            <AudiLogo />
-          </button>
-          {branding?.name && (
-            <>
-              <div className="border-l border-gray-300 h-8 mx-3" />
-              <span className="text-[10px] md:text-xs font-semibold tracking-[0.15em] uppercase text-gray-500">
-                {branding.name}
-              </span>
-            </>
-          )}
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+              aria-label="Nach oben scrollen"
+            >
+              <AudiLogo />
+            </button>
+            {branding?.name && (
+              <>
+                <div className="border-l border-gray-300 h-8 mx-3" />
+                <span className="text-[10px] md:text-xs font-semibold tracking-[0.15em] uppercase text-gray-500">
+                  {branding.name}
+                </span>
+              </>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            {verkaeufer[0] && (
+              <div className="hidden md:flex items-center gap-2.5">
+                <div className="flex flex-col items-end text-right">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">Ihr Berater</span>
+                  <span className="text-sm font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
+                </div>
+                {verkaeufer[0].avatar_url ? (
+                  <img src={verkaeufer[0].avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-white text-xs font-bold">
+                    {verkaeufer[0].vorname[0]}{verkaeufer[0].nachname[0]}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+                  aria-label="Menü öffnen"
+                >
+                  <Menu size={24} className="text-gray-700" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-72 bg-white text-gray-900 p-5 rounded-xl shadow-lg border border-gray-100">
+                <p className="text-xs text-gray-400 uppercase tracking-wider text-center mb-3">Ihr Ansprechpartner</p>
+                {verkaeufer.length > 0 && verkaeufer.map((v) => (
+                  <div key={v.id} className="flex flex-col items-center text-center space-y-2">
+                    {v.avatar_url ? (
+                      <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-14 h-14 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center text-white text-sm font-bold">
+                        {v.vorname[0]}{v.nachname[0]}
+                      </div>
+                    )}
+                    <p className="font-semibold text-gray-900">{v.vorname} {v.nachname}</p>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Phone size={14} />
+                      <span>{v.telefon}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Mail size={14} />
+                      <span>{v.email}</span>
+                    </div>
+                    <a
+                      href={`tel:${v.telefon}`}
+                      className="w-full bg-[#00527a] text-white text-sm font-semibold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-[#003d5c] transition-colors mt-1"
+                    >
+                      <Phone size={15} />
+                      Anrufen
+                    </a>
+                  </div>
+                ))}
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </header>
 
