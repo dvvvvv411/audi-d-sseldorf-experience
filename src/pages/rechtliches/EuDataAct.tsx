@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function EuDataAct() {
+  usePageMeta("EU Data Act · Audi Düsseldorf", "Informationen zum EU Data Act bei Audi Düsseldorf.");
   const navigate = useNavigate();
 
   return (

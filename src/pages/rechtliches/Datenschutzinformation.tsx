@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function Datenschutzinformation() {
+  usePageMeta("Datenschutz · Audi Düsseldorf", "Datenschutzinformationen und Ihre Rechte bei Audi Düsseldorf.");
   const navigate = useNavigate();
 
   return (

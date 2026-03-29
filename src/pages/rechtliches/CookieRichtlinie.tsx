@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const tableClass = "w-full border-collapse border border-gray-300 text-xs text-gray-600 mt-4 mb-6";
 const thClass = "border border-gray-300 bg-gray-50 px-3 py-2 text-left font-semibold text-gray-700";
 const tdClass = "border border-gray-300 px-3 py-2 align-top";
 
 export default function CookieRichtlinie() {
+  usePageMeta("Cookie-Richtlinie · Audi Düsseldorf", "Informationen zur Verwendung von Cookies auf audi-duesseldorf.de.");
   const navigate = useNavigate();
 
   return (

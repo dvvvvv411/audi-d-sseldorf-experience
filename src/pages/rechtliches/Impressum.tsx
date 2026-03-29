@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function Impressum() {
+  usePageMeta("Impressum · Audi Düsseldorf", "Impressum und Kontaktdaten von Audi Düsseldorf.");
   const navigate = useNavigate();
 
   return (

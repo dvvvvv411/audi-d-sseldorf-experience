@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { Tables } from "@/integrations/supabase/types";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
@@ -126,6 +127,7 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
 }
 
 export default function Gebrauchtwagen() {
+  usePageMeta("Gebrauchtwagen · Audi Düsseldorf", "Geprüfte Audi Gebrauchtwagen in Düsseldorf. Alle Modelle mit Garantie und Top-Ausstattung.");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { sellerSlug, auftragsnummer } = useParams<{ sellerSlug?: string; auftragsnummer?: string }>();

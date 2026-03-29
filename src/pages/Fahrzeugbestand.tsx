@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
 import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail } from "lucide-react";
@@ -95,6 +96,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
 }
 
 export default function Fahrzeugbestand() {
+  usePageMeta("Fahrzeugbestand · Audi Düsseldorf", "Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi bei Audi Düsseldorf. Große Auswahl an Neu- und Gebrauchtwagen.");
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [branding, setBranding] = useState<Branding | null>(null);
   const [verkaeufer, setVerkaeufer] = useState<Verkaeufer[]>([]);
