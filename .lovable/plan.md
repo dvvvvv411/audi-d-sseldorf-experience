@@ -1,33 +1,36 @@
 
 
-## Fahrzeugbestand-Seite mit Header/Footer von Gebrauchtwagen
+## Fahrzeugbestand Cards aufwerten
 
-### Konzept
-Neue oeffentliche Seite `/fahrzeugbestand` die den identischen Header (Audi-Logo + Divider + Standort) und Footer (Copyright, Links, Fussnoten) von `/gebrauchtwagen` uebernimmt. Dazwischen ein 3-Spalten-Grid mit Fahrzeugkarten.
+### Änderungen in `src/pages/Fahrzeugbestand.tsx`
 
-### Technische Umsetzung
+**1. Beschreibung entfernen** (Zeilen 62-64)
+- Die `beschreibung`-Zeile unter dem Titel wird komplett entfernt.
 
-**Header** (identisch zu Gebrauchtwagen):
-- Sticky weisser Header mit Audi-Ringe-SVG, Divider, Standort-Name
-- Kein Berater-Bereich (da kein spezifischer Verkaeufer-Kontext)
-- Branding wird aus der `brandings`-Tabelle geladen (erster Eintrag als Fallback)
+**2. Specs-Grid umgestalten — wie bei /gebrauchtwagen**
+- Statt 2-Spalten-Liste mit kleinen Icons → **3x2 Grid** mit zentrierten Zellen auf dunklem Hintergrund (`bg-[#3c3c3c]`, Border `border-[#3a3a3a]`), genau wie die Info-Box auf der Detailseite.
+- Jede Zelle: Icon oben (größer, `size={24}`), Label unten zentriert.
+- Das Specs-Grid bekommt einen dunklen Container (`bg-[#323232]`).
 
-**Fahrzeug-Grid**:
-- `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`, max-w-7xl zentriert
-- Jede Card:
-  - Bild oben (erstes aus `bilder[]`), Fallback-Placeholder
-  - Branding-Bar: Audi-Logo + "Audi Gebrauchtwagen"
-  - Titel: `fahrzeugname` fett, `beschreibung` einzeilig truncated
-  - Specs-Grid 2x3: Gebrauchtwagen, km-Stand, EZ, kW/PS, Kraftstoff, Getriebe (echte DB-Werte)
-  - Preis-Footer: dunkel (`bg-gray-800`), Preis formatiert + "inkl. MwSt."
+**3. Preis-Footer redesign**
+- Hintergrundfarbe: `bg-[#323232]` statt `bg-gray-800`
+- Hover-Effekt: `hover:bg-[#00527a]` (das Petrolblau von /gebrauchtwagen)
+- "Preis" in Weiß (`text-white`), normal geschrieben (kein uppercase)
+- "inkl. MwSt." etwas größer (`text-xs` statt `text-[10px]`)
+- Preiszahl größer (`text-xl` statt `text-lg`)
+- Transition für smooth hover: `transition-colors`
 
-**Footer** (identisch zu Gebrauchtwagen):
-- Copyright, rechtliche Links, Fussnoten — 1:1 uebernommen
+### Vorher → Nachher Preisbereich
 
-### Dateien
+```text
+Vorher:                          Nachher:
+bg-gray-800                      bg-[#323232] hover:bg-[#00527a]
+"PREIS" (10px, gray, caps)       "Preis" (xs, white, normal)
+"inkl. MwSt." (10px, gray)       "inkl. MwSt." (xs, white/70)
+Preis text-lg                    Preis text-xl font-bold
+```
 
-| Datei | Aenderung |
+| Datei | Änderung |
 |---|---|
-| `src/pages/Fahrzeugbestand.tsx` | Neue Seite: Header + Fahrzeug-Grid + Footer, Daten aus `fahrzeuge` + `brandings` |
-| `src/App.tsx` | Route `/fahrzeugbestand` hinzufuegen |
+| `src/pages/Fahrzeugbestand.tsx` | Beschreibung entfernen, Specs-Grid im Gebrauchtwagen-Stil, Preis-Footer mit #323232 + Hover-Blau |
 
