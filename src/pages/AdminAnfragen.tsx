@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -166,52 +167,69 @@ export default function AdminAnfragen() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1">
-                      <div className="relative">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className={`hover:bg-gray-100 ${(notizenCounts[a.id] || 0) > 0 ? "text-amber-500 hover:text-amber-700" : "text-gray-400 hover:text-gray-600"}`}
-                          onClick={() => openNotizen(a)}
-                        >
-                          <StickyNote className="w-4 h-4" />
-                        </Button>
-                        {(notizenCounts[a.id] || 0) > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
-                            {notizenCounts[a.id]}
-                          </span>
-                        )}
+                    <TooltipProvider delayDuration={300}>
+                      <div className="flex items-center gap-1">
+                        <div className="relative">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`hover:bg-gray-100 ${(notizenCounts[a.id] || 0) > 0 ? "text-amber-500 hover:text-amber-700" : "text-gray-400 hover:text-gray-600"}`}
+                                onClick={() => openNotizen(a)}
+                              >
+                                <StickyNote className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Notizen</TooltipContent>
+                          </Tooltip>
+                          {(notizenCounts[a.id] || 0) > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                              {notizenCounts[a.id]}
+                            </span>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                                onClick={() => handleMailboxClick(a.id)}
+                              >
+                                <Mail className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Mailbox</TooltipContent>
+                          </Tooltip>
+                          {(mailboxClicks[a.id]?.length || 0) > 0 && (
+                            <span
+                              className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center cursor-pointer hover:bg-red-600 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setMailboxPopupAnfrageId(a.id);
+                              }}
+                            >
+                              {mailboxClicks[a.id].length}
+                            </span>
+                          )}
+                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                              onClick={() => navigate(`/admin/anfragen/${a.id}`)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Details</TooltipContent>
+                        </Tooltip>
                       </div>
-                      <div className="relative">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-                          onClick={() => handleMailboxClick(a.id)}
-                        >
-                          <Mail className="w-4 h-4" />
-                        </Button>
-                        {(mailboxClicks[a.id]?.length || 0) > 0 && (
-                          <span
-                            className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center cursor-pointer hover:bg-red-600 transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setMailboxPopupAnfrageId(a.id);
-                            }}
-                          >
-                            {mailboxClicks[a.id].length}
-                          </span>
-                        )}
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-                        onClick={() => navigate(`/admin/anfragen/${a.id}`)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    </TooltipProvider>
                   </TableCell>
                 </TableRow>
               ))}
