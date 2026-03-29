@@ -231,8 +231,10 @@ export default function Fahrzeugbestand() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {fahrzeuge.map((f) => (
-              <FahrzeugCard key={f.id} fahrzeug={f} sellerSlug={vfMap[f.id] || "markus_heber"} />
+            {fahrzeuge.map((f, index) => (
+              <div key={f.id} className="opacity-0 animate-fade-in" style={{ animationDelay: `${index * 80}ms` }}>
+                <FahrzeugCard fahrzeug={f} sellerSlug={vfMap[f.id] || "markus_heber"} />
+              </div>
             ))}
           </div>
         )}
