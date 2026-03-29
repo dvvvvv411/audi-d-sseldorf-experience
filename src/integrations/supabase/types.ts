@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      anfrage_notizen: {
+        Row: {
+          anfrage_id: string
+          created_at: string
+          id: string
+          text: string
+        }
+        Insert: {
+          anfrage_id: string
+          created_at?: string
+          id?: string
+          text: string
+        }
+        Update: {
+          anfrage_id?: string
+          created_at?: string
+          id?: string
+          text?: string
+        }
+        Relationships: []
+      }
       anfragen: {
         Row: {
           auftragsnummer: string | null
