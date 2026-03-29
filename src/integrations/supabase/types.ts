@@ -200,6 +200,24 @@ export type Database = {
         }
         Relationships: []
       }
+      mailbox_clicks: {
+        Row: {
+          anfrage_id: string
+          clicked_at: string
+          id: string
+        }
+        Insert: {
+          anfrage_id: string
+          clicked_at?: string
+          id?: string
+        }
+        Update: {
+          anfrage_id?: string
+          clicked_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

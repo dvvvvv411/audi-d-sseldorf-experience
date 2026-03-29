@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, StickyNote, Save } from "lucide-react";
+import { Eye, StickyNote, Save, Mail } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 interface Anfrage {
   id: string;
@@ -33,18 +35,37 @@ export default function AdminAnfragen() {
   const [selectedAnfrage, setSelectedAnfrage] = useState<Anfrage | null>(null);
   const [notizenText, setNotizenText] = useState("");
   const [saving, setSaving] = useState(false);
+  const [mailboxClicks, setMailboxClicks] = useState<Record<string, string[]>>({});
+  const [mailboxPopupAnfrageId, setMailboxPopupAnfrageId] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
-        .from("anfragen")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (data) setAnfragen(data);
+      const [anfrRes, clicksRes] = await Promise.all([
+        supabase.from("anfragen").select("*").order("created_at", { ascending: false }),
+        supabase.from("mailbox_clicks").select("*").order("clicked_at", { ascending: false }),
+      ]);
+      if (anfrRes.data) setAnfragen(anfrRes.data);
+      if (clicksRes.data) {
+        const grouped: Record<string, string[]> = {};
+        for (const c of clicksRes.data) {
+          if (!grouped[c.anfrage_id]) grouped[c.anfrage_id] = [];
+          grouped[c.anfrage_id].push(c.clicked_at);
+        }
+        setMailboxClicks(grouped);
+      }
       setLoading(false);
     };
     load();
   }, []);
+
+  const handleMailboxClick = async (anfrageId: string) => {
+    const now = new Date().toISOString();
+    await supabase.from("mailbox_clicks").insert({ anfrage_id: anfrageId } as any);
+    setMailboxClicks((prev) => ({
+      ...prev,
+      [anfrageId]: [now, ...(prev[anfrageId] || [])],
+    }));
+  };
 
   const openNotizen = (a: Anfrage) => {
     setSelectedAnfrage(a);
@@ -126,6 +147,27 @@ export default function AdminAnfragen() {
                       >
                         <StickyNote className="w-4 h-4" />
                       </Button>
+                      <div className="relative">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                          onClick={() => handleMailboxClick(a.id)}
+                        >
+                          <Mail className="w-4 h-4" />
+                        </Button>
+                        {(mailboxClicks[a.id]?.length || 0) > 0 && (
+                          <span
+                            className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center cursor-pointer hover:bg-red-600 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMailboxPopupAnfrageId(a.id);
+                            }}
+                          >
+                            {mailboxClicks[a.id].length}
+                          </span>
+                        )}
+                      </div>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -161,6 +203,25 @@ export default function AdminAnfragen() {
               <Save className="w-4 h-4 mr-2" />
               {saving ? "Speichern..." : "Notizen speichern"}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!mailboxPopupAnfrageId} onOpenChange={(open) => !open && setMailboxPopupAnfrageId(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Mailbox-Klicks</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[300px] overflow-y-auto space-y-2">
+            {(mailboxClicks[mailboxPopupAnfrageId || ""] || []).length === 0 ? (
+              <p className="text-gray-500 text-sm">Keine Klicks vorhanden.</p>
+            ) : (
+              (mailboxClicks[mailboxPopupAnfrageId || ""] || []).map((ts, i) => (
+                <div key={i} className="text-sm text-gray-700 py-1 border-b border-gray-100 last:border-0">
+                  {format(new Date(ts), "dd.MM.yyyy HH:mm", { locale: de })}
+                </div>
+              ))
+            )}
           </div>
         </DialogContent>
       </Dialog>
