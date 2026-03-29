@@ -1,20 +1,18 @@
 
 
-## Fahrzeugbestand-Titel ändern + Fahrzeuganzahl anzeigen
+## Fix: Datenschutz-Checkbox wird beim Klick auf Label-Text doppelt getoggled
 
-### Änderungen in `src/pages/Fahrzeugbestand.tsx`
+### Problem
+Die `<label>` hat sowohl `htmlFor="datenschutz"` als auch einen eigenen `onClick`-Handler. Beim Klick auf den Text passiert Folgendes:
+1. `htmlFor` triggert die Checkbox nativ (toggle an)
+2. `onClick` auf dem Label toggled den State nochmal zurück (toggle aus)
 
-**Zeile 289:** Titel und Anzahl-Anzeige aktualisieren:
-- `<h1>Fahrzeugbestand</h1>` → `<h1>Alle Fahrzeuge</h1>`
-- Darüber eine dezente Zeile mit der Fahrzeuganzahl einfügen: `<p className="text-sm text-gray-400 mb-1">{fahrzeuge.length} Fahrzeuge</p>`
+Ergebnis: Checkbox bleibt unverändert.
 
-```text
-Vorher:                          Nachher:
-                                 <p class="text-sm text-gray-400 mb-1">12 Fahrzeuge</p>
-<h1>Fahrzeugbestand</h1>        <h1>Alle Fahrzeuge</h1>
-```
+### Lösung
+Den redundanten `onClick={() => setDatenschutz(!datenschutz)}` vom `<label>` entfernen. Das native `htmlFor="datenschutz"` reicht aus, um die Checkbox beim Klick auf den Text zu aktivieren.
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/Fahrzeugbestand.tsx` | Titel → "Alle Fahrzeuge", Fahrzeuganzahl darüber |
+| `src/pages/Gebrauchtwagen.tsx` | Zeile 807: `onClick` vom Label entfernen, `htmlFor` bleibt |
 
