@@ -38,6 +38,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/gebrauchtwagen" element={<Gebrauchtwagen />} />
           <Route path="/fahrzeugbestand" element={<Fahrzeugbestand />} />
+          <Route path="/fahrzeugbestand/:sellerSlug" element={<Fahrzeugbestand />} />
           <Route path="/gebrauchtwagen/:sellerSlug/:auftragsnummer" element={<Gebrauchtwagen />} />
           <Route path="/rechtliches" element={<Rechtliches />} />
           <Route path="/rechtliches/impressum" element={<Impressum />} />

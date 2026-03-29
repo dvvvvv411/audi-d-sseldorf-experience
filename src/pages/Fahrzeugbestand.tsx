@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Tables } from "@/integrations/supabase/types";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
@@ -96,6 +96,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
 
 export default function Fahrzeugbestand() {
   usePageMeta("Fahrzeugbestand · Audi Düsseldorf", "Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi bei Audi Düsseldorf. Große Auswahl an Neu- und Gebrauchtwagen.");
+  const { sellerSlug } = useParams<{ sellerSlug?: string }>();
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [branding, setBranding] = useState<Branding | null>(null);
   const [verkaeufer, setVerkaeufer] = useState<Verkaeufer[]>([]);
@@ -104,34 +105,89 @@ export default function Fahrzeugbestand() {
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: fzData }, { data: brData }, { data: vkData }, { data: vfData }] = await Promise.all([
-        supabase.from("fahrzeuge").select("*").order("created_at", { ascending: false }),
-        supabase.from("brandings").select("*").limit(1).single(),
-        supabase.from("verkaeufer").select("*").limit(1),
-        supabase.from("verkaeufer_fahrzeuge").select("*"),
-      ]);
-      setFahrzeuge(fzData || []);
-      setBranding(brData);
-      setVerkaeufer(vkData || []);
+      if (sellerSlug) {
+        // Dynamic route: /fahrzeugbestand/:sellerSlug
+        const parts = sellerSlug.split("_");
+        if (parts.length < 2) { setLoading(false); return; }
+        const vorname = parts[0];
+        const nachname = parts.slice(1).join("_");
 
-      // Build fahrzeug_id → sellerSlug map
-      const allVerkaeufer = vkData || [];
-      const map: Record<string, string> = {};
-      if (vfData && allVerkaeufer.length > 0) {
-        // We only have first seller loaded; fetch all sellers for slug building
-        const sellerIds = [...new Set(vfData.map(vf => vf.verkaeufer_id))];
-        const { data: allSellers } = await supabase.from("verkaeufer").select("id, vorname, nachname").in("id", sellerIds);
-        const sellerMap = new Map((allSellers || []).map(s => [s.id, `${s.vorname}_${s.nachname}`.toLowerCase()]));
-        vfData.forEach(vf => {
-          const slug = sellerMap.get(vf.verkaeufer_id);
-          if (slug) map[vf.fahrzeug_id] = slug;
-        });
+        // Find seller by name
+        const { data: sellerData } = await supabase
+          .from("verkaeufer")
+          .select("*")
+          .ilike("vorname", vorname)
+          .ilike("nachname", nachname)
+          .single();
+
+        if (!sellerData) { setLoading(false); return; }
+
+        // Load branding for the seller
+        let brandingData: Branding | null = null;
+        if (sellerData.branding_id) {
+          const { data: brData } = await supabase
+            .from("brandings")
+            .select("*")
+            .eq("id", sellerData.branding_id)
+            .single();
+          brandingData = brData;
+        }
+
+        // Load assigned vehicle IDs
+        const { data: vfData } = await supabase
+          .from("verkaeufer_fahrzeuge")
+          .select("fahrzeug_id")
+          .eq("verkaeufer_id", sellerData.id);
+
+        const fahrzeugIds = (vfData || []).map(vf => vf.fahrzeug_id);
+
+        // Load assigned vehicles
+        let fzData: Fahrzeug[] = [];
+        if (fahrzeugIds.length > 0) {
+          const { data } = await supabase
+            .from("fahrzeuge")
+            .select("*")
+            .in("id", fahrzeugIds)
+            .order("created_at", { ascending: false });
+          fzData = data || [];
+        }
+
+        setFahrzeuge(fzData);
+        setBranding(brandingData);
+        setVerkaeufer([sellerData]);
+
+        // Build vfMap with current sellerSlug
+        const map: Record<string, string> = {};
+        fahrzeugIds.forEach(fid => { map[fid] = sellerSlug; });
+        setVfMap(map);
+      } else {
+        // Default: show all vehicles
+        const [{ data: fzData }, { data: brData }, { data: vkData }, { data: vfData }] = await Promise.all([
+          supabase.from("fahrzeuge").select("*").order("created_at", { ascending: false }),
+          supabase.from("brandings").select("*").limit(1).single(),
+          supabase.from("verkaeufer").select("*").limit(1),
+          supabase.from("verkaeufer_fahrzeuge").select("*"),
+        ]);
+        setFahrzeuge(fzData || []);
+        setBranding(brData);
+        setVerkaeufer(vkData || []);
+
+        const map: Record<string, string> = {};
+        if (vfData) {
+          const sellerIds = [...new Set(vfData.map(vf => vf.verkaeufer_id))];
+          const { data: allSellers } = await supabase.from("verkaeufer").select("id, vorname, nachname").in("id", sellerIds);
+          const sellerMap = new Map((allSellers || []).map(s => [s.id, `${s.vorname}_${s.nachname}`.toLowerCase()]));
+          vfData.forEach(vf => {
+            const slug = sellerMap.get(vf.verkaeufer_id);
+            if (slug) map[vf.fahrzeug_id] = slug;
+          });
+        }
+        setVfMap(map);
       }
-      setVfMap(map);
       setLoading(false);
     };
     load();
-  }, []);
+  }, [sellerSlug]);
 
   if (loading) {
     return (
