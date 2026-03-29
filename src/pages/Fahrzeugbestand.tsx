@@ -8,6 +8,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
 type Branding = Tables<"brandings">;
+type VerkaeuferFahrzeuge = Tables<"verkaeufer_fahrzeuge">;
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("de-DE", { minimumFractionDigits: 0 }).format(price);
@@ -30,7 +31,7 @@ const AudiLogo = ({ fill = "black", width = 100, height = 35 }: { fill?: string;
   </svg>
 );
 
-function FahrzeugCard({ fahrzeug }: { fahrzeug: Fahrzeug }) {
+function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug: string }) {
   const specs = [
     { icon: Car, label: "Gebrauchtwagen" },
     { icon: Gauge, label: fahrzeug.km_stand ? `${formatKm(fahrzeug.km_stand)} km` : "–" },
@@ -76,13 +77,16 @@ function FahrzeugCard({ fahrzeug }: { fahrzeug: Fahrzeug }) {
       </div>
 
       {/* Price Footer */}
-      <div className="bg-[#323232] hover:bg-[#00527a] transition-colors cursor-pointer px-4 py-3 flex items-center justify-between">
+      <Link
+        to={`/gebrauchtwagen/${sellerSlug}/${fahrzeug.auftragsnummer || fahrzeug.id}`}
+        className="bg-[#323232] hover:bg-[#00527a] transition-colors cursor-pointer px-4 py-3 flex items-center justify-between block"
+      >
         <div>
           <p className="text-white text-xs">Preis</p>
           <p className="text-white/70 text-xs">inkl. MwSt.</p>
         </div>
         <p className="text-white font-bold text-xl">{formatPrice(fahrzeug.preis)} €</p>
-      </div>
+      </Link>
     </div>
   );
 }
@@ -91,18 +95,35 @@ export default function Fahrzeugbestand() {
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [branding, setBranding] = useState<Branding | null>(null);
   const [verkaeufer, setVerkaeufer] = useState<Verkaeufer[]>([]);
+  const [vfMap, setVfMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: fzData }, { data: brData }, { data: vkData }] = await Promise.all([
+      const [{ data: fzData }, { data: brData }, { data: vkData }, { data: vfData }] = await Promise.all([
         supabase.from("fahrzeuge").select("*").order("created_at", { ascending: false }),
         supabase.from("brandings").select("*").limit(1).single(),
         supabase.from("verkaeufer").select("*").limit(1),
+        supabase.from("verkaeufer_fahrzeuge").select("*"),
       ]);
       setFahrzeuge(fzData || []);
       setBranding(brData);
       setVerkaeufer(vkData || []);
+
+      // Build fahrzeug_id → sellerSlug map
+      const allVerkaeufer = vkData || [];
+      const map: Record<string, string> = {};
+      if (vfData && allVerkaeufer.length > 0) {
+        // We only have first seller loaded; fetch all sellers for slug building
+        const sellerIds = [...new Set(vfData.map(vf => vf.verkaeufer_id))];
+        const { data: allSellers } = await supabase.from("verkaeufer").select("id, vorname, nachname").in("id", sellerIds);
+        const sellerMap = new Map((allSellers || []).map(s => [s.id, `${s.vorname}_${s.nachname}`.toLowerCase()]));
+        vfData.forEach(vf => {
+          const slug = sellerMap.get(vf.verkaeufer_id);
+          if (slug) map[vf.fahrzeug_id] = slug;
+        });
+      }
+      setVfMap(map);
       setLoading(false);
     };
     load();
@@ -211,7 +232,7 @@ export default function Fahrzeugbestand() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {fahrzeuge.map((f) => (
-              <FahrzeugCard key={f.id} fahrzeug={f} />
+              <FahrzeugCard key={f.id} fahrzeug={f} sellerSlug={vfMap[f.id] || "markus_heber"} />
             ))}
           </div>
         )}
