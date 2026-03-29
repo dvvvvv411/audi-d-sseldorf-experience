@@ -43,7 +43,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
   ];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <Link to={`/gebrauchtwagen/${sellerSlug}/${fahrzeug.auftragsnummer || fahrzeug.id}`} className="group bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow block">
       {/* Image */}
       <div className="relative aspect-[16/10] bg-gray-100">
         {fahrzeug.bilder && fahrzeug.bilder.length > 0 ? (
