@@ -1,23 +1,14 @@
 
 
-## Preis-Element klickbar machen → Weiterleitung zu Gebrauchtwagen-Detailseite
+## Fahrzeugtitel in den Cards anpassen
 
-### Änderungen in `src/pages/Fahrzeugbestand.tsx`
+### Änderung in `src/pages/Fahrzeugbestand.tsx`
 
-**1. Verkäufer-Fahrzeug-Zuordnung laden**
-- Zusätzlich `verkaeufer_fahrzeuge` fetchen, um pro Fahrzeug den zugeordneten Verkäufer zu ermitteln.
-- Verkäufer-Daten (vorname, nachname) laden, um den Slug zu bauen.
-
-**2. FahrzeugCard erweitern**
-- Neue Props: `sellerSlug` und `auftragsnummer`
-- Das Preis-Footer-Element wird in einen `<Link>` gewrappt, der zu `/gebrauchtwagen/{sellerSlug}/{auftragsnummer}` navigiert.
-- Fallback-Slug: `markus_heber` falls kein Verkäufer zugeordnet ist.
-
-**3. Slug-Logik**
-- Slug-Format: `vorname_nachname` (lowercase), passend zur bestehenden Gebrauchtwagen-Routing-Logik.
-- Pro Fahrzeug: Lookup in `verkaeufer_fahrzeuge` → Verkäufer-ID → Slug bauen. Kein Match → `markus_heber`.
+**FahrzeugCard — Titel-Bereich (ca. Zeile 73-75):**
+- Padding: `px-4 pt-3 pb-2` → `px-4 pt-4 pb-3` (etwas mehr Luft oben und unten)
+- Schriftgröße: `text-sm` → `text-base` (von 14px auf 16px)
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/Fahrzeugbestand.tsx` | verkaeufer_fahrzeuge laden, Slug pro Fahrzeug berechnen, Preis-Element als Link zur Detailseite |
+| `src/pages/Fahrzeugbestand.tsx` | Titel-Bereich: mehr Padding, größere Schrift |
 
