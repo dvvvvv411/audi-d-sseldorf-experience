@@ -13,6 +13,7 @@ import AdminBrandings from "./pages/AdminBrandings.tsx";
 import AdminFahrzeugbestand from "./pages/AdminFahrzeugbestand.tsx";
 import AdminAnfragen from "./pages/AdminAnfragen.tsx";
 import AdminAnfrageDetail from "./pages/AdminAnfrageDetail.tsx";
+import AdminEmailTemplates from "./pages/AdminEmailTemplates.tsx";
 import Gebrauchtwagen from "./pages/Gebrauchtwagen.tsx";
 import Fahrzeugbestand from "./pages/Fahrzeugbestand.tsx";
 import Impressum from "./pages/rechtliches/Impressum.tsx";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="fahrzeugbestand" element={<AdminFahrzeugbestand />} />
             <Route path="anfragen" element={<AdminAnfragen />} />
             <Route path="anfragen/:id" element={<AdminAnfrageDetail />} />
+            <Route path="email-templates" element={<AdminEmailTemplates />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
