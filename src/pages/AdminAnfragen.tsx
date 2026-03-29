@@ -285,6 +285,7 @@ export default function AdminAnfragen() {
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow className="border-gray-200">
+                <TableHead className="text-gray-600 font-semibold">Datum</TableHead>
                 <TableHead className="text-gray-600 font-semibold">Name</TableHead>
                 <TableHead className="text-gray-600 font-semibold">E-Mail</TableHead>
                 <TableHead className="text-gray-600 font-semibold">Telefon</TableHead>
@@ -300,6 +301,7 @@ export default function AdminAnfragen() {
             <TableBody>
               {anfragen.map((a) => (
                 <TableRow key={a.id} className="border-gray-100">
+                  <TableCell className="whitespace-nowrap text-gray-500 text-sm">{format(new Date(a.created_at), "dd.MM.yyyy HH:mm", { locale: de })}</TableCell>
                   <TableCell className="font-medium whitespace-nowrap text-gray-900">{a.vorname} {a.nachname}</TableCell>
                   <TableCell className="text-gray-700">{a.email}</TableCell>
                   <TableCell className="whitespace-nowrap text-gray-700">{a.telefon}</TableCell>
