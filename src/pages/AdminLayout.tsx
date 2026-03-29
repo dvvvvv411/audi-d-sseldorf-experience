@@ -24,6 +24,18 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [neuCount, setNeuCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from("anfragen")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "NEU");
+      setNeuCount(count ?? 0);
+    };
+    fetchCount();
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
