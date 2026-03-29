@@ -1,26 +1,25 @@
 
 
-## Fade-In Animationen + Preis-Element vergrößern
+## Loading-Spinner durch Audi-Logo-Animation ersetzen
 
-### 1. Fade-In Animationen
+### Konzept
+Der aktuelle Spinner (drehender Kreis) wird durch eine pulsierende Audi-Ringe-Animation ersetzt. Das bereits vorhandene `AudiLogo`-SVG wird wiederverwendet und mit einer sanften Puls-Animation versehen.
 
-**`src/pages/Fahrzeugbestand.tsx`:**
-- Titel `<h1>` bekommt `animate-fade-in`
-- Jede `FahrzeugCard` bekommt `animate-fade-in` mit gestaffeltem `style={{ animationDelay: index * 80ms }}`
-- `opacity-0 animate-fade-in` + `animation-fill-mode: forwards` damit Cards erst bei Animation sichtbar werden
+### Umsetzung in `src/pages/Fahrzeugbestand.tsx`
 
-**`src/pages/Gebrauchtwagen.tsx`:**
-- Hauptcontainer/Sektionen (Bildergalerie, Info-Box, Preis-Banner, Berater-Spalte) bekommen `animate-fade-in`
+**Zeilen 132-137** — Loading-State ersetzen:
+- Statt `animate-spin border` Kreis → `AudiLogo` Komponente mit `animate-pulse` und `opacity-40`
+- Darunter optional kleiner Text "Wird geladen..." in grau
+- Logo in grau (`fill="#999"`) dargestellt, pulsierend
 
-### 2. Preis-Element vergrößern (Fahrzeugbestand)
+```text
+Vorher:                              Nachher:
+Drehender Kreis (border)             Audi-Logo (80x28)
+animate-spin                         animate-pulse, opacity-40
+                                     fill="#999", sanftes Pulsieren
+```
 
-- Padding: `py-3` → `py-4` (etwas mehr vertikaler Abstand)
-- Texte bleiben gleich — nur der Abstand wird erhöht
-
-### Dateien
-
-| Datei | Änderung |
+| Datei | Aenderung |
 |---|---|
-| `src/pages/Fahrzeugbestand.tsx` | Fade-In auf Cards (gestaffelt) + Titel, Preis-Element py-3 → py-4 |
-| `src/pages/Gebrauchtwagen.tsx` | Fade-In auf Hauptsektionen |
+| `src/pages/Fahrzeugbestand.tsx` | Loading-Spinner durch pulsierende AudiLogo-Komponente ersetzen |
 
