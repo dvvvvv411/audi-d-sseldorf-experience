@@ -65,10 +65,10 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
       </div>
 
       {/* Specs Grid */}
-      <div className="bg-[#fbfbfb]">
+      <div className="bg-[#fbfbfb] py-1">
         <div className="grid grid-cols-3 grid-rows-2">
           {specs.map((spec, i) => (
-            <div key={i} className="flex flex-col items-center justify-center gap-1 py-3 px-2">
+            <div key={i} className="flex flex-col items-center justify-center gap-1 py-3.5 px-2">
               <spec.icon className="w-6 h-6 text-gray-700" />
               <span className="text-[11px] font-medium text-gray-700 text-center leading-tight">{spec.label}</span>
             </div>
