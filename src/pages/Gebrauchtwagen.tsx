@@ -432,6 +432,7 @@ export default function Gebrauchtwagen() {
                   src={mainImage}
                   alt={fahrzeug.fahrzeugname}
                   className="w-full h-full object-cover min-h-[250px] lg:min-h-[500px]"
+                  onContextMenu={e => e.preventDefault()}
                 />
               ) : (
                 <div className="w-full h-full min-h-[250px] lg:min-h-[500px] flex items-center justify-center text-gray-400">

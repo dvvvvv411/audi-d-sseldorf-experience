@@ -46,7 +46,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
       {/* Image */}
       <div className="relative aspect-[16/10] bg-gray-100">
         {fahrzeug.bilder && fahrzeug.bilder.length > 0 ? (
-          <img src={fahrzeug.bilder[0]} alt={fahrzeug.fahrzeugname} className="w-full h-full object-cover" />
+          <img src={fahrzeug.bilder[0]} alt={fahrzeug.fahrzeugname} className="w-full h-full object-cover" onContextMenu={e => e.preventDefault()} />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <ImagePlus className="w-12 h-12 text-gray-300" />
