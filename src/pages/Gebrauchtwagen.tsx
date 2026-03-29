@@ -108,6 +108,7 @@ function ThumbnailGallery({ bilder, fahrzeugname, mainImage, onSelect }: {
                 src={img}
                 alt={`${fahrzeugname} Bild ${i + 1}`}
                 className="h-16 w-28 md:h-28 md:w-48 object-cover"
+                onContextMenu={e => e.preventDefault()}
               />
             </button>
           ))}
