@@ -147,6 +147,27 @@ export default function AdminAnfragen() {
                       >
                         <StickyNote className="w-4 h-4" />
                       </Button>
+                      <div className="relative">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                          onClick={() => handleMailboxClick(a.id)}
+                        >
+                          <Mail className="w-4 h-4" />
+                        </Button>
+                        {(mailboxClicks[a.id]?.length || 0) > 0 && (
+                          <span
+                            className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center cursor-pointer hover:bg-red-600 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMailboxPopupAnfrageId(a.id);
+                            }}
+                          >
+                            {mailboxClicks[a.id].length}
+                          </span>
+                        )}
+                      </div>
                       <Button
                         variant="ghost"
                         size="icon"
