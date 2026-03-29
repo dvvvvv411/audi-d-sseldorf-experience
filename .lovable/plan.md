@@ -1,14 +1,29 @@
 
 
-## Badge mit Anzahl neuer Anfragen in der Sidebar
+## Aktualisierter Plan: Email Template ohne Fahrzeugbild
 
-### Änderung in `src/pages/AdminLayout.tsx`
+Gleicher Plan wie zuvor, aber das Fahrzeugbild wird aus der E-Mail-Vorlage entfernt. Die Fahrzeug-Zusammenfassung zeigt nur die Textdaten (Modell, Preis, EZ, km, Kraftstoff, Leistung) ohne Bild.
 
-1. **useEffect beim Mount**: Anzahl der Anfragen mit `status = 'NEU'` aus Supabase laden (`supabase.from("anfragen").select("id", { count: "exact", head: true }).eq("status", "NEU")`)
-2. **State**: `neuCount: number` speichert die Anzahl
-3. **Badge**: Beim "Anfragen"-Nav-Item rechts einen roten Kreis mit der Zahl anzeigen (nur wenn > 0), z.B. `<span className="ml-auto bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">{neuCount}</span>`
+### Änderungen gegenüber vorherigem Plan
+
+Einzige Änderung: In `generateAnfrageEmail()` wird kein `<img>`-Tag für `fahrzeug.bilder[0]` gerendert. Der Fahrzeug-Block zeigt nur Text:
+
+```text
+┌────────────────────────────────┐
+│  Ihr ausgewähltes Fahrzeug     │
+│  Audi A4 Avant 35 TDI          │
+│  Preis: 45.900 €               │
+│  EZ: 03/2023 · 15.000 km       │
+│  Kraftstoff: Diesel             │
+│  Leistung: 163 PS              │
+└────────────────────────────────┘
+```
+
+Alles andere (Sidebar-Eintrag, Route, Branding/Fahrzeug-Dropdowns, Audi-Styling, Footer) bleibt identisch.
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminLayout.tsx` | `useEffect` + State für NEU-Count, roter Badge neben "Anfragen" |
+| `src/pages/AdminEmailTemplates.tsx` | Neue Seite, Fahrzeug-Block ohne Bild |
+| `src/pages/AdminLayout.tsx` | Nav-Item "Email Templates" |
+| `src/App.tsx` | Route `/admin/email-templates` |
 
