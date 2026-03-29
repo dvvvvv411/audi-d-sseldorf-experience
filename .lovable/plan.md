@@ -1,18 +1,26 @@
 
 
-## Aktivitätsprotokoll: Username dezenter, Kundenname dominanter
+## Kundenname bei "Notiz hinzugefügt" im Aktivitätsprotokoll
+
+Aktuell wird bei `notiz_hinzugefuegt` nur der Notiztext als `details` gespeichert. Der Kundenname fehlt.
 
 ### Änderung in `src/pages/AdminAnfragen.tsx`
 
-Zeilen 252-260 anpassen:
+In der `addNotiz`-Funktion (ca. Zeile 158-170): Den `details`-String ändern von nur `neueNotiz.trim()` zu `{Vorname} {Nachname}: {Notiztext}`, sodass der Kundenname vorangestellt wird.
 
-- **User-Email** (`admin@admin.de`): von `text-xs font-medium text-gray-900` auf `text-[10px] text-gray-400` — kleiner und grauer
-- **Details** (enthält Kundenname): von `text-xs text-gray-500` auf `text-sm font-medium text-gray-900` — groesser und fetter
-- Reihenfolge umkehren: Details/Kundenname zuerst anzeigen, dann User-Email + Aktionslabel darunter
+Konkret: Die Anfrage über `selectedAnfrageId` aus dem `anfragen`-Array suchen und den Namen extrahieren.
 
-Ergebnis: Der Kundenname springt sofort ins Auge, die Admin-Email ist nur als Zusatzinfo sichtbar.
+```
+// Vorher:
+details: neueNotiz.trim()
+
+// Nachher:
+details: `${anfrage.vorname} ${anfrage.nachname}: ${neueNotiz.trim()}`
+```
+
+Gleiches Format wie bei `status_geaendert`, wo bereits der Name enthalten ist.
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminAnfragen.tsx` | Zeilen 252-260: Styling tauschen, Details prominenter, Email dezenter |
+| `src/pages/AdminAnfragen.tsx` | `addNotiz`: Kundenname vor Notiztext in details setzen |
 
