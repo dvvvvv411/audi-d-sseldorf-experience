@@ -68,11 +68,17 @@ export default function AdminAnfrageDetail() {
     load();
   }, [id]);
 
-  const saveNotizen = async () => {
-    if (!id) return;
+  const addNotiz = async () => {
+    if (!id || !neueNotiz.trim()) return;
     setSaving(true);
-    await supabase.from("anfragen").update({ notizen }).eq("id", id);
-    toast({ title: "Notizen gespeichert" });
+    const { data } = await supabase
+      .from("anfrage_notizen")
+      .insert({ anfrage_id: id, text: neueNotiz.trim() } as any)
+      .select()
+      .single();
+    if (data) setNotizen((prev) => [...prev, data]);
+    setNeueNotiz("");
+    toast({ title: "Notiz hinzugefügt" });
     setSaving(false);
   };
 
