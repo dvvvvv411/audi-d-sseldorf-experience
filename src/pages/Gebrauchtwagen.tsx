@@ -428,12 +428,14 @@ export default function Gebrauchtwagen() {
           <div className="lg:w-[60%] order-1">
             <div className="bg-gray-100">
               {mainImage ? (
+              <div className="relative">
                 <img
                   src={mainImage}
                   alt={fahrzeug.fahrzeugname}
                   className="w-full h-full object-cover min-h-[250px] lg:min-h-[500px]"
-                  onContextMenu={e => e.preventDefault()}
                 />
+                <div className="absolute inset-0 z-10" />
+              </div>
               ) : (
                 <div className="w-full h-full min-h-[250px] lg:min-h-[500px] flex items-center justify-center text-gray-400">
                   Kein Bild vorhanden
