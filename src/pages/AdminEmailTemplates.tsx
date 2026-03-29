@@ -112,7 +112,7 @@ const generateAnfrageEmail = (branding: Branding, fahrzeug: Fahrzeug) => {
 
         <!-- Footer -->
         <tr><td style="padding:10px 40px 30px;">
-          <p style="font-size:11px;color:#999;line-height:1.5;margin:0;text-align:center;">
+          <p style="font-size:11px;color:#999;line-height:1.5;margin:0;text-align:left;">
             AUDI AG<br/>
             Auto-Union-Straße 1, 85057 Ingolstadt<br/>
             www.audi.de<br/><br/>
