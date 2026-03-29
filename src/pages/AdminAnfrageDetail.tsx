@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 interface Anfrage {
   id: string;
@@ -35,7 +37,8 @@ export default function AdminAnfrageDetail() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [anfrage, setAnfrage] = useState<Anfrage | null>(null);
-  const [notizen, setNotizen] = useState("");
+  const [notizen, setNotizen] = useState<{ id: string; text: string; created_at: string }[]>([]);
+  const [neueNotiz, setNeueNotiz] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [fahrzeug, setFahrzeug] = useState<any>(null);
@@ -51,24 +54,31 @@ export default function AdminAnfrageDetail() {
         .single();
       if (data) {
         setAnfrage(data);
-        setNotizen(data.notizen || "");
-        const [fzRes, vkRes] = await Promise.all([
+        const [fzRes, vkRes, notizenRes] = await Promise.all([
           supabase.from("fahrzeuge").select("*").eq("id", data.fahrzeug_id).single(),
           supabase.from("verkaeufer").select("*").eq("id", data.verkaeufer_id).single(),
+          supabase.from("anfrage_notizen").select("*").eq("anfrage_id", data.id).order("created_at", { ascending: true }),
         ]);
         if (fzRes.data) setFahrzeug(fzRes.data);
         if (vkRes.data) setVerkaeufer(vkRes.data);
+        if (notizenRes.data) setNotizen(notizenRes.data);
       }
       setLoading(false);
     };
     load();
   }, [id]);
 
-  const saveNotizen = async () => {
-    if (!id) return;
+  const addNotiz = async () => {
+    if (!id || !neueNotiz.trim()) return;
     setSaving(true);
-    await supabase.from("anfragen").update({ notizen }).eq("id", id);
-    toast({ title: "Notizen gespeichert" });
+    const { data } = await supabase
+      .from("anfrage_notizen")
+      .insert({ anfrage_id: id, text: neueNotiz.trim() } as any)
+      .select()
+      .single();
+    if (data) setNotizen((prev) => [...prev, data]);
+    setNeueNotiz("");
+    toast({ title: "Notiz hinzugefügt" });
     setSaving(false);
   };
 
@@ -260,16 +270,35 @@ export default function AdminAnfrageDetail() {
             <StickyNote className="w-4 h-4 text-gray-500" />
             Interne Notizen
           </h3>
-          <Textarea
-            value={notizen}
-            onChange={(e) => setNotizen(e.target.value)}
-            placeholder="Notizen zur Anfrage hinzufügen..."
-            className="min-h-[120px] mb-4 bg-white border-gray-300 text-gray-900"
-          />
-          <Button onClick={saveNotizen} disabled={saving} className="bg-gray-900 text-white hover:bg-gray-800">
-            <Save className="w-4 h-4 mr-2" />
-            {saving ? "Speichern..." : "Notizen speichern"}
-          </Button>
+          <div className="max-h-[300px] overflow-y-auto space-y-3 mb-4">
+            {notizen.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-4">Noch keine Notizen vorhanden.</p>
+            ) : (
+              notizen.map((n) => (
+                <div key={n.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap">{n.text}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {format(new Date(n.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Textarea
+              value={neueNotiz}
+              onChange={(e) => setNeueNotiz(e.target.value)}
+              placeholder="Neue Notiz hinzufügen..."
+              className="min-h-[60px] bg-white border-gray-300 text-gray-900 flex-1"
+            />
+            <Button
+              onClick={addNotiz}
+              disabled={saving || !neueNotiz.trim()}
+              className="bg-gray-900 text-white hover:bg-gray-800 self-end"
+            >
+              <Save className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

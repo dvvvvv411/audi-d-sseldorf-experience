@@ -32,19 +32,31 @@ export default function AdminAnfragen() {
   const { toast } = useToast();
   const [anfragen, setAnfragen] = useState<Anfrage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAnfrage, setSelectedAnfrage] = useState<Anfrage | null>(null);
-  const [notizenText, setNotizenText] = useState("");
+  const [selectedAnfrageId, setSelectedAnfrageId] = useState<string | null>(null);
+  const [selectedAnfrageName, setSelectedAnfrageName] = useState("");
+  const [notizen, setNotizen] = useState<{ id: string; text: string; created_at: string }[]>([]);
+  const [neueNotiz, setNeueNotiz] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loadingNotizen, setLoadingNotizen] = useState(false);
   const [mailboxClicks, setMailboxClicks] = useState<Record<string, string[]>>({});
   const [mailboxPopupAnfrageId, setMailboxPopupAnfrageId] = useState<string | null>(null);
+  const [notizenCounts, setNotizenCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const load = async () => {
-      const [anfrRes, clicksRes] = await Promise.all([
+      const [anfrRes, clicksRes, notizenRes] = await Promise.all([
         supabase.from("anfragen").select("*").order("created_at", { ascending: false }),
         supabase.from("mailbox_clicks").select("*").order("clicked_at", { ascending: false }),
+        supabase.from("anfrage_notizen").select("anfrage_id"),
       ]);
       if (anfrRes.data) setAnfragen(anfrRes.data);
+      if (notizenRes.data) {
+        const counts: Record<string, number> = {};
+        for (const n of notizenRes.data) {
+          counts[n.anfrage_id] = (counts[n.anfrage_id] || 0) + 1;
+        }
+        setNotizenCounts(counts);
+      }
       if (clicksRes.data) {
         const grouped: Record<string, string[]> = {};
         for (const c of clicksRes.data) {
@@ -67,20 +79,36 @@ export default function AdminAnfragen() {
     }));
   };
 
-  const openNotizen = (a: Anfrage) => {
-    setSelectedAnfrage(a);
-    setNotizenText(a.notizen || "");
+  const openNotizen = async (a: Anfrage) => {
+    setSelectedAnfrageId(a.id);
+    setSelectedAnfrageName(`${a.vorname} ${a.nachname}`);
+    setNeueNotiz("");
+    setLoadingNotizen(true);
+    const { data } = await supabase
+      .from("anfrage_notizen")
+      .select("*")
+      .eq("anfrage_id", a.id)
+      .order("created_at", { ascending: true });
+    setNotizen(data || []);
+    setLoadingNotizen(false);
   };
 
-  const saveNotizen = async () => {
-    if (!selectedAnfrage) return;
+  const addNotiz = async () => {
+    if (!selectedAnfrageId || !neueNotiz.trim()) return;
     setSaving(true);
-    await supabase.from("anfragen").update({ notizen: notizenText }).eq("id", selectedAnfrage.id);
-    setAnfragen((prev) =>
-      prev.map((a) => (a.id === selectedAnfrage.id ? { ...a, notizen: notizenText } : a))
-    );
-    setSelectedAnfrage(null);
-    toast({ title: "Notizen gespeichert" });
+    const { data } = await supabase
+      .from("anfrage_notizen")
+      .insert({ anfrage_id: selectedAnfrageId, text: neueNotiz.trim() } as any)
+      .select()
+      .single();
+    if (data) {
+      setNotizen((prev) => [...prev, data]);
+      setNotizenCounts((prev) => ({
+        ...prev,
+        [selectedAnfrageId]: (prev[selectedAnfrageId] || 0) + 1,
+      }));
+    }
+    setNeueNotiz("");
     setSaving(false);
   };
 
@@ -139,14 +167,21 @@ export default function AdminAnfragen() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`hover:bg-gray-100 ${a.notizen ? "text-amber-500 hover:text-amber-700" : "text-gray-400 hover:text-gray-600"}`}
-                        onClick={() => openNotizen(a)}
-                      >
-                        <StickyNote className="w-4 h-4" />
-                      </Button>
+                      <div className="relative">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={`hover:bg-gray-100 ${(notizenCounts[a.id] || 0) > 0 ? "text-amber-500 hover:text-amber-700" : "text-gray-400 hover:text-gray-600"}`}
+                          onClick={() => openNotizen(a)}
+                        >
+                          <StickyNote className="w-4 h-4" />
+                        </Button>
+                        {(notizenCounts[a.id] || 0) > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                            {notizenCounts[a.id]}
+                          </span>
+                        )}
+                      </div>
                       <div className="relative">
                         <Button
                           variant="ghost"
@@ -185,23 +220,42 @@ export default function AdminAnfragen() {
         </div>
       )}
 
-      <Dialog open={!!selectedAnfrage} onOpenChange={(open) => !open && setSelectedAnfrage(null)}>
+      <Dialog open={!!selectedAnfrageId} onOpenChange={(open) => !open && setSelectedAnfrageId(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              Notizen – {selectedAnfrage?.vorname} {selectedAnfrage?.nachname}
-            </DialogTitle>
+            <DialogTitle>Notizen – {selectedAnfrageName}</DialogTitle>
           </DialogHeader>
-          <Textarea
-            value={notizenText}
-            onChange={(e) => setNotizenText(e.target.value)}
-            placeholder="Notizen zur Anfrage hinzufügen..."
-            className="min-h-[160px] bg-white border-gray-300 text-gray-900"
-          />
-          <div className="flex justify-end">
-            <Button onClick={saveNotizen} disabled={saving} className="bg-gray-900 text-white hover:bg-gray-800">
-              <Save className="w-4 h-4 mr-2" />
-              {saving ? "Speichern..." : "Notizen speichern"}
+          <div className="max-h-[300px] overflow-y-auto space-y-3">
+            {loadingNotizen ? (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900" />
+              </div>
+            ) : notizen.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-4">Noch keine Notizen vorhanden.</p>
+            ) : (
+              notizen.map((n) => (
+                <div key={n.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap">{n.text}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {format(new Date(n.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Textarea
+              value={neueNotiz}
+              onChange={(e) => setNeueNotiz(e.target.value)}
+              placeholder="Neue Notiz hinzufügen..."
+              className="min-h-[60px] bg-white border-gray-300 text-gray-900 flex-1"
+            />
+            <Button
+              onClick={addNotiz}
+              disabled={saving || !neueNotiz.trim()}
+              className="bg-gray-900 text-white hover:bg-gray-800 self-end"
+            >
+              <Save className="w-4 h-4" />
             </Button>
           </div>
         </DialogContent>
