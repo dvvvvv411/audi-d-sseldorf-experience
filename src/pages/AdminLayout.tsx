@@ -75,6 +75,11 @@ const AdminLayout = () => {
               >
                 <item.icon className="w-5 h-5" />
                 {item.label}
+                {item.label === "Anfragen" && neuCount > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                    {neuCount}
+                  </span>
+                )}
               </button>
             );
           })}
