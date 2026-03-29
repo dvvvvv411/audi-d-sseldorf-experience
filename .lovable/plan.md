@@ -1,29 +1,23 @@
 
 
-## Aktualisierter Plan: Email Template ohne Fahrzeugbild
+## Footer: AUDI AG mit "Audi Vertriebssystem" Hinweis
 
-Gleicher Plan wie zuvor, aber das Fahrzeugbild wird aus der E-Mail-Vorlage entfernt. Die Fahrzeug-Zusammenfassung zeigt nur die Textdaten (Modell, Preis, EZ, km, Kraftstoff, Leistung) ohne Bild.
+### Änderung in `src/pages/AdminEmailTemplates.tsx`
 
-### Änderungen gegenüber vorherigem Plan
+Footer-Sektion (ca. Zeile 107-116) ersetzen:
 
-Einzige Änderung: In `generateAnfrageEmail()` wird kein `<img>`-Tag für `fahrzeug.bilder[0]` gerendert. Der Fahrzeug-Block zeigt nur Text:
+- **Hinweis-Zeile** (zentriert, grau): `Audi Vertriebssystem — Ein Service der AUDI AG`
+- **Darunter feste AUDI AG Daten:**
+  - AUDI AG
+  - Auto-Union-Straße 1, 85057 Ingolstadt
+  - www.audi.de
+  - AG Ingolstadt · HRB 1
+  - Vorstand: Gernot Döllner (Vorsitzender)
+  - USt-IdNr.: DE 811 115 368
 
-```text
-┌────────────────────────────────┐
-│  Ihr ausgewähltes Fahrzeug     │
-│  Audi A4 Avant 35 TDI          │
-│  Preis: 45.900 €               │
-│  EZ: 03/2023 · 15.000 km       │
-│  Kraftstoff: Diesel             │
-│  Leistung: 163 PS              │
-└────────────────────────────────┘
-```
-
-Alles andere (Sidebar-Eintrag, Route, Branding/Fahrzeug-Dropdowns, Audi-Styling, Footer) bleibt identisch.
+Keine dynamischen `${branding.*}` Felder mehr im Footer.
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminEmailTemplates.tsx` | Neue Seite, Fahrzeug-Block ohne Bild |
-| `src/pages/AdminLayout.tsx` | Nav-Item "Email Templates" |
-| `src/App.tsx` | Route `/admin/email-templates` |
+| `src/pages/AdminEmailTemplates.tsx` | Footer: feste AUDI AG Daten + "Audi Vertriebssystem" |
 
