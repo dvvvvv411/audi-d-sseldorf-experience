@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
 import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail } from "lucide-react";
