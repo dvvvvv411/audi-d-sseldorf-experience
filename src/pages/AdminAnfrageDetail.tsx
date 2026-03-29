@@ -37,7 +37,8 @@ export default function AdminAnfrageDetail() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [anfrage, setAnfrage] = useState<Anfrage | null>(null);
-  const [notizen, setNotizen] = useState("");
+  const [notizen, setNotizen] = useState<{ id: string; text: string; created_at: string }[]>([]);
+  const [neueNotiz, setNeueNotiz] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [fahrzeug, setFahrzeug] = useState<any>(null);
