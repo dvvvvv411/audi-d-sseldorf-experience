@@ -60,8 +60,8 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
       </div>
 
       {/* Title */}
-      <div className="px-4 pt-3 pb-2">
-        <h3 className="font-bold text-gray-900 text-sm leading-tight">{fahrzeug.fahrzeugname}</h3>
+      <div className="px-4 pt-4 pb-3">
+        <h3 className="font-bold text-gray-900 text-base leading-tight">{fahrzeug.fahrzeugname}</h3>
       </div>
 
       {/* Specs Grid */}
