@@ -206,6 +206,25 @@ export default function AdminAnfragen() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!mailboxPopupAnfrageId} onOpenChange={(open) => !open && setMailboxPopupAnfrageId(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Mailbox-Klicks</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[300px] overflow-y-auto space-y-2">
+            {(mailboxClicks[mailboxPopupAnfrageId || ""] || []).length === 0 ? (
+              <p className="text-gray-500 text-sm">Keine Klicks vorhanden.</p>
+            ) : (
+              (mailboxClicks[mailboxPopupAnfrageId || ""] || []).map((ts, i) => (
+                <div key={i} className="text-sm text-gray-700 py-1 border-b border-gray-100 last:border-0">
+                  {format(new Date(ts), "dd.MM.yyyy HH:mm", { locale: de })}
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
