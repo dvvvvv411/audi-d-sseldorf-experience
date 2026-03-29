@@ -31,7 +31,7 @@ const AudiLogo = ({ fill = "black", width = 100, height = 35 }: { fill?: string;
   </svg>
 );
 
-function FahrzeugCard({ fahrzeug }: { fahrzeug: Fahrzeug }) {
+function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug: string }) {
   const specs = [
     { icon: Car, label: "Gebrauchtwagen" },
     { icon: Gauge, label: fahrzeug.km_stand ? `${formatKm(fahrzeug.km_stand)} km` : "–" },
