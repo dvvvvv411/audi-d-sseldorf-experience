@@ -1,26 +1,14 @@
 
 
-## Kundenname bei "Notiz hinzugefügt" im Aktivitätsprotokoll
-
-Aktuell wird bei `notiz_hinzugefuegt` nur der Notiztext als `details` gespeichert. Der Kundenname fehlt.
+## Datum/Uhrzeit-Spalte in Anfragen-Tabelle
 
 ### Änderung in `src/pages/AdminAnfragen.tsx`
 
-In der `addNotiz`-Funktion (ca. Zeile 158-170): Den `details`-String ändern von nur `neueNotiz.trim()` zu `{Vorname} {Nachname}: {Notiztext}`, sodass der Kundenname vorangestellt wird.
-
-Konkret: Die Anfrage über `selectedAnfrageId` aus dem `anfragen`-Array suchen und den Namen extrahieren.
-
-```
-// Vorher:
-details: neueNotiz.trim()
-
-// Nachher:
-details: `${anfrage.vorname} ${anfrage.nachname}: ${neueNotiz.trim()}`
-```
-
-Gleiches Format wie bei `status_geaendert`, wo bereits der Name enthalten ist.
+1. **Neue Spalte "Datum"** als erste Spalte im TableHeader einfügen
+2. **Wert:** `created_at` formatiert als `dd.MM.yyyy HH:mm` (bereits `date-fns` + `de` Locale vorhanden)
+3. Sortierung bleibt wie gehabt (neueste zuerst)
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminAnfragen.tsx` | `addNotiz`: Kundenname vor Notiztext in details setzen |
+| `src/pages/AdminAnfragen.tsx` | Neue erste TableHead "Datum" + TableCell mit formatiertem `created_at` |
 
