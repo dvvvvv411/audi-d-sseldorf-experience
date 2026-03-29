@@ -67,9 +67,9 @@ function FahrzeugCard({ fahrzeug }: { fahrzeug: Fahrzeug }) {
       <div className="bg-[#fbfbfb]">
         <div className="grid grid-cols-3 grid-rows-2">
           {specs.map((spec, i) => (
-            <div key={i} className="flex flex-col items-center justify-center gap-1 py-3 px-2 border border-gray-200">
-              <spec.icon className="w-5 h-5 text-gray-600" />
-              <span className="text-[10px] text-gray-600 text-center leading-tight">{spec.label}</span>
+            <div key={i} className="flex flex-col items-center justify-center gap-1 py-3 px-2">
+              <spec.icon className="w-6 h-6 text-gray-700" />
+              <span className="text-[11px] font-medium text-gray-700 text-center leading-tight">{spec.label}</span>
             </div>
           ))}
         </div>
