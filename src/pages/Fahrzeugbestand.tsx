@@ -90,16 +90,19 @@ function FahrzeugCard({ fahrzeug }: { fahrzeug: Fahrzeug }) {
 export default function Fahrzeugbestand() {
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [branding, setBranding] = useState<Branding | null>(null);
+  const [verkaeufer, setVerkaeufer] = useState<Verkaeufer[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: fzData }, { data: brData }] = await Promise.all([
+      const [{ data: fzData }, { data: brData }, { data: vkData }] = await Promise.all([
         supabase.from("fahrzeuge").select("*").order("created_at", { ascending: false }),
         supabase.from("brandings").select("*").limit(1).single(),
+        supabase.from("verkaeufer").select("*").limit(1),
       ]);
       setFahrzeuge(fzData || []);
       setBranding(brData);
+      setVerkaeufer(vkData || []);
       setLoading(false);
     };
     load();
