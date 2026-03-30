@@ -231,7 +231,10 @@ export default function Fahrzeugbestand() {
                   <span className="text-sm font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
                 </div>
                 {verkaeufer[0].avatar_url ? (
-                  <img src={verkaeufer[0].avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                  <div className="relative w-8 h-8">
+                    <img src={verkaeufer[0].avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                    <div className="absolute inset-0 z-10 rounded-full" />
+                  </div>
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-white text-xs font-bold">
                     {verkaeufer[0].vorname[0]}{verkaeufer[0].nachname[0]}
@@ -254,7 +257,10 @@ export default function Fahrzeugbestand() {
                 {verkaeufer.length > 0 && verkaeufer.map((v) => (
                   <div key={v.id} className="flex flex-col items-center text-center space-y-2">
                     {v.avatar_url ? (
-                      <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-14 h-14 rounded-full object-cover" />
+                      <div className="relative w-14 h-14">
+                        <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-full h-full rounded-full object-cover" />
+                        <div className="absolute inset-0 z-10 rounded-full" />
+                      </div>
                     ) : (
                       <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center text-white text-sm font-bold">
                         {v.vorname[0]}{v.nachname[0]}
