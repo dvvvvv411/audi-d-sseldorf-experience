@@ -12,7 +12,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Mail, Phone, Trash2, Pencil, Loader2, Upload, User, Car } from "lucide-react";
+import { Plus, Mail, Phone, Trash2, Pencil, Loader2, Upload, User, Car, Copy } from "lucide-react";
 
 type Branding = { id: string; name: string };
 type Fahrzeug = { id: string; fahrzeugname: string; preis: number };
