@@ -11,6 +11,12 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    cors: {
+      origin: [
+        "https://audi-duesseldorf.de",
+        "https://www.audi-duesseldorf.de",
+      ],
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
