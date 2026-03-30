@@ -1,26 +1,28 @@
 
 
-## Landingpage → audi.de Weiterleitung
+## Routen-Schutz: /gebrauchtwagen und /fahrzeugbestand nur für Admins
 
-### Änderung
+### Logik
 
-**`src/pages/Index.tsx`**: Den gesamten Seiteninhalt durch einen sofortigen `window.location.replace("https://audi.de")` ersetzen. Die Komponente gibt nur ein leeres Fragment oder einen kurzen Ladehinweis zurück.
+- `/gebrauchtwagen` (ohne Parameter) und `/fahrzeugbestand` (ohne Parameter) sollen nur für eingeloggte Admins erreichbar sein
+- `/gebrauchtwagen/:sellerSlug/:auftragsnummer` und `/fahrzeugbestand/:sellerSlug` bleiben öffentlich (für Anon-User)
+
+### Änderung in `src/App.tsx`
+
+Die beiden Basis-Routen mit `ProtectedRoute` wrappen:
 
 ```tsx
-import { useEffect } from "react";
+<Route path="/gebrauchtwagen" element={<ProtectedRoute><Gebrauchtwagen /></ProtectedRoute>} />
+<Route path="/fahrzeugbestand" element={<ProtectedRoute><Fahrzeugbestand /></ProtectedRoute>} />
+```
 
-const Index = () => {
-  useEffect(() => {
-    window.location.replace("https://audi.de");
-  }, []);
-
-  return null;
-};
-
-export default Index;
+Die parametrisierten Routen bleiben unverändert (öffentlich):
+```tsx
+<Route path="/fahrzeugbestand/:sellerSlug" element={<Fahrzeugbestand />} />
+<Route path="/gebrauchtwagen/:sellerSlug/:auftragsnummer" element={<Gebrauchtwagen />} />
 ```
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/Index.tsx` | Gesamten Inhalt durch sofortige Weiterleitung zu audi.de ersetzen |
+| `src/App.tsx` | `/gebrauchtwagen` und `/fahrzeugbestand` mit `ProtectedRoute` wrappen |
 
