@@ -145,27 +145,32 @@ const AdminBrandings = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {brandings.map((b) => (
-            <div key={b.id} className="bg-white border border-gray-200 p-5">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <p className="font-semibold text-gray-900 text-lg">{b.name}</p>
-                  <p className="text-sm text-gray-500">{b.strasse}, {b.plz} {b.stadt}</p>
-                </div>
+            <div key={b.id} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <p className="font-bold text-gray-900 text-lg">{b.name}</p>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => openEdit(b)} className="text-gray-500 hover:text-gray-900">
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(b)} className="text-gray-400 hover:text-gray-900">
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDelete(b.id)} className="text-gray-500 hover:text-red-600">
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(b.id)} className="text-gray-400 hover:text-red-600">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs font-medium">
+                  {b.stadt}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">
                 <div><span className="text-gray-400">E-Mail:</span> <span className="text-gray-700">{b.email}</span></div>
                 <div><span className="text-gray-400">GF:</span> <span className="text-gray-700">{b.geschaeftsfuehrer}</span></div>
                 <div><span className="text-gray-400">AG:</span> <span className="text-gray-700">{b.amtsgericht}</span></div>
                 <div><span className="text-gray-400">HRB:</span> <span className="text-gray-700">{b.handelsregister}</span></div>
                 <div><span className="text-gray-400">USt-IdNr:</span> <span className="text-gray-700">{b.ust_id}</span></div>
+              </div>
+              <div className="text-right text-xs text-gray-400">
+                {b.strasse}, {b.plz} {b.stadt}
               </div>
             </div>
           ))}
