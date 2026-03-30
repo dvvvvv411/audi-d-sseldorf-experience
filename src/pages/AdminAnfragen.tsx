@@ -323,7 +323,7 @@ export default function AdminAnfragen() {
                   <TableCell className="whitespace-nowrap text-gray-700">{a.fahrzeug_name}</TableCell>
                   <TableCell className="text-gray-700">{a.branding_name}</TableCell>
                   <TableCell>
-                    <Select
+                    <div onClick={(e) => e.stopPropagation()}><Select
                       value={displayStatus(a.status)}
                       onValueChange={async (val) => {
                         const oldStatus = displayStatus(a.status);
