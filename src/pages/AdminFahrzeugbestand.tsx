@@ -286,7 +286,7 @@ const AdminFahrzeugbestand = () => {
                   <TableCell className="text-gray-600">{formatKm(f.km_stand)}</TableCell>
                   <TableCell className="text-gray-600">{f.erstzulassung || "–"}</TableCell>
                   <TableCell className="text-gray-600">{f.kraftstoff || "–"}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="ghost" size="icon" onClick={() => openEdit(f)} className="text-gray-500 hover:text-gray-900">
                       <Pencil className="w-4 h-4" />
                     </Button>

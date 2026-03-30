@@ -55,6 +55,7 @@ const App = () => (
             <Route path="verkaeufer" element={<AdminVerkaeufer />} />
             <Route path="brandings" element={<AdminBrandings />} />
             <Route path="fahrzeugbestand" element={<AdminFahrzeugbestand />} />
+            <Route path="fahrzeugbestand/:id" element={<AdminFahrzeugDetail />} />
             <Route path="anfragen" element={<AdminAnfragen />} />
             <Route path="anfragen/:id" element={<AdminAnfrageDetail />} />
             <Route path="email-templates" element={<AdminEmailTemplates />} />
