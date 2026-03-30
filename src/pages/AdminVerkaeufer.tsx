@@ -239,7 +239,15 @@ const AdminVerkaeufer = () => {
                     <p className="font-bold text-gray-900 text-lg truncate">{v.vorname} {v.nachname}</p>
                   </div>
                 </div>
-                <div className="flex gap-1">
+              <div className="flex gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => {
+                    const slug = `${v.vorname}_${v.nachname}`.toLowerCase();
+                    const url = `${window.location.origin}/fahrzeugbestand/${slug}`;
+                    navigator.clipboard.writeText(url);
+                    toast.success("Link kopiert");
+                  }} className="text-gray-400 hover:text-gray-900">
+                    <Copy className="w-4 h-4" />
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={() => openCarDialog(v)} className="text-gray-400 hover:text-gray-900">
                     <Car className="w-4 h-4" />
                   </Button>
