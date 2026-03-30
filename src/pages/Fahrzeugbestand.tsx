@@ -316,7 +316,13 @@ export default function Fahrzeugbestand() {
           </p>
           <div className="space-y-4 text-[11px] text-gray-400 leading-relaxed">
             <p>
-              <sup>1</sup> Die Angaben zu Kraftstoffverbrauch, Stromverbrauch, CO₂-Emissionen und elektrischer Reichweite wurden nach dem gesetzlich vorgeschriebenen Messverfahren „Worldwide Harmonized Light Vehicles Test Procedure" (WLTP) gemäß Verordnung (EG) 715/2007 ermittelt.
+              <sup>1</sup> Die Angaben zu Kraftstoffverbrauch, Stromverbrauch, CO₂-Emissionen und elektrischer Reichweite wurden nach dem gesetzlich vorgeschriebenen Messverfahren „Worldwide Harmonized Light Vehicles Test Procedure" (WLTP) gemäß Verordnung (EG) 715/2007 ermittelt. Zusatzausstattungen und Zubehör (Anbauteile, Reifenformat usw.) können relevante Fahrzeugparameter, wie z.&nbsp;B. Gewicht, Rollwiderstand und Aerodynamik verändern und neben Witterungs- und Verkehrsbedingungen sowie dem individuellen Fahrverhalten den Kraftstoffverbrauch, den Stromverbrauch, die CO₂-Emissionen, die elektrische Reichweite und die Fahrleistungswerte eines Fahrzeugs beeinflussen. Weitere Informationen zu WLTP finden Sie unter www.audi.de/wltp.
+            </p>
+            <p>
+              <sup>2</sup> Gilt nur bei Bezahlung mit EC-Karte bzw. allen gängigen Kreditkarten (außer American Express). Nach 45 Minuten fällt zudem eine Standgebühr in Höhe von 0,10&nbsp;€ / Minute an.
+            </p>
+            <p>
+              <sup>3</sup> Nur für Privatkunden. Die E‑Auto-Förderung gilt beim Kauf oder Leasing eines erstmals in Deutschland zugelassenen Neufahrzeugs der EU-Fahrzeugklasse M1 mit rein batterieelektrischem Antrieb, batterieelektrischem Antrieb mit Range-Extender oder Plug-in-Hybrid-Antrieb. Fahrzeuge mit Range-Extender oder Plug-in-Hybrid-Antrieb werden gefördert, sofern die Fahrzeuge bestimmte klimaschutzrelevante Anforderungen erfüllen. Weitere Informationen finden Sie auf der Seite des Bundesumweltministeriums.
             </p>
           </div>
         </div>
