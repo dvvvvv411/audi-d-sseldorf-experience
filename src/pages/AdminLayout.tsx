@@ -32,6 +32,11 @@ const AdminLayout = () => {
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
+    document.documentElement.classList.add('admin-theme');
+    return () => document.documentElement.classList.remove('admin-theme');
+  }, []);
+
+  useEffect(() => {
     const fetchCount = async () => {
       const { count } = await supabase
         .from("anfragen")
