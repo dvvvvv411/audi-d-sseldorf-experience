@@ -1,19 +1,29 @@
 
 
-## Verkäufer-Card 3-spaltig machen
+## Dropdowns im Admin-Bereich: Helles Theme statt Dunkles
 
-### Änderung in `src/pages/AdminAnfrageDetail.tsx`
+### Problem
 
-Zeilen 344-348: Das `space-y-1` Layout durch ein 3-spaltiges Grid ersetzen. Avatar+Name, E-Mail und Telefon nebeneinander statt untereinander.
+Die Select-Dropdowns (und ggf. andere portaled Popover-Elemente) verwenden Radix `Portal`, das Inhalte direkt in `document.body` rendert — **außerhalb** des `admin-theme`-Wrappers. Dadurch greifen die dunklen `:root`-CSS-Variablen (schwarzer Hintergrund, weißer Text) statt der hellen Admin-Theme-Variablen.
 
-Neues Layout:
-- **Spalte 1**: Avatar + Name + Branding (bereits vorhanden, bleibt)
-- **Spalte 2**: E-Mail
-- **Spalte 3**: Telefon
+### Lösung
 
-Den Avatar-Block (Zeilen 334-342) und die Details (Zeilen 344-348) zusammenfassen in ein `grid grid-cols-3 gap-6 items-center`.
+Die `admin-theme`-Klasse auf `document.body` setzen, wenn der Admin-Bereich aktiv ist. Dann erben auch Portal-Inhalte die hellen Variablen.
+
+### Änderungen
+
+**`src/pages/AdminLayout.tsx`**: `useEffect` hinzufügen, der beim Mounten `admin-theme` auf `document.body` (oder `document.documentElement`) setzt und beim Unmounten wieder entfernt.
+
+```tsx
+useEffect(() => {
+  document.documentElement.classList.add('admin-theme');
+  return () => document.documentElement.classList.remove('admin-theme');
+}, []);
+```
+
+Das löst das Problem für alle Portal-basierten Komponenten (Select, DropdownMenu, Popover, Dialog) auf einen Schlag.
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminAnfrageDetail.tsx` | Zeilen 333-349: Avatar + E-Mail + Telefon in 3-Spalten-Grid |
+| `src/pages/AdminLayout.tsx` | `useEffect` zum Setzen/Entfernen von `admin-theme` auf `document.documentElement` |
 
