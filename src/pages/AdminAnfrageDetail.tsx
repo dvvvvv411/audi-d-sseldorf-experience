@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Save, User, Mail, Phone, Calendar,
   Car, Fuel, Gauge, Palette, CreditCard, Quote,
-  StickyNote, MapPin, Cog, Zap
+  StickyNote, MapPin, Cog, Zap, Hash
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -31,6 +31,22 @@ interface Anfrage {
   status: string;
   notizen: string | null;
 }
+
+const statusOptions = [
+  "Neu", "In Bearbeitung", "Möchte Daten", "Möchte Rechnung", "Rechnung versendet", "Bezahlt"
+];
+
+const statusColors: Record<string, string> = {
+  "Neu": "bg-gray-100 text-gray-800 border-gray-200",
+  "NEU": "bg-gray-100 text-gray-800 border-gray-200",
+  "In Bearbeitung": "bg-blue-100 text-blue-800 border-blue-200",
+  "Möchte Daten": "bg-yellow-100 text-yellow-800 border-yellow-200",
+  "Möchte Rechnung": "bg-orange-100 text-orange-800 border-orange-200",
+  "Rechnung versendet": "bg-purple-100 text-purple-800 border-purple-200",
+  "Bezahlt": "bg-green-100 text-green-800 border-green-200",
+};
+
+const displayStatus = (s: string) => s === "NEU" ? "Neu" : s;
 
 export default function AdminAnfrageDetail() {
   const { id } = useParams<{ id: string }>();
@@ -68,8 +84,30 @@ export default function AdminAnfrageDetail() {
     load();
   }, [id]);
 
+  const handleStatusChange = async (newStatus: string) => {
+    if (!anfrage || !id) return;
+    const oldStatus = anfrage.status;
+    setAnfrage({ ...anfrage, status: newStatus });
+    const { error } = await supabase.from("anfragen").update({ status: newStatus }).eq("id", id);
+    if (error) {
+      setAnfrage({ ...anfrage, status: oldStatus });
+      toast({ title: "Fehler", description: "Status konnte nicht geändert werden.", variant: "destructive" });
+      return;
+    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("aktivitaets_log").insert({
+        user_email: user.email || "",
+        aktion: "status_geaendert",
+        anfrage_id: id,
+        details: `${anfrage.vorname} ${anfrage.nachname}: ${displayStatus(oldStatus)} → ${newStatus}`,
+      });
+    }
+    toast({ title: "Status geändert", description: `${displayStatus(oldStatus)} → ${newStatus}` });
+  };
+
   const addNotiz = async () => {
-    if (!id || !neueNotiz.trim()) return;
+    if (!id || !neueNotiz.trim() || !anfrage) return;
     setSaving(true);
     const { data } = await supabase
       .from("anfrage_notizen")
@@ -77,6 +115,17 @@ export default function AdminAnfrageDetail() {
       .select()
       .single();
     if (data) setNotizen((prev) => [...prev, data]);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("aktivitaets_log").insert({
+        user_email: user.email || "",
+        aktion: "notiz_hinzugefuegt",
+        anfrage_id: id,
+        details: `${anfrage.vorname} ${anfrage.nachname}: ${neueNotiz.trim()}`,
+      });
+    }
+
     setNeueNotiz("");
     toast({ title: "Notiz hinzugefügt" });
     setSaving(false);
@@ -99,15 +148,6 @@ export default function AdminAnfrageDetail() {
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-
-  const statusColor = (s: string) => {
-    switch (s.toLowerCase()) {
-      case "neu": return "bg-emerald-100 text-emerald-800 border-emerald-200";
-      case "in bearbeitung": return "bg-amber-100 text-amber-800 border-amber-200";
-      case "abgeschlossen": return "bg-gray-100 text-gray-600 border-gray-200";
-      default: return "bg-blue-100 text-blue-800 border-blue-200";
-    }
-  };
 
   const IconBadge = ({ icon: Icon, color }: { icon: any; color: string }) => (
     <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${color}`}>
@@ -160,9 +200,16 @@ export default function AdminAnfrageDetail() {
             <p className="text-sm text-gray-500">{formatDate(anfrage.created_at)}</p>
           </div>
         </div>
-        <Badge className={`text-sm px-3 py-1 border ${statusColor(anfrage.status)}`}>
-          {anfrage.status}
-        </Badge>
+        <Select value={displayStatus(anfrage.status)} onValueChange={handleStatusChange}>
+          <SelectTrigger className={`w-auto min-w-[160px] border text-sm font-medium ${statusColors[displayStatus(anfrage.status)] || statusColors[anfrage.status] || "bg-gray-100 text-gray-800 border-gray-200"}`}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {statusOptions.map((s) => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Row 1: Kontakt + Nachricht */}
@@ -199,7 +246,7 @@ export default function AdminAnfrageDetail() {
         </div>
       </div>
 
-      {/* Row 2: Fahrzeug + Verkäufer */}
+      {/* Row 2: Fahrzeug + Notizen */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Fahrzeug */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
@@ -218,6 +265,7 @@ export default function AdminAnfrageDetail() {
 
             <DetailRow icon={Car} iconColor="bg-emerald-50 text-emerald-600" label="Fahrzeug" value={anfrage.fahrzeug_name} />
             <DetailRow icon={CreditCard} iconColor="bg-emerald-50 text-emerald-600" label="Auftragsnummer" value={anfrage.auftragsnummer} />
+            <DetailRow icon={Hash} iconColor="bg-emerald-50 text-emerald-600" label="Fahrgestellnummer" value={fahrzeug?.fahrgestellnummer} />
 
             {fahrzeug && (
               <div className="grid grid-cols-2 gap-x-4 mt-2">
@@ -232,73 +280,73 @@ export default function AdminAnfrageDetail() {
           </div>
         </div>
 
-        {/* Verkäufer */}
+        {/* Notizen */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-          <div className="h-1 bg-purple-500" />
-          <div className="p-6">
+          <div className="h-1 bg-gray-400" />
+          <div className="p-6 flex flex-col h-full">
             <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <User className="w-4 h-4 text-purple-500" />
-              Verkäufer
+              <StickyNote className="w-4 h-4 text-gray-500" />
+              Interne Notizen
             </h3>
-
-            {/* Avatar + Name */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-11 h-11 rounded-full bg-purple-100 text-purple-700 font-bold text-sm">
-                {initials}
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900">{anfrage.verkaeufer_name}</p>
-                <p className="text-xs text-gray-500">{anfrage.branding_name}</p>
-              </div>
+            <div className="flex-1 max-h-[300px] overflow-y-auto space-y-3 mb-4">
+              {notizen.length === 0 ? (
+                <p className="text-gray-400 text-sm text-center py-4">Noch keine Notizen vorhanden.</p>
+              ) : (
+                notizen.map((n) => (
+                  <div key={n.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{n.text}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {format(new Date(n.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
+                    </p>
+                  </div>
+                ))
+              )}
             </div>
-
-            {verkaeufer && (
-              <div className="space-y-1">
-                <DetailRow icon={Mail} iconColor="bg-purple-50 text-purple-600" label="E-Mail" value={verkaeufer.email} href={`mailto:${verkaeufer.email}`} />
-                <DetailRow icon={Phone} iconColor="bg-purple-50 text-purple-600" label="Telefon" value={verkaeufer.telefon} href={`tel:${verkaeufer.telefon}`} />
-              </div>
-            )}
+            <div className="flex gap-2">
+              <Textarea
+                value={neueNotiz}
+                onChange={(e) => setNeueNotiz(e.target.value)}
+                placeholder="Neue Notiz hinzufügen..."
+                className="min-h-[60px] bg-white border-gray-300 text-gray-900 flex-1"
+              />
+              <Button
+                onClick={addNotiz}
+                disabled={saving || !neueNotiz.trim()}
+                className="bg-gray-900 text-white hover:bg-gray-800 self-end"
+              >
+                <Save className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Notizen */}
+      {/* Row 3: Verkäufer */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-        <div className="h-1 bg-gray-400" />
+        <div className="h-1 bg-purple-500" />
         <div className="p-6">
           <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <StickyNote className="w-4 h-4 text-gray-500" />
-            Interne Notizen
+            <User className="w-4 h-4 text-purple-500" />
+            Verkäufer
           </h3>
-          <div className="max-h-[300px] overflow-y-auto space-y-3 mb-4">
-            {notizen.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-4">Noch keine Notizen vorhanden.</p>
-            ) : (
-              notizen.map((n) => (
-                <div key={n.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                  <p className="text-sm text-gray-900 whitespace-pre-wrap">{n.text}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {format(new Date(n.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
-                  </p>
-                </div>
-              ))
-            )}
+
+          {/* Avatar + Name */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center justify-center w-11 h-11 rounded-full bg-purple-100 text-purple-700 font-bold text-sm">
+              {initials}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">{anfrage.verkaeufer_name}</p>
+              <p className="text-xs text-gray-500">{anfrage.branding_name}</p>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Textarea
-              value={neueNotiz}
-              onChange={(e) => setNeueNotiz(e.target.value)}
-              placeholder="Neue Notiz hinzufügen..."
-              className="min-h-[60px] bg-white border-gray-300 text-gray-900 flex-1"
-            />
-            <Button
-              onClick={addNotiz}
-              disabled={saving || !neueNotiz.trim()}
-              className="bg-gray-900 text-white hover:bg-gray-800 self-end"
-            >
-              <Save className="w-4 h-4" />
-            </Button>
-          </div>
+
+          {verkaeufer && (
+            <div className="space-y-1">
+              <DetailRow icon={Mail} iconColor="bg-purple-50 text-purple-600" label="E-Mail" value={verkaeufer.email} href={`mailto:${verkaeufer.email}`} />
+              <DetailRow icon={Phone} iconColor="bg-purple-50 text-purple-600" label="Telefon" value={verkaeufer.telefon} href={`tel:${verkaeufer.telefon}`} />
+            </div>
+          )}
         </div>
       </div>
     </div>

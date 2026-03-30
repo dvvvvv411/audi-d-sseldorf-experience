@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,6 +68,7 @@ const emptyForm = {
 };
 
 const AdminFahrzeugbestand = () => {
+  const navigate = useNavigate();
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -269,7 +271,7 @@ const AdminFahrzeugbestand = () => {
             </TableHeader>
             <TableBody>
               {fahrzeuge.map((f) => (
-                <TableRow key={f.id}>
+                <TableRow key={f.id} onClick={() => navigate(`/admin/fahrzeugbestand/${f.id}`)} className="cursor-pointer hover:bg-gray-50">
                   <TableCell>
                     {f.bilder && f.bilder.length > 0 ? (
                       <img src={f.bilder[0]} alt="" className="w-12 h-9 object-cover rounded" />
@@ -284,7 +286,7 @@ const AdminFahrzeugbestand = () => {
                   <TableCell className="text-gray-600">{formatKm(f.km_stand)}</TableCell>
                   <TableCell className="text-gray-600">{f.erstzulassung || "–"}</TableCell>
                   <TableCell className="text-gray-600">{f.kraftstoff || "–"}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="ghost" size="icon" onClick={() => openEdit(f)} className="text-gray-500 hover:text-gray-900">
                       <Pencil className="w-4 h-4" />
                     </Button>

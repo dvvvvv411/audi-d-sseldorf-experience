@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard.tsx";
 import AdminVerkaeufer from "./pages/AdminVerkaeufer.tsx";
 import AdminBrandings from "./pages/AdminBrandings.tsx";
 import AdminFahrzeugbestand from "./pages/AdminFahrzeugbestand.tsx";
+import AdminFahrzeugDetail from "./pages/AdminFahrzeugDetail.tsx";
 import AdminAnfragen from "./pages/AdminAnfragen.tsx";
 import AdminAnfrageDetail from "./pages/AdminAnfrageDetail.tsx";
 import AdminEmailTemplates from "./pages/AdminEmailTemplates.tsx";
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="verkaeufer" element={<AdminVerkaeufer />} />
             <Route path="brandings" element={<AdminBrandings />} />
             <Route path="fahrzeugbestand" element={<AdminFahrzeugbestand />} />
+            <Route path="fahrzeugbestand/:id" element={<AdminFahrzeugDetail />} />
             <Route path="anfragen" element={<AdminAnfragen />} />
             <Route path="anfragen/:id" element={<AdminAnfrageDetail />} />
             <Route path="email-templates" element={<AdminEmailTemplates />} />
