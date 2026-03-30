@@ -1,28 +1,26 @@
 
 
-## Routen-Schutz: /gebrauchtwagen und /fahrzeugbestand nur für Admins
+## Copy-Button für Fahrzeugbestand-Link auf Verkäufer-Card
 
-### Logik
+### Was passiert
 
-- `/gebrauchtwagen` (ohne Parameter) und `/fahrzeugbestand` (ohne Parameter) sollen nur für eingeloggte Admins erreichbar sein
-- `/gebrauchtwagen/:sellerSlug/:auftragsnummer` und `/fahrzeugbestand/:sellerSlug` bleiben öffentlich (für Anon-User)
+Jede Verkäufer-Card bekommt einen neuen Icon-Button (Copy/Link), der die öffentliche Fahrzeugbestand-URL des Verkäufers in die Zwischenablage kopiert. Die URL wird dynamisch aus `window.location.origin` + `/fahrzeugbestand/` + Seller-Slug (`vorname_nachname` in Kleinbuchstaben) zusammengebaut.
 
-### Änderung in `src/App.tsx`
+### Änderung in `src/pages/AdminVerkaeufer.tsx`
 
-Die beiden Basis-Routen mit `ProtectedRoute` wrappen:
+1. **Import**: `Copy` (oder `Link`) Icon von `lucide-react` hinzufügen
+2. **Copy-Handler**: Funktion die den Slug aus Vorname + Nachname bildet und `navigator.clipboard.writeText(...)` aufruft, mit Toast-Feedback
+3. **Button**: Neuer Ghost-Button in der Aktions-Leiste (Zeile 242, neben Car/Pencil/Trash2)
 
 ```tsx
-<Route path="/gebrauchtwagen" element={<ProtectedRoute><Gebrauchtwagen /></ProtectedRoute>} />
-<Route path="/fahrzeugbestand" element={<ProtectedRoute><Fahrzeugbestand /></ProtectedRoute>} />
-```
-
-Die parametrisierten Routen bleiben unverändert (öffentlich):
-```tsx
-<Route path="/fahrzeugbestand/:sellerSlug" element={<Fahrzeugbestand />} />
-<Route path="/gebrauchtwagen/:sellerSlug/:auftragsnummer" element={<Gebrauchtwagen />} />
+// Slug: vorname_nachname (lowercase)
+const slug = `${v.vorname}_${v.nachname}`.toLowerCase();
+const url = `${window.location.origin}/fahrzeugbestand/${slug}`;
+navigator.clipboard.writeText(url);
+toast.success("Link kopiert");
 ```
 
 | Datei | Änderung |
 |---|---|
-| `src/App.tsx` | `/gebrauchtwagen` und `/fahrzeugbestand` mit `ProtectedRoute` wrappen |
+| `src/pages/AdminVerkaeufer.tsx` | Copy-Icon importieren, Copy-Button mit Clipboard-Logik in Card-Aktionen einfügen |
 
