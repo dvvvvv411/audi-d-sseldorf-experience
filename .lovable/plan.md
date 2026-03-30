@@ -1,14 +1,17 @@
 
 
-## Datum/Uhrzeit-Spalte in Anfragen-Tabelle
+## Footer von Fahrzeugbestand an Gebrauchtwagen angleichen
 
-### Änderung in `src/pages/AdminAnfragen.tsx`
+Der Footer in `/fahrzeugbestand` ist kürzer — es fehlen die erweiterten WLTP-Informationen (Zusatzausstattungen-Text) sowie die Fußnoten ² und ³.
 
-1. **Neue Spalte "Datum"** als erste Spalte im TableHeader einfügen
-2. **Wert:** `created_at` formatiert als `dd.MM.yyyy HH:mm` (bereits `date-fns` + `de` Locale vorhanden)
-3. Sortierung bleibt wie gehabt (neueste zuerst)
+### Änderung in `src/pages/Fahrzeugbestand.tsx`
+
+Zeilen 317-321 ersetzen: Den vollständigen Fußnoten-Block aus `Gebrauchtwagen.tsx` übernehmen:
+- Fußnote ¹: Vollständiger WLTP-Text (inkl. Zusatzausstattungen und www.audi.de/wltp)
+- Fußnote ²: EC-Karte / Kreditkarten / Standgebühr
+- Fußnote ³: E-Auto-Förderung Privatkunden
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminAnfragen.tsx` | Neue erste TableHead "Datum" + TableCell mit formatiertem `created_at` |
+| `src/pages/Fahrzeugbestand.tsx` | Zeilen 317-321: Vollständigen Fußnoten-Block aus Gebrauchtwagen übernehmen |
 
