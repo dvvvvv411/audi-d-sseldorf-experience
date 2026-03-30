@@ -224,6 +224,12 @@ export default function AdminAnfragen() {
   const truncate = (text: string, max = 30) =>
     text.length > max ? text.slice(0, max) + "…" : text;
 
+  const copyToClipboard = (text: string, label: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(text);
+    toast({ title: "Kopiert", description: `${label} wurde kopiert.` });
+  };
+
   return (
     <div>
       {/* Aktivitätsprotokoll */}
