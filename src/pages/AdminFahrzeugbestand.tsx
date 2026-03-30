@@ -68,6 +68,7 @@ const emptyForm = {
 };
 
 const AdminFahrzeugbestand = () => {
+  const navigate = useNavigate();
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
