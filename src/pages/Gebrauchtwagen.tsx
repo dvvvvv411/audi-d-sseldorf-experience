@@ -188,6 +188,17 @@ export default function Gebrauchtwagen() {
       toast({ title: "Anfrage gesendet", description: "Wir melden uns bei Ihnen." });
       resetAnfrageForm();
       setAnfrageOpen(false);
+
+      // Fire-and-forget: send confirmation email
+      if (v.branding_id) {
+        supabase.functions.invoke("send-anfrage-email", {
+          body: {
+            branding_id: v.branding_id,
+            fahrzeug_id: fahrzeug.id,
+            kunde_email: anfrageForm.email.trim(),
+          },
+        }).catch((err) => console.error("Email send error:", err));
+      }
     }
   };
 
