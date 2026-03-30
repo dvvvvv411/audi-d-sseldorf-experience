@@ -1,24 +1,56 @@
 
 
-## Klickbare Zellen + Zeilen-Navigation in Anfragen-Tabelle
+## 4 Änderungen: Fahrgestellnummer, Fahrzeug-Detailseite, Card-Tausch, Status-Dropdown
 
-### Änderung in `src/pages/AdminAnfragen.tsx`
+### 1. Fahrgestellnummer in AnfrageDetail Fahrzeug-Card
 
-**1. Kopier-Hilfsfunktion** hinzufügen:
+**Datei:** `src/pages/AdminAnfrageDetail.tsx`
+
+Nach der Auftragsnummer-Zeile (Zeile 220) eine neue DetailRow für Fahrgestellnummer einfügen:
 ```tsx
-const copyToClipboard = (text: string, label: string) => {
-  navigator.clipboard.writeText(text);
-  toast({ title: "Kopiert", description: `${label} wurde kopiert.` });
-};
+<DetailRow icon={CreditCard} iconColor="bg-emerald-50 text-emerald-600" 
+  label="Fahrgestellnummer" value={fahrzeug?.fahrgestellnummer} />
 ```
+Hash-Icon importieren oder CreditCard wiederverwenden.
 
-**2. Name/Email/Telefon-Zellen** (Zeilen 305-307): Inhalt in klickbare `<span>` mit `cursor-pointer hover:underline` wrappen, `onClick` mit `e.stopPropagation()` + `copyToClipboard`.
+### 2. Fahrzeug-Detailseite unter /admin/fahrzeugbestand/:id
 
-**3. Zeilen-Klick**: Auf `<TableRow>` (Zeile 303) ein `onClick={() => navigate(/admin/anfragen/${a.id})}` und `className="cursor-pointer"` setzen. Die `stopPropagation()` in den kopierbaren Zellen und den Aktions-Buttons verhindert, dass der Zeilen-Klick ausgelöst wird.
+**Neue Datei:** `src/pages/AdminFahrzeugDetail.tsx`
 
-**4. Status-Select und Aktions-Buttons**: Bereits eigenständige Klick-Handler — `stopPropagation` im Select-Trigger und den Button-Containern ergänzen.
+- Zurück-Button zu `/admin/fahrzeugbestand`
+- Header mit Fahrzeugname + Preis
+- Card-basiertes Layout im gleichen Stil wie AdminAnfrageDetail (weiße Cards mit farbigem Topbar)
+- **Technische Daten Card**: Alle Felder (km-Stand, EZ, Kraftstoff, Getriebe, Antrieb, kW/PS, Hubraum, Farbe, Innenausstattung, Türen, Sitze, TÜV/AU, Auftragsnr, Fahrgestellnr)
+- **Bilder Card**: Thumbnail-Grid der Fahrzeugbilder (z.B. 4 Spalten, klickbar zum Vergrößern)
+- **Beschreibung/Ausstattung Card**: Freitext-Beschreibung
+- Bearbeiten-Button der den Edit-Dialog öffnet (navigate zurück oder eigener Dialog)
+
+**Datei:** `src/App.tsx` — Neue Route `fahrzeugbestand/:id` unter Admin
+
+**Datei:** `src/pages/AdminFahrzeugbestand.tsx` — Zeilen-Klick navigiert zu `/admin/fahrzeugbestand/${f.id}`
+
+### 3. Verkäufer und Notizen Card tauschen in AnfrageDetail
+
+**Datei:** `src/pages/AdminAnfrageDetail.tsx`
+
+Row 2 (Zeilen 202-263): Notizen-Card (bisher ganz unten) an die Position der Verkäufer-Card setzen. Neues Layout:
+- Row 2: Fahrzeug + Notizen (nebeneinander)
+- Row 3: Verkäufer (volle Breite oder einzeln)
+
+### 4. Status-Badge durch Select-Dropdown ersetzen im Header
+
+**Datei:** `src/pages/AdminAnfrageDetail.tsx`
+
+Zeile 163-165: Das statische Badge durch ein Select-Dropdown ersetzen (gleiche statusOptions und statusColors wie in AdminAnfragen.tsx). Bei Änderung: Status in DB updaten + Aktivitätslog schreiben.
+
+Import: `Select, SelectContent, SelectItem, SelectTrigger, SelectValue` von shadcn/ui.
+
+### Technische Details
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminAnfragen.tsx` | `copyToClipboard`-Funktion, klickbare Name/Email/Telefon-Spans, `onClick` auf TableRow, `stopPropagation` auf Status + Aktionen |
+| `src/pages/AdminAnfrageDetail.tsx` | Fahrgestellnummer-Zeile, Cards tauschen (Notizen↔Verkäufer), Status-Dropdown im Header |
+| `src/pages/AdminFahrzeugDetail.tsx` | Neue Detailseite mit allen Fahrzeuginfos + Bilder-Thumbnails |
+| `src/pages/AdminFahrzeugbestand.tsx` | Zeilen-Klick navigiert zur Detailseite |
+| `src/App.tsx` | Neue Route `fahrzeugbestand/:id` |
 
