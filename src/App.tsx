@@ -38,8 +38,8 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/gebrauchtwagen" element={<Gebrauchtwagen />} />
-          <Route path="/fahrzeugbestand" element={<Fahrzeugbestand />} />
+          <Route path="/gebrauchtwagen" element={<ProtectedRoute><Gebrauchtwagen /></ProtectedRoute>} />
+          <Route path="/fahrzeugbestand" element={<ProtectedRoute><Fahrzeugbestand /></ProtectedRoute>} />
           <Route path="/fahrzeugbestand/:sellerSlug" element={<Fahrzeugbestand />} />
           <Route path="/gebrauchtwagen/:sellerSlug/:auftragsnummer" element={<Gebrauchtwagen />} />
           <Route path="/rechtliches" element={<Rechtliches />} />
