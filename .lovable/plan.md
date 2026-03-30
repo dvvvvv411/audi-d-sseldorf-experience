@@ -1,17 +1,35 @@
 
 
-## Footer von Fahrzeugbestand an Gebrauchtwagen angleichen
+## Bildschutz für Ansprechpartner-Avatare
 
-Der Footer in `/fahrzeugbestand` ist kürzer — es fehlen die erweiterten WLTP-Informationen (Zusatzausstattungen-Text) sowie die Fußnoten ² und ³.
+Gleiche Technik wie bei Fahrzeugbildern: transparentes Overlay-Div (`absolute inset-0 z-10`) über die Avatar-Bilder legen. Dafür muss der Container `relative` sein.
 
-### Änderung in `src/pages/Fahrzeugbestand.tsx`
+### Betroffene Stellen
 
-Zeilen 317-321 ersetzen: Den vollständigen Fußnoten-Block aus `Gebrauchtwagen.tsx` übernehmen:
-- Fußnote ¹: Vollständiger WLTP-Text (inkl. Zusatzausstattungen und www.audi.de/wltp)
-- Fußnote ²: EC-Karte / Kreditkarten / Standgebühr
-- Fußnote ³: E-Auto-Förderung Privatkunden
+**`src/pages/Gebrauchtwagen.tsx`** (3 Stellen):
+1. **Header-Avatar** (Zeile ~369): kleines `w-8 h-8` Bild — Container `relative` + Overlay
+2. **Popover-Avatar** (Zeile ~393): `w-14 h-14` Bild — Container `relative` + Overlay
+3. **Ansprechpartner-Card** (Zeile ~570): `w-14 h-14` Bild — Container `relative` + Overlay
+
+**`src/pages/Fahrzeugbestand.tsx`** (2 Stellen):
+1. **Header-Avatar** (Zeile ~234): `w-8 h-8` — Container `relative` + Overlay
+2. **Popover-Avatar** (Zeile ~257): `w-14 h-14` — Container `relative` + Overlay
+
+### Muster pro Stelle
+
+```tsx
+// Vorher:
+<img src={v.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+
+// Nachher:
+<div className="relative w-8 h-8">
+  <img src={v.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+  <div className="absolute inset-0 z-10 rounded-full" />
+</div>
+```
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/Fahrzeugbestand.tsx` | Zeilen 317-321: Vollständigen Fußnoten-Block aus Gebrauchtwagen übernehmen |
+| `src/pages/Gebrauchtwagen.tsx` | 3 Avatar-Bilder mit Overlay schützen |
+| `src/pages/Fahrzeugbestand.tsx` | 2 Avatar-Bilder mit Overlay schützen |
 
