@@ -225,42 +225,48 @@ const AdminVerkaeufer = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {verkaeufer.map((v) => (
-            <div key={v.id} className="bg-white border border-gray-200 p-5 flex flex-col gap-3">
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 bg-gray-100 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center">
-                  {v.avatar_url ? (
-                    <img src={v.avatar_url} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-6 h-6 text-gray-400" />
-                  )}
+            <div key={v.id} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    {v.avatar_url ? (
+                      <img src={v.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-5 h-5 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-900 text-lg truncate">{v.vorname} {v.nachname}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900 truncate">{v.vorname} {v.nachname}</p>
-                  {v.brandings && (
-                    <p className="text-xs text-gray-400 truncate">{v.brandings.name}</p>
-                  )}
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => openCarDialog(v)} className="text-gray-400 hover:text-gray-900">
+                    <Car className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(v)} className="text-gray-400 hover:text-gray-900">
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(v.id)} className="text-gray-400 hover:text-red-600">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
-              <div className="space-y-1 text-sm text-gray-600">
+              <div className="flex flex-wrap gap-2 mb-4">
+                {v.brandings && (
+                  <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-xs font-medium">
+                    {v.brandings.name}
+                  </span>
+                )}
+                {assignmentCounts[v.id] > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs font-medium">
+                    <Car className="w-3 h-3" />
+                    {assignmentCounts[v.id]} Fahrzeug{assignmentCounts[v.id] !== 1 ? "e" : ""}
+                  </span>
+                )}
+              </div>
+              <div className="space-y-1.5 text-sm text-gray-600">
                 <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-gray-400" /><span className="truncate">{v.email}</span></div>
                 <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-gray-400" /><span>{v.telefon}</span></div>
-              </div>
-              {assignmentCounts[v.id] > 0 && (
-                <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                  <Car className="w-3.5 h-3.5" />
-                  <span>{assignmentCounts[v.id]} Fahrzeug{assignmentCounts[v.id] !== 1 ? "e" : ""}</span>
-                </div>
-              )}
-              <div className="flex gap-2 mt-auto pt-2 border-t border-gray-100">
-                <Button variant="ghost" size="sm" onClick={() => openCarDialog(v)} className="text-gray-500 hover:text-gray-900">
-                  <Car className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => openEdit(v)} className="text-gray-500 hover:text-gray-900">
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleDelete(v.id)} className="text-gray-500 hover:text-red-600">
-                  <Trash2 className="w-4 h-4" />
-                </Button>
               </div>
             </div>
           ))}
