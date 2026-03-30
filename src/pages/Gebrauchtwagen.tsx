@@ -366,7 +366,10 @@ export default function Gebrauchtwagen() {
                   <span className="text-sm font-medium text-gray-900">{verkaeufer[0].vorname} {verkaeufer[0].nachname}</span>
                 </div>
                 {verkaeufer[0].avatar_url ? (
-                  <img src={verkaeufer[0].avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                  <div className="relative w-8 h-8">
+                    <img src={verkaeufer[0].avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                    <div className="absolute inset-0 z-10 rounded-full" />
+                  </div>
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-white text-xs font-bold">
                     {verkaeufer[0].vorname[0]}{verkaeufer[0].nachname[0]}
