@@ -224,6 +224,12 @@ export default function AdminAnfragen() {
   const truncate = (text: string, max = 30) =>
     text.length > max ? text.slice(0, max) + "…" : text;
 
+  const copyToClipboard = (text: string, label: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(text);
+    toast({ title: "Kopiert", description: `${label} wurde kopiert.` });
+  };
+
   return (
     <div>
       {/* Aktivitätsprotokoll */}
@@ -300,18 +306,24 @@ export default function AdminAnfragen() {
             </TableHeader>
             <TableBody>
               {anfragen.map((a) => (
-                <TableRow key={a.id} className="border-gray-100">
+                <TableRow key={a.id} className="border-gray-100 cursor-pointer hover:bg-gray-50" onClick={() => navigate(`/admin/anfragen/${a.id}`)}>
                   <TableCell className="whitespace-nowrap text-gray-500 text-sm">{format(new Date(a.created_at), "dd.MM.yyyy HH:mm", { locale: de })}</TableCell>
-                  <TableCell className="font-medium whitespace-nowrap text-gray-900">{a.vorname} {a.nachname}</TableCell>
-                  <TableCell className="text-gray-700">{a.email}</TableCell>
-                  <TableCell className="whitespace-nowrap text-gray-700">{a.telefon}</TableCell>
+                  <TableCell className="font-medium whitespace-nowrap text-gray-900">
+                    <span className="cursor-pointer hover:underline" onClick={(e) => copyToClipboard(`${a.vorname} ${a.nachname}`, "Name", e)}>{a.vorname} {a.nachname}</span>
+                  </TableCell>
+                  <TableCell className="text-gray-700">
+                    <span className="cursor-pointer hover:underline" onClick={(e) => copyToClipboard(a.email, "E-Mail", e)}>{a.email}</span>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-gray-700">
+                    <span className="cursor-pointer hover:underline" onClick={(e) => copyToClipboard(a.telefon, "Telefonnummer", e)}>{a.telefon}</span>
+                  </TableCell>
                   <TableCell className="text-gray-500">{truncate(a.nachricht)}</TableCell>
                   <TableCell className="whitespace-nowrap text-gray-700">{a.verkaeufer_name}</TableCell>
                   <TableCell className="text-right whitespace-nowrap text-gray-900">{formatPrice(a.fahrzeug_preis)} €</TableCell>
                   <TableCell className="whitespace-nowrap text-gray-700">{a.fahrzeug_name}</TableCell>
                   <TableCell className="text-gray-700">{a.branding_name}</TableCell>
                   <TableCell>
-                    <Select
+                    <div onClick={(e) => e.stopPropagation()}><Select
                       value={displayStatus(a.status)}
                       onValueChange={async (val) => {
                         const oldStatus = displayStatus(a.status);
@@ -343,11 +355,11 @@ export default function AdminAnfragen() {
                           <SelectItem key={s} value={s}>{s}</SelectItem>
                         ))}
                       </SelectContent>
-                    </Select>
+                    </Select></div>
                   </TableCell>
                   <TableCell>
                     <TooltipProvider delayDuration={300}>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                         <div className="relative">
                           <Tooltip>
                             <TooltipTrigger asChild>
