@@ -1,36 +1,19 @@
 
 
-## Cards modernisieren (Verkäufer + Brandings)
+## Verkäufer-Card 3-spaltig machen
 
-Angelehnt an das Screenshot-Design: abgerundete Cards mit klarer Hierarchie — Titel oben links, Aktionen oben rechts, Tags/Badges in einer Zeile, Details darunter, und Metadaten unten rechts.
+### Änderung in `src/pages/AdminAnfrageDetail.tsx`
 
-### Verkäufer-Cards (`src/pages/AdminVerkaeufer.tsx`)
+Zeilen 344-348: Das `space-y-1` Layout durch ein 3-spaltiges Grid ersetzen. Avatar+Name, E-Mail und Telefon nebeneinander statt untereinander.
 
-Neues Layout pro Card:
-- `rounded-xl border border-gray-200 bg-white p-6` (abgerundete Ecken, mehr Padding)
-- **Zeile 1**: Avatar + Name + Branding-Badge links, Aktions-Icons (Car, Edit, Delete) rechts oben
-- **Zeile 2**: Tags-Zeile mit farbigen Badges (z.B. Branding-Name als grüner Badge, Fahrzeug-Count als blauer Badge)
-- **Zeile 3**: Email + Telefon als Text
-- Kein separater Border-Top für Aktionen — alles in einer fließenden Card
+Neues Layout:
+- **Spalte 1**: Avatar + Name + Branding (bereits vorhanden, bleibt)
+- **Spalte 2**: E-Mail
+- **Spalte 3**: Telefon
 
-### Brandings-Cards (`src/pages/AdminBrandings.tsx`)
-
-Neues Layout pro Card:
-- `rounded-xl border border-gray-200 bg-white p-6`
-- **Zeile 1**: Name (fett, groß) links, Edit/Delete Icons rechts
-- **Zeile 2**: Badges für Stadt und ggf. weitere Tags
-- **Zeile 3**: Details (GF, AG, HRB, USt-IdNr, Email) als kompakter Text
-- **Zeile 4**: Adresse unten rechts als dezente Metadaten
-
-### Gemeinsame Stilmerkmale
-- `rounded-xl` statt eckig
-- `shadow-sm hover:shadow-md transition-shadow` für Tiefe
-- Badges: `rounded-full px-3 py-1 text-xs font-medium` mit farbigem Hintergrund
-- Aktionen: Icon-Buttons gruppiert oben rechts
-- Mehr Whitespace und klare vertikale Hierarchie
+Den Avatar-Block (Zeilen 334-342) und die Details (Zeilen 344-348) zusammenfassen in ein `grid grid-cols-3 gap-6 items-center`.
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminVerkaeufer.tsx` | Card-Layout modernisieren: rounded-xl, Badges, Aktionen oben rechts |
-| `src/pages/AdminBrandings.tsx` | Card-Layout modernisieren: rounded-xl, Badges, kompaktere Details |
+| `src/pages/AdminAnfrageDetail.tsx` | Zeilen 333-349: Avatar + E-Mail + Telefon in 3-Spalten-Grid |
 
