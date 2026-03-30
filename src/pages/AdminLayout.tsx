@@ -154,7 +154,7 @@ const AdminLayout = () => {
       )}
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
         <header className="h-16 bg-white border-b border-gray-200 flex items-center px-6 gap-4">
           <button className="lg:hidden text-gray-600" onClick={() => setSidebarOpen(true)}>
             <Menu className="w-6 h-6" />
