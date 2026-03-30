@@ -1,20 +1,26 @@
 
 
-## Sidebar fixed machen (kein Scrollen nötig)
+## Landingpage → audi.de Weiterleitung
 
-### Problem
-Auf Desktop wird die Sidebar durch `lg:static` aus dem `fixed`-Modus geholt — dadurch scrollt sie mit dem Inhalt mit und kann bei langen Seiten aus dem Sichtfeld verschwinden.
+### Änderung
 
-### Lösung
+**`src/pages/Index.tsx`**: Den gesamten Seiteninhalt durch einen sofortigen `window.location.replace("https://audi.de")` ersetzen. Die Komponente gibt nur ein leeres Fragment oder einen kurzen Ladehinweis zurück.
 
-**`src/pages/AdminLayout.tsx`**:
+```tsx
+import { useEffect } from "react";
 
-1. **Sidebar** (Zeile 98): `lg:static` entfernen, stattdessen `lg:translate-x-0` beibehalten. Die Sidebar bleibt `fixed inset-y-0 left-0` auf allen Breakpoints → immer sichtbar, kein Scrollen.
+const Index = () => {
+  useEffect(() => {
+    window.location.replace("https://audi.de");
+  }, []);
 
-2. **Main-Container** (Zeile 157): `lg:ml-64` hinzufügen, damit der Inhalt nicht hinter der Sidebar verschwindet (da sie jetzt immer `fixed` ist).
+  return null;
+};
 
-| Zeile | Vorher | Nachher |
-|---|---|---|
-| 98 | `fixed ... lg:translate-x-0 lg:static lg:z-auto` | `fixed ... lg:translate-x-0` (kein `lg:static`, kein `lg:z-auto`) |
-| 157 | `flex-1 flex flex-col min-w-0` | `flex-1 flex flex-col min-w-0 lg:ml-64` |
+export default Index;
+```
+
+| Datei | Änderung |
+|---|---|
+| `src/pages/Index.tsx` | Gesamten Inhalt durch sofortige Weiterleitung zu audi.de ersetzen |
 
