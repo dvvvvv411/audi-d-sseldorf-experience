@@ -1,29 +1,19 @@
 
 
-## Dropdowns im Admin-Bereich: Helles Theme statt Dunkles
+## Dropdown Hover-States sichtbar machen
 
 ### Problem
-
-Die Select-Dropdowns (und ggf. andere portaled Popover-Elemente) verwenden Radix `Portal`, das Inhalte direkt in `document.body` rendert — **außerhalb** des `admin-theme`-Wrappers. Dadurch greifen die dunklen `:root`-CSS-Variablen (schwarzer Hintergrund, weißer Text) statt der hellen Admin-Theme-Variablen.
+`--accent` ist `0 0% 96%` (fast weiß) und `--popover` ist `0 0% 100%` (weiß) — der Kontrast beim Hover ist praktisch unsichtbar.
 
 ### Lösung
 
-Die `admin-theme`-Klasse auf `document.body` setzen, wenn der Admin-Bereich aktiv ist. Dann erben auch Portal-Inhalte die hellen Variablen.
+In `src/index.css` die `admin-theme` Variablen anpassen:
+- `--accent: 0 0% 96%` → `--accent: 214 95% 93%` (helles Blau, passend zum blauen Active-State der Sidebar)
+- `--accent-foreground: 0 0% 9%` bleibt
 
-### Änderungen
-
-**`src/pages/AdminLayout.tsx`**: `useEffect` hinzufügen, der beim Mounten `admin-theme` auf `document.body` (oder `document.documentElement`) setzt und beim Unmounten wieder entfernt.
-
-```tsx
-useEffect(() => {
-  document.documentElement.classList.add('admin-theme');
-  return () => document.documentElement.classList.remove('admin-theme');
-}, []);
-```
-
-Das löst das Problem für alle Portal-basierten Komponenten (Select, DropdownMenu, Popover, Dialog) auf einen Schlag.
+Das gibt allen Dropdown-Items, Select-Items und Menü-Einträgen einen sichtbaren blauen Hover-Hintergrund.
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminLayout.tsx` | `useEffect` zum Setzen/Entfernen von `admin-theme` auf `document.documentElement` |
+| `src/index.css` | `--accent` in `.admin-theme` auf helles Blau ändern |
 
