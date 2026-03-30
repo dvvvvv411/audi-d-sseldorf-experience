@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard.tsx";
 import AdminVerkaeufer from "./pages/AdminVerkaeufer.tsx";
 import AdminBrandings from "./pages/AdminBrandings.tsx";
 import AdminFahrzeugbestand from "./pages/AdminFahrzeugbestand.tsx";
+import AdminFahrzeugDetail from "./pages/AdminFahrzeugDetail.tsx";
 import AdminAnfragen from "./pages/AdminAnfragen.tsx";
 import AdminAnfrageDetail from "./pages/AdminAnfrageDetail.tsx";
 import AdminEmailTemplates from "./pages/AdminEmailTemplates.tsx";
