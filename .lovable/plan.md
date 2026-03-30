@@ -1,19 +1,20 @@
 
 
-## Dropdown Hover-States sichtbar machen
+## Sidebar fixed machen (kein Scrollen nötig)
 
 ### Problem
-`--accent` ist `0 0% 96%` (fast weiß) und `--popover` ist `0 0% 100%` (weiß) — der Kontrast beim Hover ist praktisch unsichtbar.
+Auf Desktop wird die Sidebar durch `lg:static` aus dem `fixed`-Modus geholt — dadurch scrollt sie mit dem Inhalt mit und kann bei langen Seiten aus dem Sichtfeld verschwinden.
 
 ### Lösung
 
-In `src/index.css` die `admin-theme` Variablen anpassen:
-- `--accent: 0 0% 96%` → `--accent: 214 95% 93%` (helles Blau, passend zum blauen Active-State der Sidebar)
-- `--accent-foreground: 0 0% 9%` bleibt
+**`src/pages/AdminLayout.tsx`**:
 
-Das gibt allen Dropdown-Items, Select-Items und Menü-Einträgen einen sichtbaren blauen Hover-Hintergrund.
+1. **Sidebar** (Zeile 98): `lg:static` entfernen, stattdessen `lg:translate-x-0` beibehalten. Die Sidebar bleibt `fixed inset-y-0 left-0` auf allen Breakpoints → immer sichtbar, kein Scrollen.
 
-| Datei | Änderung |
-|---|---|
-| `src/index.css` | `--accent` in `.admin-theme` auf helles Blau ändern |
+2. **Main-Container** (Zeile 157): `lg:ml-64` hinzufügen, damit der Inhalt nicht hinter der Sidebar verschwindet (da sie jetzt immer `fixed` ist).
+
+| Zeile | Vorher | Nachher |
+|---|---|---|
+| 98 | `fixed ... lg:translate-x-0 lg:static lg:z-auto` | `fixed ... lg:translate-x-0` (kein `lg:static`, kein `lg:z-auto`) |
+| 157 | `flex-1 flex flex-col min-w-0` | `flex-1 flex flex-col min-w-0 lg:ml-64` |
 
