@@ -223,7 +223,7 @@ const AdminVerkaeufer = () => {
           <p>Noch keine Verkäufer angelegt</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {verkaeufer.map((v) => (
             <div key={v.id} className="bg-white border border-gray-200 p-5 flex flex-col gap-3">
               <div className="flex items-start gap-4">
