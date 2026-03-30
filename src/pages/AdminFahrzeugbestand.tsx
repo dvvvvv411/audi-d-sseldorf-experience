@@ -269,7 +269,7 @@ const AdminFahrzeugbestand = () => {
             </TableHeader>
             <TableBody>
               {fahrzeuge.map((f) => (
-                <TableRow key={f.id}>
+                <TableRow key={f.id} onClick={() => navigate(`/admin/fahrzeugbestand/${f.id}`)} className="cursor-pointer hover:bg-gray-50">
                   <TableCell>
                     {f.bilder && f.bilder.length > 0 ? (
                       <img src={f.bilder[0]} alt="" className="w-12 h-9 object-cover rounded" />
