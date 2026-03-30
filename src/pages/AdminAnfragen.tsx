@@ -359,7 +359,7 @@ export default function AdminAnfragen() {
                   </TableCell>
                   <TableCell>
                     <TooltipProvider delayDuration={300}>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                         <div className="relative">
                           <Tooltip>
                             <TooltipTrigger asChild>
