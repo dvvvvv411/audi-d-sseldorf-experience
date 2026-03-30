@@ -330,23 +330,28 @@ export default function AdminAnfrageDetail() {
             Verkäufer
           </h3>
 
-          {/* Avatar + Name */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-11 h-11 rounded-full bg-purple-100 text-purple-700 font-bold text-sm">
-              {initials}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            {/* Spalte 1: Avatar + Name */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-11 h-11 rounded-full bg-purple-100 text-purple-700 font-bold text-sm">
+                {initials}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">{anfrage.verkaeufer_name}</p>
+                <p className="text-xs text-gray-500">{anfrage.branding_name}</p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-gray-900">{anfrage.verkaeufer_name}</p>
-              <p className="text-xs text-gray-500">{anfrage.branding_name}</p>
-            </div>
-          </div>
 
-          {verkaeufer && (
-            <div className="space-y-1">
+            {/* Spalte 2: E-Mail */}
+            {verkaeufer && (
               <DetailRow icon={Mail} iconColor="bg-purple-50 text-purple-600" label="E-Mail" value={verkaeufer.email} href={`mailto:${verkaeufer.email}`} />
+            )}
+
+            {/* Spalte 3: Telefon */}
+            {verkaeufer && (
               <DetailRow icon={Phone} iconColor="bg-purple-50 text-purple-600" label="Telefon" value={verkaeufer.telefon} href={`tel:${verkaeufer.telefon}`} />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
