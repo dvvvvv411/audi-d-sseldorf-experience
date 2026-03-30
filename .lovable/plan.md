@@ -1,30 +1,36 @@
 
 
-## Cards full-width + Sidebar Redesign
+## Cards modernisieren (Verkäufer + Brandings)
 
-### 1. Cards full-width (1 pro Zeile)
+Angelehnt an das Screenshot-Design: abgerundete Cards mit klarer Hierarchie — Titel oben links, Aktionen oben rechts, Tags/Badges in einer Zeile, Details darunter, und Metadaten unten rechts.
 
-**`src/pages/AdminVerkaeufer.tsx`** (Zeile 226):
-- `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4` -> `grid grid-cols-1 gap-4`
+### Verkäufer-Cards (`src/pages/AdminVerkaeufer.tsx`)
 
-**`src/pages/AdminBrandings.tsx`** (Zeile 146):
-- `grid grid-cols-1 lg:grid-cols-2 gap-4` -> `grid grid-cols-1 gap-4`
+Neues Layout pro Card:
+- `rounded-xl border border-gray-200 bg-white p-6` (abgerundete Ecken, mehr Padding)
+- **Zeile 1**: Avatar + Name + Branding-Badge links, Aktions-Icons (Car, Edit, Delete) rechts oben
+- **Zeile 2**: Tags-Zeile mit farbigen Badges (z.B. Branding-Name als grüner Badge, Fahrzeug-Count als blauer Badge)
+- **Zeile 3**: Email + Telefon als Text
+- Kein separater Border-Top für Aktionen — alles in einer fließenden Card
 
-### 2. Sidebar modernisieren (nach Screenshot-Vorbild)
+### Brandings-Cards (`src/pages/AdminBrandings.tsx`)
 
-Das Referenzbild zeigt eine dunkle Sidebar im Stil: dunkelblau/slate Hintergrund (nicht reines Schwarz), abgerundete Nav-Items, Gruppen mit Uppercase-Labels durch Trennlinien getrennt, aktives Item mit blauem/hellem Hintergrund (rounded), Badge-Counts als rote Kreise, und unten ein User-Bereich mit Avatar-Initialen + E-Mail + Abmelden-Button.
+Neues Layout pro Card:
+- `rounded-xl border border-gray-200 bg-white p-6`
+- **Zeile 1**: Name (fett, groß) links, Edit/Delete Icons rechts
+- **Zeile 2**: Badges für Stadt und ggf. weitere Tags
+- **Zeile 3**: Details (GF, AG, HRB, USt-IdNr, Email) als kompakter Text
+- **Zeile 4**: Adresse unten rechts als dezente Metadaten
 
-**`src/pages/AdminLayout.tsx`** Änderungen:
-- Sidebar-Hintergrund: `bg-black` -> `bg-slate-900` (dunkelblau statt reines Schwarz)
-- Nav-Items: `rounded-none` -> `rounded-lg`, aktives Item: `bg-blue-600 text-white` statt `bg-white text-black`
-- Hover-Stil: `hover:bg-white/10 hover:text-white`
-- Gruppen mit Trennlinien: Items in Sektionen aufteilen (z.B. "Dashboard" | Separator | "Verwaltung"-Gruppe)
-- User-Bereich unten: Initialen-Avatar-Kreis + aktuelle User-Email anzeigen (aus `supabase.auth.getUser()`)
-- Abmelden-Button: als outline/ghost Button mit voller Breite
+### Gemeinsame Stilmerkmale
+- `rounded-xl` statt eckig
+- `shadow-sm hover:shadow-md transition-shadow` für Tiefe
+- Badges: `rounded-full px-3 py-1 text-xs font-medium` mit farbigem Hintergrund
+- Aktionen: Icon-Buttons gruppiert oben rechts
+- Mehr Whitespace und klare vertikale Hierarchie
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminVerkaeufer.tsx` | Grid auf `grid-cols-1` setzen |
-| `src/pages/AdminBrandings.tsx` | Grid auf `grid-cols-1` setzen |
-| `src/pages/AdminLayout.tsx` | Sidebar: slate-900 Hintergrund, rounded-lg Items, blaues Active-Highlight, Gruppen-Trenner, User-Info unten |
+| `src/pages/AdminVerkaeufer.tsx` | Card-Layout modernisieren: rounded-xl, Badges, Aktionen oben rechts |
+| `src/pages/AdminBrandings.tsx` | Card-Layout modernisieren: rounded-xl, Badges, kompaktere Details |
 
