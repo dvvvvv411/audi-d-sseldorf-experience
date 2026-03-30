@@ -573,7 +573,10 @@ export default function Gebrauchtwagen() {
                   {verkaeufer.map((v) => (
                     <div key={v.id} className="flex items-center gap-4 mb-3">
                       {v.avatar_url ? (
-                        <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-14 h-14 rounded-full object-cover" />
+                        <div className="relative w-14 h-14">
+                          <img src={v.avatar_url} alt={`${v.vorname} ${v.nachname}`} className="w-full h-full rounded-full object-cover" />
+                          <div className="absolute inset-0 z-10 rounded-full" />
+                        </div>
                       ) : (
                         <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-bold">
                           {v.vorname[0]}{v.nachname[0]}
