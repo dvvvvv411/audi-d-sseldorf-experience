@@ -1,56 +1,30 @@
 
 
-## 4 Änderungen: Fahrgestellnummer, Fahrzeug-Detailseite, Card-Tausch, Status-Dropdown
+## Cards full-width + Sidebar Redesign
 
-### 1. Fahrgestellnummer in AnfrageDetail Fahrzeug-Card
+### 1. Cards full-width (1 pro Zeile)
 
-**Datei:** `src/pages/AdminAnfrageDetail.tsx`
+**`src/pages/AdminVerkaeufer.tsx`** (Zeile 226):
+- `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4` -> `grid grid-cols-1 gap-4`
 
-Nach der Auftragsnummer-Zeile (Zeile 220) eine neue DetailRow für Fahrgestellnummer einfügen:
-```tsx
-<DetailRow icon={CreditCard} iconColor="bg-emerald-50 text-emerald-600" 
-  label="Fahrgestellnummer" value={fahrzeug?.fahrgestellnummer} />
-```
-Hash-Icon importieren oder CreditCard wiederverwenden.
+**`src/pages/AdminBrandings.tsx`** (Zeile 146):
+- `grid grid-cols-1 lg:grid-cols-2 gap-4` -> `grid grid-cols-1 gap-4`
 
-### 2. Fahrzeug-Detailseite unter /admin/fahrzeugbestand/:id
+### 2. Sidebar modernisieren (nach Screenshot-Vorbild)
 
-**Neue Datei:** `src/pages/AdminFahrzeugDetail.tsx`
+Das Referenzbild zeigt eine dunkle Sidebar im Stil: dunkelblau/slate Hintergrund (nicht reines Schwarz), abgerundete Nav-Items, Gruppen mit Uppercase-Labels durch Trennlinien getrennt, aktives Item mit blauem/hellem Hintergrund (rounded), Badge-Counts als rote Kreise, und unten ein User-Bereich mit Avatar-Initialen + E-Mail + Abmelden-Button.
 
-- Zurück-Button zu `/admin/fahrzeugbestand`
-- Header mit Fahrzeugname + Preis
-- Card-basiertes Layout im gleichen Stil wie AdminAnfrageDetail (weiße Cards mit farbigem Topbar)
-- **Technische Daten Card**: Alle Felder (km-Stand, EZ, Kraftstoff, Getriebe, Antrieb, kW/PS, Hubraum, Farbe, Innenausstattung, Türen, Sitze, TÜV/AU, Auftragsnr, Fahrgestellnr)
-- **Bilder Card**: Thumbnail-Grid der Fahrzeugbilder (z.B. 4 Spalten, klickbar zum Vergrößern)
-- **Beschreibung/Ausstattung Card**: Freitext-Beschreibung
-- Bearbeiten-Button der den Edit-Dialog öffnet (navigate zurück oder eigener Dialog)
-
-**Datei:** `src/App.tsx` — Neue Route `fahrzeugbestand/:id` unter Admin
-
-**Datei:** `src/pages/AdminFahrzeugbestand.tsx` — Zeilen-Klick navigiert zu `/admin/fahrzeugbestand/${f.id}`
-
-### 3. Verkäufer und Notizen Card tauschen in AnfrageDetail
-
-**Datei:** `src/pages/AdminAnfrageDetail.tsx`
-
-Row 2 (Zeilen 202-263): Notizen-Card (bisher ganz unten) an die Position der Verkäufer-Card setzen. Neues Layout:
-- Row 2: Fahrzeug + Notizen (nebeneinander)
-- Row 3: Verkäufer (volle Breite oder einzeln)
-
-### 4. Status-Badge durch Select-Dropdown ersetzen im Header
-
-**Datei:** `src/pages/AdminAnfrageDetail.tsx`
-
-Zeile 163-165: Das statische Badge durch ein Select-Dropdown ersetzen (gleiche statusOptions und statusColors wie in AdminAnfragen.tsx). Bei Änderung: Status in DB updaten + Aktivitätslog schreiben.
-
-Import: `Select, SelectContent, SelectItem, SelectTrigger, SelectValue` von shadcn/ui.
-
-### Technische Details
+**`src/pages/AdminLayout.tsx`** Änderungen:
+- Sidebar-Hintergrund: `bg-black` -> `bg-slate-900` (dunkelblau statt reines Schwarz)
+- Nav-Items: `rounded-none` -> `rounded-lg`, aktives Item: `bg-blue-600 text-white` statt `bg-white text-black`
+- Hover-Stil: `hover:bg-white/10 hover:text-white`
+- Gruppen mit Trennlinien: Items in Sektionen aufteilen (z.B. "Dashboard" | Separator | "Verwaltung"-Gruppe)
+- User-Bereich unten: Initialen-Avatar-Kreis + aktuelle User-Email anzeigen (aus `supabase.auth.getUser()`)
+- Abmelden-Button: als outline/ghost Button mit voller Breite
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminAnfrageDetail.tsx` | Fahrgestellnummer-Zeile, Cards tauschen (Notizen↔Verkäufer), Status-Dropdown im Header |
-| `src/pages/AdminFahrzeugDetail.tsx` | Neue Detailseite mit allen Fahrzeuginfos + Bilder-Thumbnails |
-| `src/pages/AdminFahrzeugbestand.tsx` | Zeilen-Klick navigiert zur Detailseite |
-| `src/App.tsx` | Neue Route `fahrzeugbestand/:id` |
+| `src/pages/AdminVerkaeufer.tsx` | Grid auf `grid-cols-1` setzen |
+| `src/pages/AdminBrandings.tsx` | Grid auf `grid-cols-1` setzen |
+| `src/pages/AdminLayout.tsx` | Sidebar: slate-900 Hintergrund, rounded-lg Items, blaues Active-Highlight, Gruppen-Trenner, User-Info unten |
 
