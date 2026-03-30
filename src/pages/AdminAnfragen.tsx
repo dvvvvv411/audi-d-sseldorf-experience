@@ -355,7 +355,7 @@ export default function AdminAnfragen() {
                           <SelectItem key={s} value={s}>{s}</SelectItem>
                         ))}
                       </SelectContent>
-                    </Select>
+                    </Select></div>
                   </TableCell>
                   <TableCell>
                     <TooltipProvider delayDuration={300}>
