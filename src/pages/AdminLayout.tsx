@@ -12,8 +12,11 @@ const AudiRingsSmall = () => (
   </svg>
 );
 
-const navItems = [
+const mainNav = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
+];
+
+const verwaltungNav = [
   { label: "Verkäufer", icon: Users, path: "/admin/verkaeufer" },
   { label: "Brandings", icon: Building2, path: "/admin/brandings" },
   { label: "Fahrzeugbestand", icon: Car, path: "/admin/fahrzeugbestand" },
@@ -26,6 +29,7 @@ const AdminLayout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -35,7 +39,12 @@ const AdminLayout = () => {
         .in("status", ["NEU", "Neu"]);
       setNeuCount(count ?? 0);
     };
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUserEmail(data.user?.email ?? "");
+    };
     fetchCount();
+    fetchUser();
   }, []);
 
   const handleLogout = async () => {
@@ -43,55 +52,92 @@ const AdminLayout = () => {
     navigate("/auth");
   };
 
+  const initials = userEmail
+    ? userEmail.substring(0, 2).toUpperCase()
+    : "AD";
+
+  const isActive = (path: string) => {
+    if (path === "/admin") return location.pathname === "/admin";
+    return location.pathname.startsWith(path);
+  };
+
+  const NavButton = ({ item }: { item: { label: string; icon: React.ElementType; path: string } }) => {
+    const active = isActive(item.path);
+    return (
+      <button
+        onClick={() => {
+          navigate(item.path);
+          setSidebarOpen(false);
+        }}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 ${
+          active
+            ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
+            : "text-slate-400 hover:text-white hover:bg-white/10"
+        }`}
+      >
+        <item.icon className="w-5 h-5 flex-shrink-0" />
+        <span className="truncate">{item.label}</span>
+        {item.label === "Anfragen" && neuCount > 0 && (
+          <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+            {neuCount}
+          </span>
+        )}
+      </button>
+    );
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-50 admin-theme">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-black flex flex-col transform transition-transform lg:translate-x-0 lg:static lg:z-auto ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 flex flex-col transform transition-transform lg:translate-x-0 lg:static lg:z-auto ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-6 border-b border-white/10">
+        {/* Logo */}
+        <div className="p-5 pb-4">
           <div className="text-white">
             <AudiRingsSmall />
           </div>
-          <p className="text-xs text-gray-400 tracking-widest uppercase mt-3">Verwaltung</p>
+          <p className="text-[10px] text-slate-500 tracking-[0.2em] uppercase mt-2 font-medium">Verwaltung</p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <button
-                key={item.path}
-                onClick={() => {
-                  navigate(item.path);
-                  setSidebarOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-none transition-colors ${
-                  isActive
-                    ? "bg-white text-black"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                {item.label}
-                {item.label === "Anfragen" && neuCount > 0 && (
-                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
-                    {neuCount}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+        {/* Navigation */}
+        <nav className="flex-1 px-3 space-y-6 overflow-y-auto">
+          {/* Main */}
+          <div className="space-y-1">
+            {mainNav.map((item) => (
+              <NavButton key={item.path} item={item} />
+            ))}
+          </div>
+
+          {/* Separator + Verwaltung Group */}
+          <div>
+            <div className="flex items-center gap-2 px-3 mb-2">
+              <span className="text-[10px] text-slate-500 tracking-[0.15em] uppercase font-semibold">Verwaltung</span>
+              <div className="flex-1 h-px bg-slate-700/50" />
+            </div>
+            <div className="space-y-1">
+              {verwaltungNav.map((item) => (
+                <NavButton key={item.path} item={item} />
+              ))}
+            </div>
+          </div>
         </nav>
 
-        <div className="p-4 border-t border-white/10">
+        {/* User Section */}
+        <div className="p-3 border-t border-slate-700/50">
+          <div className="flex items-center gap-3 px-3 py-2 mb-2">
+            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              {initials}
+            </div>
+            <span className="text-sm text-slate-300 truncate">{userEmail}</span>
+          </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-400 hover:text-red-400 hover:bg-white/5 transition-colors rounded-none"
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-slate-400 hover:text-red-400 hover:bg-white/5 transition-all duration-150 rounded-lg"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-5 h-5 flex-shrink-0" />
             Abmelden
           </button>
         </div>
@@ -109,7 +155,7 @@ const AdminLayout = () => {
             <Menu className="w-6 h-6" />
           </button>
           <h1 className="text-lg font-semibold text-gray-900">
-            {navItems.find((i) => i.path === location.pathname)?.label ?? "Admin"}
+            {[...mainNav, ...verwaltungNav].find((i) => isActive(i.path))?.label ?? "Admin"}
           </h1>
         </header>
 

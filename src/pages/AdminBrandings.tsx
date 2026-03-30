@@ -143,7 +143,7 @@ const AdminBrandings = () => {
           <p>Noch keine Brandings angelegt</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {brandings.map((b) => (
             <div key={b.id} className="bg-white border border-gray-200 p-5">
               <div className="flex items-start justify-between mb-3">
