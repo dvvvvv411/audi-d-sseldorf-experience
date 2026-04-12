@@ -365,14 +365,17 @@ const AdminVerkaeufer = () => {
                 {fahrzeuge.map((f) => (
                   <label
                     key={f.id}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer"
+                    className={`flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer ${!f.aktiv ? "opacity-40" : ""}`}
                   >
                     <Checkbox
                       checked={selectedFahrzeuge.includes(f.id)}
                       onCheckedChange={() => toggleFahrzeug(f.id)}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{f.fahrzeugname}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-gray-900 truncate">{f.fahrzeugname}</p>
+                        {!f.aktiv && <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Deaktiviert</Badge>}
+                      </div>
                       <p className="text-xs text-gray-400">{Number(f.preis).toLocaleString("de-DE")} €</p>
                     </div>
                   </label>
