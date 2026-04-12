@@ -243,6 +243,18 @@ const AdminEmailTemplates = () => {
     const vk = verkaeufer.find((v) => v.id === marketingVerkaeufer);
     if (!branding || !vk) return;
     setMarketingPreviewHtml(generateMarketingEmail(branding, vk));
+    if (!marketingBetreff) {
+      setMarketingBetreff(`Ausgewählte Fahrzeugangebote – ${branding.name}`);
+    }
+  };
+
+  const handleCopyBetreff = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Betreff kopiert", description: "Der Betreff wurde in die Zwischenablage kopiert." });
+    } catch {
+      toast({ title: "Fehler", description: "Betreff konnte nicht kopiert werden.", variant: "destructive" });
+    }
   };
 
   const handleCopyHtml = async () => {
