@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, ImagePlus } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, ImagePlus, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 interface Fahrzeug {
@@ -43,6 +43,7 @@ interface Fahrzeug {
   fahrgestellnummer: string | null;
   beschreibung: string | null;
   bilder: string[] | null;
+  aktiv: boolean;
   created_at: string;
 }
 
@@ -86,7 +87,13 @@ const AdminFahrzeugbestand = () => {
     if (error) {
       toast.error("Fehler beim Laden der Fahrzeuge");
     } else {
-      setFahrzeuge(data || []);
+      const sorted = (data || []).sort((a, b) => {
+        const aAktiv = (a as any).aktiv !== false;
+        const bAktiv = (b as any).aktiv !== false;
+        if (aAktiv !== bAktiv) return aAktiv ? -1 : 1;
+        return 0;
+      });
+      setFahrzeuge(sorted);
     }
     setLoading(false);
   };
@@ -206,6 +213,16 @@ const AdminFahrzeugbestand = () => {
     setSaving(false);
   };
 
+  const toggleAktiv = async (f: Fahrzeug) => {
+    const { error } = await supabase.from("fahrzeuge").update({ aktiv: !f.aktiv } as any).eq("id", f.id);
+    if (error) {
+      toast.error("Fehler beim Aktualisieren");
+    } else {
+      toast.success(f.aktiv ? "Fahrzeug deaktiviert" : "Fahrzeug aktiviert");
+      fetchFahrzeuge();
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Fahrzeug wirklich löschen?")) return;
     const { error } = await supabase.from("fahrzeuge").delete().eq("id", id);
@@ -271,7 +288,7 @@ const AdminFahrzeugbestand = () => {
             </TableHeader>
             <TableBody>
               {fahrzeuge.map((f) => (
-                <TableRow key={f.id} onClick={() => navigate(`/admin/fahrzeugbestand/${f.id}`)} className="cursor-pointer hover:bg-gray-50">
+                <TableRow key={f.id} onClick={() => navigate(`/admin/fahrzeugbestand/${f.id}`)} className={`cursor-pointer hover:bg-gray-50 ${!f.aktiv ? "opacity-40" : ""}`}>
                   <TableCell>
                     {f.bilder && f.bilder.length > 0 ? (
                       <img src={f.bilder[0]} alt="" className="w-12 h-9 object-cover rounded" />
@@ -287,6 +304,9 @@ const AdminFahrzeugbestand = () => {
                   <TableCell className="text-gray-600">{f.erstzulassung || "–"}</TableCell>
                   <TableCell className="text-gray-600">{f.kraftstoff || "–"}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" onClick={() => toggleAktiv(f)} className={f.aktiv ? "text-gray-500 hover:text-gray-900" : "text-gray-400 hover:text-gray-700"} title={f.aktiv ? "Deaktivieren" : "Aktivieren"}>
+                      {f.aktiv ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => openEdit(f)} className="text-gray-500 hover:text-gray-900">
                       <Pencil className="w-4 h-4" />
                     </Button>

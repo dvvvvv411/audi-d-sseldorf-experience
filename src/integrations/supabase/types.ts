@@ -178,6 +178,7 @@ export type Database = {
       }
       fahrzeuge: {
         Row: {
+          aktiv: boolean
           antrieb: string | null
           auftragsnummer: string | null
           beschreibung: string | null
@@ -201,6 +202,7 @@ export type Database = {
           tuev_au: string | null
         }
         Insert: {
+          aktiv?: boolean
           antrieb?: string | null
           auftragsnummer?: string | null
           beschreibung?: string | null
@@ -224,6 +226,7 @@ export type Database = {
           tuev_au?: string | null
         }
         Update: {
+          aktiv?: boolean
           antrieb?: string | null
           auftragsnummer?: string | null
           beschreibung?: string | null
