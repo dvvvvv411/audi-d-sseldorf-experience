@@ -148,6 +148,7 @@ export default function Fahrzeugbestand() {
             .from("fahrzeuge")
             .select("*")
             .in("id", fahrzeugIds)
+            .eq("aktiv", true)
             .order("created_at", { ascending: false });
           fzData = data || [];
         }
@@ -163,7 +164,7 @@ export default function Fahrzeugbestand() {
       } else {
         // Default: show all vehicles
         const [{ data: fzData }, { data: brData }, { data: vkData }, { data: vfData }] = await Promise.all([
-          supabase.from("fahrzeuge").select("*").order("created_at", { ascending: false }),
+          supabase.from("fahrzeuge").select("*").eq("aktiv", true).order("created_at", { ascending: false }),
           supabase.from("brandings").select("*").limit(1).single(),
           supabase.from("verkaeufer").select("*").limit(1),
           supabase.from("verkaeufer_fahrzeuge").select("*"),
