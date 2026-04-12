@@ -1,30 +1,18 @@
 
 
-## Fahrzeug deaktivieren/aktivieren
+## Hinweis bei deaktivierten Fahrzeugen im Zuweisungs-Dialog
 
 ### Was passiert
 
-Ein neues Boolean-Feld `aktiv` (default `true`) wird zur `fahrzeuge`-Tabelle hinzugefügt. In der Admin-Fahrzeugbestand-Tabelle bekommt jedes Fahrzeug einen Toggle-Button zum De-/Aktivieren. Deaktivierte Fahrzeuge werden in der Admin-Tabelle ans Ende sortiert und ausgegraut dargestellt. Auf den öffentlichen Seiten (`/fahrzeugbestand` und `/fahrzeugbestand/:sellerSlug`) werden deaktivierte Fahrzeuge komplett ausgeblendet.
+Im Fahrzeuge-Zuweisen-Dialog (`/admin/verkaeufer`) wird bei deaktivierten Fahrzeugen ein visueller Hinweis angezeigt (z.B. "Deaktiviert"-Badge + ausgegraut), damit der Verkäufer-Admin sofort sieht, welche Fahrzeuge aktuell nicht öffentlich sichtbar sind.
 
-### Änderungen
+### Änderungen in `src/pages/AdminVerkaeufer.tsx`
 
-#### 1. Datenbank-Migration
-```sql
-ALTER TABLE fahrzeuge ADD COLUMN aktiv boolean NOT NULL DEFAULT true;
-```
-
-#### 2. `src/pages/AdminFahrzeugbestand.tsx`
-- Toggle-Button (Eye/EyeOff Icon) in der Aktionen-Spalte hinzufügen
-- Fahrzeuge sortieren: aktive zuerst, dann deaktivierte
-- Deaktivierte Zeilen mit `opacity-40` ausgegraut darstellen
-- Toggle ruft `supabase.from("fahrzeuge").update({ aktiv: !f.aktiv }).eq("id", f.id)` auf
-
-#### 3. `src/pages/Fahrzeugbestand.tsx`
-- Alle Fahrzeug-Queries um `.eq("aktiv", true)` erweitern, damit deaktivierte Fahrzeuge auf öffentlichen Seiten nicht angezeigt werden
+1. **Fahrzeug-Type erweitern**: `aktiv` Feld zum `Fahrzeug`-Type hinzufügen
+2. **Query erweitern**: `aktiv` in der Fahrzeuge-Select-Query mit abfragen
+3. **Dialog-UI anpassen**: Deaktivierte Fahrzeuge im Checkbox-Dialog ausgegraut darstellen + "Deaktiviert"-Badge anzeigen
 
 | Datei | Änderung |
 |---|---|
-| Migration | `aktiv` Boolean-Spalte hinzufügen |
-| `src/pages/AdminFahrzeugbestand.tsx` | Toggle-Button, Sortierung, Grayout |
-| `src/pages/Fahrzeugbestand.tsx` | Filter auf `aktiv = true` |
+| `src/pages/AdminVerkaeufer.tsx` | Fahrzeug-Type + Query + Dialog-UI für `aktiv`-Hinweis |
 
