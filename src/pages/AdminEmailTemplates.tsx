@@ -208,11 +208,13 @@ const AdminEmailTemplates = () => {
   const [selectedBranding, setSelectedBranding] = useState<string>("");
   const [selectedFahrzeug, setSelectedFahrzeug] = useState<string>("");
   const [previewHtml, setPreviewHtml] = useState<string>("");
+  const [anfrageBetreff, setAnfrageBetreff] = useState<string>("");
 
   // Marketing state
   const [marketingBranding, setMarketingBranding] = useState<string>("");
   const [marketingVerkaeufer, setMarketingVerkaeufer] = useState<string>("");
   const [marketingPreviewHtml, setMarketingPreviewHtml] = useState<string>("");
+  const [marketingBetreff, setMarketingBetreff] = useState<string>("");
 
   useEffect(() => {
     const load = async () => {
