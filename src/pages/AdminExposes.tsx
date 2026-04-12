@@ -163,15 +163,8 @@ async function generateExposePdf(
   y += 4;
   doc.text(`eMail: ${verkaeufer.email}`, marginL, y);
 
-  // Right: Audi Logo
-  try {
-    doc.addImage(AUDI_LOGO_SVG, "SVG", pageW - marginR - 40, 10, 40, 10);
-  } catch {
-    // fallback: draw rings text
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("Audi", pageW - marginR - 20, 18);
-  }
+  // Right: Audi Logo (drawn as 4 overlapping rings)
+  drawAudiRings(doc, pageW - marginR - 30, 16, 1);
 
   y += 6;
   drawLine(y);
@@ -196,11 +189,17 @@ async function generateExposePdf(
 
   const bilder = fahrzeug.bilder ?? [];
   const imageUrls = bilder.slice(0, 5).map(getSupabaseImageUrl);
-  const imageData = await Promise.all(imageUrls.map(loadImageAsBase64));
+  const rawImageData = await Promise.all(imageUrls.map(loadImageAsBase64));
+
+  // Crop images to fill their target dimensions without distortion
+  const croppedBig = rawImageData[0] ? await cropImageToFill(rawImageData[0], bigW, totalImgH) : null;
+  const croppedSmall = await Promise.all(
+    [1, 2, 3, 4].map(i => rawImageData[i] ? cropImageToFill(rawImageData[i]!, smallW, smallH) : Promise.resolve(null))
+  );
 
   // Big image (left)
-  if (imageData[0]) {
-    doc.addImage(imageData[0], "JPEG", marginL, imgStartY, bigW, totalImgH);
+  if (croppedBig) {
+    doc.addImage(croppedBig, "JPEG", marginL, imgStartY, bigW, totalImgH);
   } else {
     doc.setFillColor(230, 230, 230);
     doc.rect(marginL, imgStartY, bigW, totalImgH, "F");
@@ -218,10 +217,9 @@ async function generateExposePdf(
   ];
 
   for (let i = 0; i < 4; i++) {
-    const imgIdx = i + 1;
     const pos = smallPositions[i];
-    if (imageData[imgIdx]) {
-      doc.addImage(imageData[imgIdx], "JPEG", pos.x, pos.y, smallW, smallH);
+    if (croppedSmall[i]) {
+      doc.addImage(croppedSmall[i]!, "JPEG", pos.x, pos.y, smallW, smallH);
     } else {
       doc.setFillColor(230, 230, 230);
       doc.rect(pos.x, pos.y, smallW, smallH, "F");
@@ -288,25 +286,30 @@ async function generateExposePdf(
   drawLine(y);
   y += 4;
 
+  const footerY = 252; // Fixed footer position
+  const descLineH = 3.5;
+  const availableDescH = footerY - y - 10; // space for description before footer
+  const maxDescLines = Math.floor(availableDescH / descLineH);
+
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(7);
+  doc.setFontSize(8);
   const beschreibung = fahrzeug.beschreibung ?? "Keine Beschreibung vorhanden.";
   const descLines = doc.splitTextToSize(beschreibung, contentW);
-  const maxDescLines = Math.min(descLines.length, 12);
-  for (let i = 0; i < maxDescLines; i++) {
+  const linesToDraw = Math.min(descLines.length, maxDescLines);
+  for (let i = 0; i < linesToDraw; i++) {
     doc.text(descLines[i], marginL, y);
-    y += 3;
+    y += descLineH;
   }
-  if (descLines.length > maxDescLines) {
+  if (descLines.length > linesToDraw) {
     doc.text("...", marginL, y);
-    y += 3;
+    y += descLineH;
   }
 
-  y += 2;
+  // ── FOOTER (fixed position) ──
+  y = footerY;
   drawLine(y);
-
-  // ── FOOTER ──
   y += 5;
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   const disclaimerLines = [
@@ -324,24 +327,30 @@ async function generateExposePdf(
 
   // Price section (right side, same line as disclaimer start)
   const priceX = pageW - marginR;
+  const priceStr = `${formatPrice(fahrzeug.preis)} €`;
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   const barpreisLabel = "Barpreis:";
-  const barpreisLabelWidth = doc.getTextWidth(barpreisLabel);
-  const priceStr = `${formatPrice(fahrzeug.preis)} €`;
-
-  // Calculate positions: "Barpreis:" then price in large font next to it
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20);
+  const priceWidth = doc.getTextWidth(priceStr);
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.text(barpreisLabel, priceX - doc.getTextWidth(priceStr) - barpreisLabelWidth - 8, footerStartY, { align: "left" });
+  const labelWidth = doc.getTextWidth(barpreisLabel);
+  
+  const priceRight = priceX;
+  const labelX = priceRight - priceWidth - labelWidth - 4;
+  doc.text(barpreisLabel, labelX, footerStartY);
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
-  doc.text(priceStr, priceX, footerStartY + 1, { align: "right" });
+  doc.text(priceStr, priceRight, footerStartY + 1, { align: "right" });
 
   // MwSt line
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text("MwSt-Ausweis möglich!", priceX, footerStartY + 8, { align: "right" });
+  doc.text("MwSt-Ausweis möglich!", priceRight, footerStartY + 8, { align: "right" });
 
   // Created date + disclaimer
   y += 4;
