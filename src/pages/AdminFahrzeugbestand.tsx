@@ -288,10 +288,10 @@ const AdminFahrzeugbestand = () => {
 
       {loading ? (
         <p className="text-gray-500">Laden…</p>
-      ) : fahrzeuge.length === 0 ? (
+      ) : filteredFahrzeuge.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
-          <p className="text-lg">Noch keine Fahrzeuge vorhanden</p>
-          <p className="text-sm mt-1">Füge dein erstes Fahrzeug hinzu.</p>
+          <p className="text-lg">{searchTerm ? "Keine Treffer" : "Noch keine Fahrzeuge vorhanden"}</p>
+          <p className="text-sm mt-1">{searchTerm ? "Versuche einen anderen Suchbegriff." : "Füge dein erstes Fahrzeug hinzu."}</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -308,7 +308,7 @@ const AdminFahrzeugbestand = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {fahrzeuge.map((f) => (
+              {filteredFahrzeuge.map((f) => (
                 <TableRow key={f.id} onClick={() => navigate(`/admin/fahrzeugbestand/${f.id}`)} className={`cursor-pointer hover:bg-gray-50 ${!f.aktiv ? "opacity-40" : ""}`}>
                   <TableCell>
                     {f.bilder && f.bilder.length > 0 ? (
