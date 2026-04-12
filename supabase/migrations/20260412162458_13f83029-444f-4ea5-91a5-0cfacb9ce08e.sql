@@ -1,0 +1,1 @@
+ALTER TABLE fahrzeuge ADD COLUMN aktiv boolean NOT NULL DEFAULT true;
