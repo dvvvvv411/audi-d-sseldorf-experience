@@ -1,32 +1,55 @@
 
 
-## Drei Änderungen: Beschreibung formatiert, PDF-Upload Servicenachweis, Suchleiste
+## Marketing-Email Template (persönlich & seriös)
 
-### 1. Beschreibung formatiert anzeigen (AdminFahrzeugDetail.tsx)
+### Konzept
 
-Die `parseBeschreibung`-Funktion aus `Gebrauchtwagen.tsx` wird extrahiert (oder dupliziert) und in der Admin-Detailseite verwendet. Die Beschreibung wird im `***`-Format geparst und wie auf der Produktseite mit Kategorie-Überschriften und Checkmark-Listen dargestellt. Ein kleiner Toggle-Button ("Rohtext" / "Formatiert") wechselt zwischen formatierter und Rohtext-Ansicht.
+Neue Sektion "Marketing-Email" auf `/admin/email-templates`. Die Email wirkt wie eine persönliche, seriöse Nachricht vom Verkäufer. Kein gestylter Header -- nur der Signatur-Block ist visuell gestaltet.
 
-### 2. Servicenachweis-PDF Upload (AdminFahrzeugDetail.tsx + DB)
+### Email-Text (überarbeiteter, seriöser Ton)
 
-**Datenbank**: Neue Spalte `servicenachweis_urls text[] DEFAULT '{}'` in der `fahrzeuge`-Tabelle für mehrere PDFs.
+```text
+Sehr geehrte Damen und Herren,
 
-**UI im Technische Daten Card**:
-- Neuer Bereich "Servicenachweis(e)" mit Upload-Button
-- PDFs werden in den bestehenden `fahrzeuge` Storage-Bucket hochgeladen (Pfad: `servicenachweise/{fahrzeug_id}/{filename}`)
-- Hochgeladene PDFs als Thumbnail-Karten angezeigt (PDF-Icon + Dateiname)
-- Klick öffnet PDF in einem Dialog/Popup (iframe)
-- Jedes PDF hat einen X-Button zum Entfernen und Option zum Ersetzen
+mein Name ist [Vorname Nachname] und ich betreue Sie als
+persönlicher Ansprechpartner bei [Branding Name].
 
-### 3. Suchleiste (AdminFahrzeugbestand.tsx)
+Gerne möchte ich Sie darauf aufmerksam machen, dass wir
+derzeit ausgewählte Fahrzeuge im Kundenauftrag zu attraktiven
+Sonderkonditionen anbieten. Sämtliche Fahrzeuge werden
+selbstverständlich mit Garantie übergeben.
 
-Eine Suchleiste oberhalb der Tabelle, die nach `fahrzeugname`, `auftragsnummer` und `fahrgestellnummer` filtert (client-seitig).
+Eine Übersicht unserer aktuellen Fahrzeuge finden Sie hier:
+%link%
 
-### Technische Details
+Sollte ein Fahrzeug Ihr Interesse wecken, können Sie direkt
+über unsere Plattform eine unverbindliche Anfrage stellen.
+Ich werde mich anschließend zeitnah persönlich bei Ihnen melden.
+
+Für Rückfragen stehe ich Ihnen jederzeit gerne per E-Mail
+oder telefonisch unter %telefon% zur Verfügung.
+
+Mit freundlichen Grüßen
+
+─── Gestylte Signatur ───────────────
+[Rundes Verkäufer-Foto]
+Vorname Nachname
+Verkaufsberater | Branding Name
+telefon | email
+
+[Audi Ringe SVG]
+Branding Name
+───────────────────────────────────────
+```
+
+### Technische Umsetzung in `src/pages/AdminEmailTemplates.tsx`
+
+1. **Verkäufer laden**: Query `verkaeufer` Tabelle (id, vorname, nachname, email, telefon, avatar_url)
+2. **Neue Sektion** "Marketing-Email" mit Select für Verkäufer + Branding, "Vorschau laden" Button, "HTML kopieren" Button (mit Toast-Feedback)
+3. **`generateMarketingEmail(branding, verkaeufer)`**: HTML mit plain-text Body (kein gestylter Header), nur Signatur-Block gestylt (Foto rund, Kontakt, Audi-Ringe, Branding)
+4. Platzhalter `%link%` und `%telefon%` bleiben im HTML (werden in Brevo ersetzt)
 
 | Datei | Änderung |
 |---|---|
-| Migration | `ALTER TABLE fahrzeuge ADD COLUMN servicenachweis_urls text[] DEFAULT '{}'` |
-| `src/pages/AdminFahrzeugDetail.tsx` | parseBeschreibung + Toggle, PDF-Upload/Anzeige/Löschen im Technische Daten Card |
-| `src/pages/AdminFahrzeugbestand.tsx` | Suchleiste mit Filter-Logik |
-| `src/integrations/supabase/types.ts` | Wird automatisch aktualisiert |
+| `src/pages/AdminEmailTemplates.tsx` | Verkäufer-Query, `generateMarketingEmail`, UI-Sektion mit Vorschau + HTML-Copy |
 
