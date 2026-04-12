@@ -302,6 +302,18 @@ const AdminEmailTemplates = () => {
           </Button>
         </div>
 
+        {anfrageBetreff && (
+          <div className="flex items-center gap-2">
+            <div className="space-y-1.5 flex-1">
+              <label className="text-sm font-medium text-muted-foreground">Betreff</label>
+              <Input value={anfrageBetreff} readOnly className="bg-muted" />
+            </div>
+            <Button variant="outline" size="icon" className="mt-6" onClick={() => handleCopyBetreff(anfrageBetreff)}>
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {previewHtml && (
           <div className="border border-border rounded-md overflow-hidden bg-muted">
             <iframe srcDoc={previewHtml} title="Email Vorschau" className="w-full border-0" style={{ minHeight: 700 }} />
