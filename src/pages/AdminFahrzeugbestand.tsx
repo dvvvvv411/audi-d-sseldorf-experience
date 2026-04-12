@@ -253,24 +253,45 @@ const AdminFahrzeugbestand = () => {
     </div>
   );
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredFahrzeuge = fahrzeuge.filter((f) => {
+    if (!searchTerm.trim()) return true;
+    const q = searchTerm.toLowerCase();
+    return (
+      f.fahrzeugname.toLowerCase().includes(q) ||
+      (f.auftragsnummer && f.auftragsnummer.toLowerCase().includes(q)) ||
+      (f.fahrgestellnummer && f.fahrgestellnummer.toLowerCase().includes(q))
+    );
+  });
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Fahrzeugbestand</h2>
-          <p className="text-gray-500 text-sm mt-1">{fahrzeuge.length} Fahrzeuge</p>
+          <p className="text-gray-500 text-sm mt-1">{filteredFahrzeuge.length} von {fahrzeuge.length} Fahrzeugen</p>
         </div>
         <Button onClick={openAdd} className="bg-black text-white hover:bg-gray-800">
           <Plus className="w-4 h-4 mr-2" /> Fahrzeug hinzufügen
         </Button>
       </div>
 
+      <div className="mb-4">
+        <Input
+          placeholder="Suche nach Fahrzeugname, Auftragsnummer oder Fahrgestellnummer…"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-lg bg-white border-gray-200"
+        />
+      </div>
+
       {loading ? (
         <p className="text-gray-500">Laden…</p>
-      ) : fahrzeuge.length === 0 ? (
+      ) : filteredFahrzeuge.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
-          <p className="text-lg">Noch keine Fahrzeuge vorhanden</p>
-          <p className="text-sm mt-1">Füge dein erstes Fahrzeug hinzu.</p>
+          <p className="text-lg">{searchTerm ? "Keine Treffer" : "Noch keine Fahrzeuge vorhanden"}</p>
+          <p className="text-sm mt-1">{searchTerm ? "Versuche einen anderen Suchbegriff." : "Füge dein erstes Fahrzeug hinzu."}</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -287,7 +308,7 @@ const AdminFahrzeugbestand = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {fahrzeuge.map((f) => (
+              {filteredFahrzeuge.map((f) => (
                 <TableRow key={f.id} onClick={() => navigate(`/admin/fahrzeugbestand/${f.id}`)} className={`cursor-pointer hover:bg-gray-50 ${!f.aktiv ? "opacity-40" : ""}`}>
                   <TableCell>
                     {f.bilder && f.bilder.length > 0 ? (

@@ -1,0 +1,1 @@
+ALTER TABLE public.fahrzeuge ADD COLUMN servicenachweis_urls text[] DEFAULT '{}';

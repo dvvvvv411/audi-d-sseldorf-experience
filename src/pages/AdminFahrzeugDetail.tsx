@@ -4,9 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Car, Fuel, Gauge, Palette, Cog, Zap, Calendar,
   CreditCard, Hash, ImageIcon, FileText, DoorOpen, Armchair,
-  Settings, X
+  Settings, X, Upload, File, ToggleLeft, ToggleRight, Check
 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface Fahrzeug {
   id: string;
@@ -29,8 +32,25 @@ interface Fahrzeug {
   fahrgestellnummer: string | null;
   beschreibung: string | null;
   bilder: string[] | null;
+  servicenachweis_urls: string[] | null;
   created_at: string;
 }
+
+const parseBeschreibung = (text: string | null) => {
+  if (!text) return [];
+  const sections = text.split("***").filter(Boolean);
+  return sections.map((section) => {
+    const colonIdx = section.indexOf(":");
+    if (colonIdx === -1) return { title: section.trim(), items: [] };
+    const title = section.substring(0, colonIdx).trim();
+    const itemsStr = section.substring(colonIdx + 1).trim();
+    const items = itemsStr
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+    return { title, items };
+  });
+};
 
 export default function AdminFahrzeugDetail() {
   const { id } = useParams<{ id: string }>();
@@ -38,15 +58,19 @@ export default function AdminFahrzeugDetail() {
   const [fahrzeug, setFahrzeug] = useState<Fahrzeug | null>(null);
   const [loading, setLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [formatted, setFormatted] = useState(true);
+  const [pdfViewer, setPdfViewer] = useState<string | null>(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+
+  const loadFahrzeug = async () => {
+    if (!id) return;
+    const { data } = await supabase.from("fahrzeuge").select("*").eq("id", id).single();
+    if (data) setFahrzeug(data as any);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const load = async () => {
-      if (!id) return;
-      const { data } = await supabase.from("fahrzeuge").select("*").eq("id", id).single();
-      if (data) setFahrzeug(data);
-      setLoading(false);
-    };
-    load();
+    loadFahrzeug();
   }, [id]);
 
   if (loading) {
@@ -81,6 +105,69 @@ export default function AdminFahrzeugDetail() {
   );
 
   const bilder = fahrzeug.bilder || [];
+  const servicenachweise = fahrzeug.servicenachweis_urls || [];
+  const beschreibungSections = parseBeschreibung(fahrzeug.beschreibung);
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !id) return;
+    setUploadingPdf(true);
+
+    const newUrls: string[] = [];
+    for (const file of Array.from(files)) {
+      if (file.type !== "application/pdf") {
+        toast.error(`${file.name} ist keine PDF-Datei`);
+        continue;
+      }
+      const path = `servicenachweise/${id}/${crypto.randomUUID()}_${file.name}`;
+      const { error } = await supabase.storage.from("fahrzeuge").upload(path, file);
+      if (error) {
+        toast.error(`Fehler beim Hochladen: ${file.name}`);
+        continue;
+      }
+      const { data: urlData } = supabase.storage.from("fahrzeuge").getPublicUrl(path);
+      newUrls.push(urlData.publicUrl);
+    }
+
+    if (newUrls.length > 0) {
+      const updated = [...servicenachweise, ...newUrls];
+      const { error } = await supabase
+        .from("fahrzeuge")
+        .update({ servicenachweis_urls: updated } as any)
+        .eq("id", id);
+      if (error) {
+        toast.error("Fehler beim Speichern");
+      } else {
+        toast.success("PDF hochgeladen");
+        loadFahrzeug();
+      }
+    }
+    setUploadingPdf(false);
+    e.target.value = "";
+  };
+
+  const removePdf = async (urlToRemove: string) => {
+    if (!id) return;
+    const updated = servicenachweise.filter((u) => u !== urlToRemove);
+    const { error } = await supabase
+      .from("fahrzeuge")
+      .update({ servicenachweis_urls: updated } as any)
+      .eq("id", id);
+    if (error) {
+      toast.error("Fehler beim Entfernen");
+    } else {
+      toast.success("PDF entfernt");
+      loadFahrzeug();
+    }
+  };
+
+  const getPdfFilename = (url: string) => {
+    const parts = url.split("/");
+    const last = parts[parts.length - 1];
+    // Remove UUID prefix if present
+    const uuidPattern = /^[a-f0-9-]{36}_/;
+    return decodeURIComponent(last.replace(uuidPattern, ""));
+  };
 
   return (
     <div className="max-w-5xl">
@@ -132,6 +219,60 @@ export default function AdminFahrzeugDetail() {
               <DetailRow icon={CreditCard} iconColor="bg-emerald-50 text-emerald-600" label="Auftragsnummer" value={fahrzeug.auftragsnummer} />
               <DetailRow icon={Hash} iconColor="bg-emerald-50 text-emerald-600" label="Fahrgestellnummer" value={fahrzeug.fahrgestellnummer} />
             </div>
+
+            {/* Servicenachweis(e) */}
+            <div className="mt-6 pt-6 border-t border-gray-100">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <File className="w-4 h-4 text-emerald-500" />
+                  Servicenachweis(e)
+                </h4>
+                <label className="cursor-pointer">
+                  <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                    <span>
+                      <Upload className="w-3.5 h-3.5" />
+                      {uploadingPdf ? "Laden…" : "PDF hochladen"}
+                    </span>
+                  </Button>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    multiple
+                    onChange={handlePdfUpload}
+                    className="hidden"
+                    disabled={uploadingPdf}
+                  />
+                </label>
+              </div>
+
+              {servicenachweise.length === 0 ? (
+                <p className="text-gray-400 text-sm">Keine Servicenachweise vorhanden.</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {servicenachweise.map((url, i) => (
+                    <div
+                      key={i}
+                      className="relative group flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 hover:border-gray-300 bg-gray-50 cursor-pointer transition-colors"
+                      onClick={() => setPdfViewer(url)}
+                    >
+                      <div className="flex items-center justify-center w-10 h-10 rounded bg-red-50 text-red-500 shrink-0">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs text-gray-700 truncate flex-1">{getPdfFilename(url)}</p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removePdf(url);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -167,13 +308,47 @@ export default function AdminFahrzeugDetail() {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
           <div className="h-1 bg-amber-500" />
           <div className="p-6">
-            <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-amber-500" />
-              Serien- und Sonderausstattung
-            </h3>
-            <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{fahrzeug.beschreibung}</p>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-amber-500" />
+                Serien- und Sonderausstattung
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => setFormatted(!formatted)}
+              >
+                {formatted ? <ToggleRight className="w-3.5 h-3.5" /> : <ToggleLeft className="w-3.5 h-3.5" />}
+                {formatted ? "Rohtext" : "Formatiert"}
+              </Button>
             </div>
+
+            {formatted && beschreibungSections.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {beschreibungSections.map((section, i) => (
+                  <div key={i} className="bg-amber-50 rounded-lg p-4 border border-amber-100">
+                    <p className="text-sm font-semibold text-gray-800 mb-2">{section.title}</p>
+                    {section.items.length > 0 ? (
+                      <ul className="space-y-1">
+                        {section.items.map((item, j) => (
+                          <li key={j} className="flex items-start gap-2 text-sm text-gray-700">
+                            <Check className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-gray-500">Keine Details</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{fahrzeug.beschreibung}</p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -200,6 +375,19 @@ export default function AdminFahrzeugDetail() {
                 ))}
               </div>
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* PDF Viewer Dialog */}
+      <Dialog open={pdfViewer !== null} onOpenChange={() => setPdfViewer(null)}>
+        <DialogContent className="max-w-4xl h-[85vh] p-0 overflow-hidden">
+          {pdfViewer && (
+            <iframe
+              src={pdfViewer}
+              className="w-full h-full"
+              title="Servicenachweis PDF"
+            />
           )}
         </DialogContent>
       </Dialog>
