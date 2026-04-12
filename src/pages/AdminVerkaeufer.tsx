@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { Plus, Mail, Phone, Trash2, Pencil, Loader2, Upload, User, Car, Copy } from "lucide-react";
 
 type Branding = { id: string; name: string };
-type Fahrzeug = { id: string; fahrzeugname: string; preis: number };
+type Fahrzeug = { id: string; fahrzeugname: string; preis: number; aktiv: boolean };
 type Verkaeufer = {
   id: string;
   vorname: string;
