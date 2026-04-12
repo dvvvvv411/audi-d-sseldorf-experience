@@ -197,6 +197,7 @@ export type Database = {
           kw: number | null
           preis: number
           ps: number | null
+          servicenachweis_urls: string[] | null
           sitze: number | null
           tueren: number | null
           tuev_au: string | null
@@ -221,6 +222,7 @@ export type Database = {
           kw?: number | null
           preis: number
           ps?: number | null
+          servicenachweis_urls?: string[] | null
           sitze?: number | null
           tueren?: number | null
           tuev_au?: string | null
@@ -245,6 +247,7 @@ export type Database = {
           kw?: number | null
           preis?: number
           ps?: number | null
+          servicenachweis_urls?: string[] | null
           sitze?: number | null
           tueren?: number | null
           tuev_au?: string | null
