@@ -3,9 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Tables } from "@/integrations/supabase/types";
+import { Copy } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 type Branding = Tables<"brandings">;
 type Fahrzeug = Tables<"fahrzeuge">;
+type Verkaeufer = Tables<"verkaeufer">;
 
 const generateAnfrageEmail = (branding: Branding, fahrzeug: Fahrzeug) => {
   const preis = Number(fahrzeug.preis).toLocaleString("de-DE", { minimumFractionDigits: 0 });
@@ -129,21 +132,105 @@ const generateAnfrageEmail = (branding: Branding, fahrzeug: Fahrzeug) => {
 </html>`;
 };
 
+const generateMarketingEmail = (branding: Branding, verkaeufer: Verkaeufer) => {
+  const avatarUrl = verkaeufer.avatar_url || "";
+  const fullName = `${verkaeufer.vorname} ${verkaeufer.nachname}`;
+
+  return `<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#333;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
+    <tr><td style="padding:30px 20px 10px;">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;">
+
+        <!-- Persönlicher Text -->
+        <tr><td style="padding:0 0 20px;font-size:14px;line-height:1.7;color:#333;">
+          Sehr geehrte Damen und Herren,<br/><br/>
+          mein Name ist ${fullName} und ich betreue Sie als persönlicher Ansprechpartner bei ${branding.name}.<br/><br/>
+          Gerne möchte ich Sie darauf aufmerksam machen, dass wir derzeit ausgewählte Fahrzeuge im Kundenauftrag zu attraktiven Sonderkonditionen anbieten. Sämtliche Fahrzeuge werden selbstverständlich mit Garantie übergeben.<br/><br/>
+          Eine Übersicht unserer aktuellen Fahrzeuge finden Sie hier:<br/>
+          <a href="%link%" style="color:#333;text-decoration:underline;">%link%</a><br/><br/>
+          Sollte ein Fahrzeug Ihr Interesse wecken, können Sie direkt über unsere Plattform eine unverbindliche Anfrage stellen. Ich werde mich anschließend zeitnah persönlich bei Ihnen melden.<br/><br/>
+          Für Rückfragen stehe ich Ihnen jederzeit gerne per E-Mail oder telefonisch unter %telefon% zur Verfügung.<br/><br/>
+          Mit freundlichen Grüßen
+        </td></tr>
+
+        <!-- Signatur -->
+        <tr><td style="padding:20px 0 0;border-top:1px solid #e0e0e0;">
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              ${avatarUrl ? `<td style="vertical-align:top;padding-right:15px;">
+                <img src="${avatarUrl}" alt="${fullName}" width="60" height="60" style="border-radius:50%;object-fit:cover;display:block;" />
+              </td>` : ""}
+              <td style="vertical-align:top;">
+                <p style="margin:0;font-size:14px;font-weight:bold;color:#000;">${fullName}</p>
+                <p style="margin:2px 0 0;font-size:12px;color:#666;">Verkaufsberater | ${branding.name}</p>
+                <p style="margin:4px 0 0;font-size:12px;color:#666;">${verkaeufer.telefon} · ${verkaeufer.email}</p>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+
+        <!-- Audi Ringe + Branding -->
+        <tr><td style="padding:20px 0 0;">
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding-right:12px;vertical-align:middle;">
+                <svg viewBox="0 0 200 50" width="80" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="40" cy="25" r="20" stroke="#000000" stroke-width="3"/>
+                  <circle cx="73" cy="25" r="20" stroke="#000000" stroke-width="3"/>
+                  <circle cx="106" cy="25" r="20" stroke="#000000" stroke-width="3"/>
+                  <circle cx="139" cy="25" r="20" stroke="#000000" stroke-width="3"/>
+                </svg>
+              </td>
+              <td style="vertical-align:middle;">
+                <p style="margin:0;font-size:12px;color:#666;">${branding.name}</p>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:15px 0 0;">
+          <p style="font-size:10px;color:#999;line-height:1.5;margin:0;">
+            ${branding.name} · ${branding.strasse}, ${branding.plz} ${branding.stadt}<br/>
+            ${branding.amtsgericht} · ${branding.handelsregister} · Geschäftsführer: ${branding.geschaeftsfuehrer}<br/>
+            USt-IdNr.: ${branding.ust_id}
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+};
+
 const AdminEmailTemplates = () => {
+  const { toast } = useToast();
   const [brandings, setBrandings] = useState<Branding[]>([]);
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
+  const [verkaeufer, setVerkaeufer] = useState<Verkaeufer[]>([]);
   const [selectedBranding, setSelectedBranding] = useState<string>("");
   const [selectedFahrzeug, setSelectedFahrzeug] = useState<string>("");
   const [previewHtml, setPreviewHtml] = useState<string>("");
 
+  // Marketing state
+  const [marketingBranding, setMarketingBranding] = useState<string>("");
+  const [marketingVerkaeufer, setMarketingVerkaeufer] = useState<string>("");
+  const [marketingPreviewHtml, setMarketingPreviewHtml] = useState<string>("");
+
   useEffect(() => {
     const load = async () => {
-      const [b, f] = await Promise.all([
+      const [b, f, v] = await Promise.all([
         supabase.from("brandings").select("*"),
         supabase.from("fahrzeuge").select("*"),
+        supabase.from("verkaeufer").select("*"),
       ]);
       if (b.data) setBrandings(b.data);
       if (f.data) setFahrzeuge(f.data);
+      if (v.data) setVerkaeufer(v.data);
     };
     load();
   }, []);
@@ -155,51 +242,111 @@ const AdminEmailTemplates = () => {
     setPreviewHtml(generateAnfrageEmail(branding, fahrzeug));
   };
 
+  const handleMarketingPreview = () => {
+    const branding = brandings.find((b) => b.id === marketingBranding);
+    const vk = verkaeufer.find((v) => v.id === marketingVerkaeufer);
+    if (!branding || !vk) return;
+    setMarketingPreviewHtml(generateMarketingEmail(branding, vk));
+  };
+
+  const handleCopyHtml = async () => {
+    if (!marketingPreviewHtml) return;
+    try {
+      await navigator.clipboard.writeText(marketingPreviewHtml);
+      toast({ title: "HTML kopiert", description: "Das Email-Template wurde in die Zwischenablage kopiert." });
+    } catch {
+      toast({ title: "Fehler", description: "HTML konnte nicht kopiert werden.", variant: "destructive" });
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="space-y-1.5 min-w-[220px]">
-          <label className="text-sm font-medium text-gray-700">Branding</label>
-          <Select value={selectedBranding} onValueChange={setSelectedBranding}>
-            <SelectTrigger><SelectValue placeholder="Branding wählen" /></SelectTrigger>
-            <SelectContent>
-              {brandings.map((b) => (
-                <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <div className="space-y-10">
+      {/* Anfrage-Email Sektion */}
+      <div className="space-y-6">
+        <h2 className="text-lg font-semibold">Anfrage-Bestätigung</h2>
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="space-y-1.5 min-w-[220px]">
+            <label className="text-sm font-medium text-muted-foreground">Branding</label>
+            <Select value={selectedBranding} onValueChange={setSelectedBranding}>
+              <SelectTrigger><SelectValue placeholder="Branding wählen" /></SelectTrigger>
+              <SelectContent>
+                {brandings.map((b) => (
+                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5 min-w-[280px]">
+            <label className="text-sm font-medium text-muted-foreground">Fahrzeug</label>
+            <Select value={selectedFahrzeug} onValueChange={setSelectedFahrzeug}>
+              <SelectTrigger><SelectValue placeholder="Fahrzeug wählen" /></SelectTrigger>
+              <SelectContent>
+                {fahrzeuge.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>{f.fahrzeugname}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button onClick={handlePreview} disabled={!selectedBranding || !selectedFahrzeug}>
+            Vorschau laden
+          </Button>
         </div>
 
-        <div className="space-y-1.5 min-w-[280px]">
-          <label className="text-sm font-medium text-gray-700">Fahrzeug</label>
-          <Select value={selectedFahrzeug} onValueChange={setSelectedFahrzeug}>
-            <SelectTrigger><SelectValue placeholder="Fahrzeug wählen" /></SelectTrigger>
-            <SelectContent>
-              {fahrzeuge.map((f) => (
-                <SelectItem key={f.id} value={f.id}>{f.fahrzeugname}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Button
-          onClick={handlePreview}
-          disabled={!selectedBranding || !selectedFahrzeug}
-        >
-          Vorschau laden
-        </Button>
+        {previewHtml && (
+          <div className="border border-border rounded-md overflow-hidden bg-muted">
+            <iframe srcDoc={previewHtml} title="Email Vorschau" className="w-full border-0" style={{ minHeight: 700 }} />
+          </div>
+        )}
       </div>
 
-      {previewHtml && (
-        <div className="border border-gray-200 rounded-md overflow-hidden bg-gray-100">
-          <iframe
-            srcDoc={previewHtml}
-            title="Email Vorschau"
-            className="w-full border-0"
-            style={{ minHeight: 700 }}
-          />
+      {/* Marketing-Email Sektion */}
+      <div className="space-y-6">
+        <h2 className="text-lg font-semibold">Marketing-Email</h2>
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="space-y-1.5 min-w-[220px]">
+            <label className="text-sm font-medium text-muted-foreground">Verkäufer</label>
+            <Select value={marketingVerkaeufer} onValueChange={setMarketingVerkaeufer}>
+              <SelectTrigger><SelectValue placeholder="Verkäufer wählen" /></SelectTrigger>
+              <SelectContent>
+                {verkaeufer.map((v) => (
+                  <SelectItem key={v.id} value={v.id}>{v.vorname} {v.nachname}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5 min-w-[220px]">
+            <label className="text-sm font-medium text-muted-foreground">Branding</label>
+            <Select value={marketingBranding} onValueChange={setMarketingBranding}>
+              <SelectTrigger><SelectValue placeholder="Branding wählen" /></SelectTrigger>
+              <SelectContent>
+                {brandings.map((b) => (
+                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button onClick={handleMarketingPreview} disabled={!marketingBranding || !marketingVerkaeufer}>
+            Vorschau laden
+          </Button>
+
+          {marketingPreviewHtml && (
+            <Button variant="outline" onClick={handleCopyHtml}>
+              <Copy className="mr-1.5 h-4 w-4" />
+              HTML kopieren
+            </Button>
+          )}
         </div>
-      )}
+
+        {marketingPreviewHtml && (
+          <div className="border border-border rounded-md overflow-hidden bg-muted">
+            <iframe srcDoc={marketingPreviewHtml} title="Marketing Email Vorschau" className="w-full border-0" style={{ minHeight: 500 }} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
