@@ -47,7 +47,45 @@ interface Branding {
   email: string;
 }
 
-const AUDI_LOGO_SVG = `data:image/svg+xml;base64,${btoa(`<svg viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="25" r="20" stroke="black" stroke-width="3"/><circle cx="73" cy="25" r="20" stroke="black" stroke-width="3"/><circle cx="106" cy="25" r="20" stroke="black" stroke-width="3"/><circle cx="139" cy="25" r="20" stroke="black" stroke-width="3"/></svg>`)}`;
+function drawAudiRings(doc: jsPDF, x: number, y: number, scale: number = 1) {
+  const r = 5.5 * scale;
+  const overlap = 3.5 * scale;
+  const cx1 = x;
+  const cx2 = x + (2 * r - overlap);
+  const cx3 = x + 2 * (2 * r - overlap);
+  const cx4 = x + 3 * (2 * r - overlap);
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.6 * scale);
+  [cx1, cx2, cx3, cx4].forEach(cx => {
+    doc.circle(cx, y, r, "S");
+  });
+}
+
+async function cropImageToFill(base64: string, targetW: number, targetH: number): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const targetRatio = targetW / targetH;
+      const imgRatio = img.width / img.height;
+      let sx = 0, sy = 0, sw = img.width, sh = img.height;
+      if (imgRatio > targetRatio) {
+        sw = img.height * targetRatio;
+        sx = (img.width - sw) / 2;
+      } else {
+        sh = img.width / targetRatio;
+        sy = (img.height - sh) / 2;
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(targetW * 4);
+      canvas.height = Math.round(targetH * 4);
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => resolve(base64);
+    img.src = base64;
+  });
+}
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("de-DE", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
