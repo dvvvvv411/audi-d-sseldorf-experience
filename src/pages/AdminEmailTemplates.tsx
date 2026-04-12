@@ -160,9 +160,6 @@ const generateMarketingEmail = (branding: Branding, verkaeufer: Verkaeufer) => {
         <tr><td style="padding:20px 0 0;border-top:1px solid #e0e0e0;">
           <table cellpadding="0" cellspacing="0">
             <tr>
-              ${avatarUrl ? `<td style="vertical-align:top;padding-right:15px;">
-                <img src="${avatarUrl}" alt="${fullName}" width="60" height="60" style="border-radius:50%;object-fit:cover;display:block;" />
-              </td>` : ""}
               <td style="vertical-align:top;">
                 <p style="margin:0;font-size:14px;font-weight:bold;color:#000;">${fullName}</p>
                 <p style="margin:2px 0 0;font-size:12px;color:#666;">Verkaufsberater | ${branding.name}</p>
@@ -177,12 +174,7 @@ const generateMarketingEmail = (branding: Branding, verkaeufer: Verkaeufer) => {
           <table cellpadding="0" cellspacing="0">
             <tr>
               <td style="padding-right:12px;vertical-align:middle;">
-                <svg viewBox="0 0 200 50" width="80" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="40" cy="25" r="20" stroke="#000000" stroke-width="3"/>
-                  <circle cx="73" cy="25" r="20" stroke="#000000" stroke-width="3"/>
-                  <circle cx="106" cy="25" r="20" stroke="#000000" stroke-width="3"/>
-                  <circle cx="139" cy="25" r="20" stroke="#000000" stroke-width="3"/>
-                </svg>
+                <img src="https://www.tiemeyer.de/media/uploads/2025/06/Audi.svg" alt="Audi" width="80" style="display:block;" />
               </td>
               <td style="vertical-align:middle;">
                 <p style="margin:0;font-size:12px;color:#666;">${branding.name}</p>
