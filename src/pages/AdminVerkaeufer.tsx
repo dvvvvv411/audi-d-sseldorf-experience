@@ -13,9 +13,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Mail, Phone, Trash2, Pencil, Loader2, Upload, User, Car, Copy } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 type Branding = { id: string; name: string };
-type Fahrzeug = { id: string; fahrzeugname: string; preis: number };
+type Fahrzeug = { id: string; fahrzeugname: string; preis: number; aktiv: boolean };
 type Verkaeufer = {
   id: string;
   vorname: string;
@@ -54,7 +55,7 @@ const AdminVerkaeufer = () => {
     const [vRes, bRes, fRes, aRes] = await Promise.all([
       supabase.from("verkaeufer").select("*, brandings(id, name)").order("created_at", { ascending: false }),
       supabase.from("brandings").select("id, name").order("name"),
-      supabase.from("fahrzeuge").select("id, fahrzeugname, preis").order("fahrzeugname"),
+      supabase.from("fahrzeuge").select("id, fahrzeugname, preis, aktiv").order("fahrzeugname"),
       supabase.from("verkaeufer_fahrzeuge").select("verkaeufer_id"),
     ]);
     if (vRes.data) setVerkaeufer(vRes.data as Verkaeufer[]);
@@ -364,14 +365,17 @@ const AdminVerkaeufer = () => {
                 {fahrzeuge.map((f) => (
                   <label
                     key={f.id}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer"
+                    className={`flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer ${!f.aktiv ? "opacity-40" : ""}`}
                   >
                     <Checkbox
                       checked={selectedFahrzeuge.includes(f.id)}
                       onCheckedChange={() => toggleFahrzeug(f.id)}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{f.fahrzeugname}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-gray-900 truncate">{f.fahrzeugname}</p>
+                        {!f.aktiv && <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Deaktiviert</Badge>}
+                      </div>
                       <p className="text-xs text-gray-400">{Number(f.preis).toLocaleString("de-DE")} €</p>
                     </div>
                   </label>
