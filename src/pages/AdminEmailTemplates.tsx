@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tables } from "@/integrations/supabase/types";
 import { Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -207,11 +208,13 @@ const AdminEmailTemplates = () => {
   const [selectedBranding, setSelectedBranding] = useState<string>("");
   const [selectedFahrzeug, setSelectedFahrzeug] = useState<string>("");
   const [previewHtml, setPreviewHtml] = useState<string>("");
+  const [anfrageBetreff, setAnfrageBetreff] = useState<string>("");
 
   // Marketing state
   const [marketingBranding, setMarketingBranding] = useState<string>("");
   const [marketingVerkaeufer, setMarketingVerkaeufer] = useState<string>("");
   const [marketingPreviewHtml, setMarketingPreviewHtml] = useState<string>("");
+  const [marketingBetreff, setMarketingBetreff] = useState<string>("");
 
   useEffect(() => {
     const load = async () => {
@@ -232,6 +235,7 @@ const AdminEmailTemplates = () => {
     const fahrzeug = fahrzeuge.find((f) => f.id === selectedFahrzeug);
     if (!branding || !fahrzeug) return;
     setPreviewHtml(generateAnfrageEmail(branding, fahrzeug));
+    setAnfrageBetreff(`Ihre Anfrage – ${fahrzeug.fahrzeugname}`);
   };
 
   const handleMarketingPreview = () => {
@@ -239,6 +243,18 @@ const AdminEmailTemplates = () => {
     const vk = verkaeufer.find((v) => v.id === marketingVerkaeufer);
     if (!branding || !vk) return;
     setMarketingPreviewHtml(generateMarketingEmail(branding, vk));
+    if (!marketingBetreff) {
+      setMarketingBetreff(`Ausgewählte Fahrzeugangebote – ${branding.name}`);
+    }
+  };
+
+  const handleCopyBetreff = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Betreff kopiert", description: "Der Betreff wurde in die Zwischenablage kopiert." });
+    } catch {
+      toast({ title: "Fehler", description: "Betreff konnte nicht kopiert werden.", variant: "destructive" });
+    }
   };
 
   const handleCopyHtml = async () => {
@@ -286,6 +302,18 @@ const AdminEmailTemplates = () => {
           </Button>
         </div>
 
+        {anfrageBetreff && (
+          <div className="flex items-center gap-2">
+            <div className="space-y-1.5 flex-1">
+              <label className="text-sm font-medium text-muted-foreground">Betreff</label>
+              <Input value={anfrageBetreff} readOnly className="bg-muted" />
+            </div>
+            <Button variant="outline" size="icon" className="mt-6" onClick={() => handleCopyBetreff(anfrageBetreff)}>
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {previewHtml && (
           <div className="border border-border rounded-md overflow-hidden bg-muted">
             <iframe srcDoc={previewHtml} title="Email Vorschau" className="w-full border-0" style={{ minHeight: 700 }} />
@@ -332,6 +360,18 @@ const AdminEmailTemplates = () => {
             </Button>
           )}
         </div>
+
+        {marketingPreviewHtml && (
+          <div className="flex items-center gap-2">
+            <div className="space-y-1.5 flex-1">
+              <label className="text-sm font-medium text-muted-foreground">Betreff</label>
+              <Input value={marketingBetreff} onChange={(e) => setMarketingBetreff(e.target.value)} />
+            </div>
+            <Button variant="outline" size="icon" className="mt-6" onClick={() => handleCopyBetreff(marketingBetreff)}>
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
         {marketingPreviewHtml && (
           <div className="border border-border rounded-md overflow-hidden bg-muted">
