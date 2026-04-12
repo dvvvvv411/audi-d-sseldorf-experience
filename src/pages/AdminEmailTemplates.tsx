@@ -235,6 +235,7 @@ const AdminEmailTemplates = () => {
     const fahrzeug = fahrzeuge.find((f) => f.id === selectedFahrzeug);
     if (!branding || !fahrzeug) return;
     setPreviewHtml(generateAnfrageEmail(branding, fahrzeug));
+    setAnfrageBetreff(`Ihre Anfrage – ${fahrzeug.fahrzeugname}`);
   };
 
   const handleMarketingPreview = () => {
