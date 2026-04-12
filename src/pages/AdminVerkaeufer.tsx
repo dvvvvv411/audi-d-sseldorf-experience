@@ -54,7 +54,7 @@ const AdminVerkaeufer = () => {
     const [vRes, bRes, fRes, aRes] = await Promise.all([
       supabase.from("verkaeufer").select("*, brandings(id, name)").order("created_at", { ascending: false }),
       supabase.from("brandings").select("id, name").order("name"),
-      supabase.from("fahrzeuge").select("id, fahrzeugname, preis").order("fahrzeugname"),
+      supabase.from("fahrzeuge").select("id, fahrzeugname, preis, aktiv").order("fahrzeugname"),
       supabase.from("verkaeufer_fahrzeuge").select("verkaeufer_id"),
     ]);
     if (vRes.data) setVerkaeufer(vRes.data as Verkaeufer[]);
