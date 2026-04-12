@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Mail, Phone, Trash2, Pencil, Loader2, Upload, User, Car, Copy } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 type Branding = { id: string; name: string };
 type Fahrzeug = { id: string; fahrzeugname: string; preis: number; aktiv: boolean };
