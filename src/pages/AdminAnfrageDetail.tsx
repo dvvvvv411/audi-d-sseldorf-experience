@@ -84,6 +84,8 @@ export default function AdminAnfrageDetail() {
   const [editEmail, setEditEmail] = useState("");
   const [editTelefon, setEditTelefon] = useState("");
   const [contactSaving, setContactSaving] = useState(false);
+  const [editingContact, setEditingContact] = useState(false);
+  const [editingAdresse, setEditingAdresse] = useState(false);
 
   // Mailbox history
   const [mailboxClicks, setMailboxClicks] = useState<string[]>([]);
