@@ -1,50 +1,96 @@
 
 
-## Plan: Dashboard mit echten Daten, Anfragen-Layout, Kontaktdaten-UX
+## Telegram Notifications: Chat-IDs verwalten & Benachrichtigungen bei neuen Anfragen
 
-### 1. AdminDashboard.tsx -- Echte Daten statt Mockup
+### Uebersicht
 
-Kompletter Rewrite. Statt Mockdaten werden beim Laden echte Daten aus Supabase geholt:
+Bei jeder neuen Kundenanfrage wird parallel zum E-Mail-Versand eine Telegram-Nachricht an alle gespeicherten Chat-IDs gesendet. Dazu wird eine neue Admin-Seite zum Verwalten der Chat-IDs erstellt und die bestehende Edge Function erweitert.
 
-**Stats-Karten (obere Reihe):**
-- Fahrzeuge gesamt (aus `fahrzeuge` Tabelle, `aktiv = true`)
-- Neue Anfragen (aus `anfragen`, Status `Neu` oder `NEU`, `hidden != true`)
-- Offene Anfragen (Status nicht in `Überwiesen`, `Angekommen`, `Kein Interesse`)
-- Überwiesen/Angekommen (Status `Überwiesen` oder `Angekommen`)
+### 1. Telegram Bot Token als Secret
 
-**Tabellen (untere Reihe):**
-- "Neueste Anfragen" -- die 5 neuesten Anfragen aus DB, mit Name, Fahrzeug, Status, Datum. Klickbar -> navigiert zur Detail-Seite.
-- "Neueste Fahrzeuge" -- die 5 neuesten aktiven Fahrzeuge aus DB, mit Name, Preis.
+Der Bot-Token wird als Supabase Secret `TELEGRAM_BOT_TOKEN` gespeichert (via `add_secret` Tool). Der User muss vorher einen Bot bei @BotFather erstellen.
 
-Alles via `useEffect` + `useState` laden, mit Loading-Spinner.
+### 2. Datenbank: Neue Tabelle `telegram_chat_ids`
 
-### 2. AdminAnfragen.tsx -- Suchleiste neben Titel
+```sql
+CREATE TABLE public.telegram_chat_ids (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  chat_id text NOT NULL UNIQUE,
+  label text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
 
-Die aktuelle Struktur hat den Titel links und Suche+Button rechts in einer Zeile, aber die Suchleiste ist zu schmal und unauffällig.
+ALTER TABLE public.telegram_chat_ids ENABLE ROW LEVEL SECURITY;
 
-Änderung: Titel "Anfragen" als `h2`, daneben direkt die Suchleiste (breiter: `w-[400px]` statt `w-[300px]`), daneben der Ausgeblendete-Button. Alles in einer `flex items-center gap-3` Zeile.
+CREATE POLICY "Auth can select telegram_chat_ids" ON public.telegram_chat_ids
+  FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Auth can insert telegram_chat_ids" ON public.telegram_chat_ids
+  FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Auth can delete telegram_chat_ids" ON public.telegram_chat_ids
+  FOR DELETE TO authenticated USING (true);
+```
 
-### 3. AdminAnfrageDetail.tsx -- Kontaktdaten inline mit Edit-Modus
+### 3. Admin-Seite: `/admin/telegram`
 
-**Kontaktdaten (Name, E-Mail, Telefon):**
-- Standardmäßig als fester Text dargestellt (wie `DetailRow`), klickbar zum Kopieren.
-- Ein einzelner Stift-Button (Pencil-Icon) neben "Kontaktdaten" Überschrift.
-- Bei Klick auf Stift: alle 4 Felder werden zu Input-Feldern mit Speichern/Abbrechen Buttons.
-- State: `editingContact` boolean.
+Neue Seite `src/pages/AdminTelegram.tsx`:
+- Liste aller gespeicherten Chat-IDs mit Label und Loeschen-Button
+- Formular zum Hinzufuegen: Chat-ID (Pflicht) + optionales Label (z.B. "Max Handy")
+- "Test-Nachricht senden"-Button pro Zeile, der eine Testnachricht an diese Chat-ID schickt
 
-**Adresse:**
-- Standardmäßig als fester Text: `Straße, PLZ Stadt` oder "–" wenn alles leer.
-- Ein einzelner Stift-Button neben "Adresse" Überschrift.
-- Bei Klick: alle 3 Felder (Straße, PLZ, Stadt) werden zu Inputs mit Speichern/Abbrechen.
-- State: `editingAdresse` boolean.
+Navigation in `AdminLayout.tsx`: Neuer Eintrag in `verwaltungNav` mit `MessageCircle`-Icon (aus lucide-react), Pfad `/admin/telegram`.
 
-**Copy-Buttons entfernen:** Keine separaten Copy-Buttons mehr. Klick auf den Text selbst kopiert den Wert (bereits im `DetailRow` onClick vorhanden, muss nur für Name/Email/Telefon angewendet werden).
+Route in `App.tsx`: `<Route path="telegram" element={<AdminTelegram />} />` innerhalb der Admin-Route.
+
+### 4. Edge Function erweitern: `send-anfrage-email`
+
+Die bestehende Edge Function wird um Telegram-Versand erweitert. Nach dem erfolgreichen E-Mail-Versand (oder parallel dazu):
+
+1. Alle Chat-IDs aus `telegram_chat_ids` laden
+2. An jede Chat-ID eine formatierte Nachricht senden via Telegram Bot API (`https://api.telegram.org/bot{TOKEN}/sendMessage`)
+
+**Nachrichtenformat** (HTML parse_mode):
+```
+🚗 Neue Anfrage eingegangen!
+
+Name: Max Mustermann
+📞 +49 123 456789
+📧 max@example.com
+
+Fahrzeug: Audi A4 Avant 2.0 TDI
+Preis: 45.900 €
+```
+
+Der Edge-Function-Body bleibt gleich (`branding_id`, `fahrzeug_id`, `kunde_email`). Zusaetzlich werden `kunde_name`, `kunde_telefon` hinzugefuegt, damit die Telegram-Nachricht diese Daten hat.
+
+### 5. Frontend: Anfrage-Submission anpassen
+
+In `Gebrauchtwagen.tsx` beim `supabase.functions.invoke("send-anfrage-email", ...)` zusaetzlich `kunde_name` und `kunde_telefon` im Body mitsenden:
+
+```ts
+body: {
+  branding_id: v.branding_id,
+  fahrzeug_id: fahrzeug.id,
+  kunde_email: anfrageForm.email.trim(),
+  kunde_name: `${anfrageForm.vorname.trim()} ${anfrageForm.nachname.trim()}`,
+  kunde_telefon: anfrageForm.telefon.trim(),
+}
+```
+
+### 6. Test-Edge-Function: `send-telegram-test`
+
+Separate kleine Edge Function fuer den "Test senden"-Button auf der Admin-Seite. Nimmt `chat_id` und `message` entgegen und sendet via Bot API.
 
 ### Dateien
 
-| Datei | Änderung |
+| Datei | Aenderung |
 |---|---|
-| `src/pages/AdminDashboard.tsx` | Komplett neu: echte Daten aus Supabase |
-| `src/pages/AdminAnfragen.tsx` | Suchleiste breiter, direkt neben Titel |
-| `src/pages/AdminAnfrageDetail.tsx` | Kontaktdaten + Adresse: inline-Text mit Edit-Modus, Copy-Buttons entfernen |
+| Migration | Neue Tabelle `telegram_chat_ids` |
+| Secret | `TELEGRAM_BOT_TOKEN` hinzufuegen |
+| `src/pages/AdminTelegram.tsx` | NEU -- Chat-ID Verwaltung |
+| `src/pages/AdminLayout.tsx` | Neuer Nav-Eintrag "Telegram" |
+| `src/App.tsx` | Neue Route `/admin/telegram` |
+| `supabase/functions/send-anfrage-email/index.ts` | Telegram-Versand nach E-Mail |
+| `supabase/functions/send-telegram-test/index.ts` | NEU -- Test-Nachricht senden |
+| `src/pages/Gebrauchtwagen.tsx` | `kunde_name` + `kunde_telefon` mitsenden |
+| `src/integrations/supabase/types.ts` | Wird automatisch aktualisiert |
 
