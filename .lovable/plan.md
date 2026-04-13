@@ -1,73 +1,34 @@
 
 
-## Umfangreiche Erweiterungen: Anfragen-Seite & Detail-Seite
+## Erweiterungen: Expose-Button, Kontaktdaten bearbeiten, Mailbox-Verlauf
 
-### 1. Datenbank-Migration
+### 1. AdminAnfragen.tsx -- Expose-Button in Tabelle
 
-Neue Spalten in `anfragen`-Tabelle fuer Adressdaten und Ausblendung:
+Neuer Button (FileText-Icon) in der Aktions-Spalte neben dem Angebot-Button. Bei Klick oeffnet sich ein Dialog mit:
+- Drei vorausgefuellte Select-Felder (Fahrzeug, Verkaeufer, Branding) -- vorausgewaehlt anhand der Anfrage-Daten (`fahrzeug_id`, `verkaeufer_id`, `branding_name`-Abgleich)
+- "Expose erstellen"-Button der die `generateExposePdf`-Funktion aus AdminExposes aufruft
+- "PDF herunterladen"-Button nach Generierung
 
-```sql
-ALTER TABLE anfragen ADD COLUMN hidden boolean NOT NULL DEFAULT false;
-ALTER TABLE anfragen ADD COLUMN strasse text;
-ALTER TABLE anfragen ADD COLUMN plz text;
-ALTER TABLE anfragen ADD COLUMN stadt text;
-```
+Dafuer muss die `generateExposePdf`-Funktion und ihre Hilfsfunktionen aus `AdminExposes.tsx` in eine geteilte Datei extrahiert werden (z.B. `src/lib/expose-pdf.ts`), damit beide Seiten sie nutzen koennen. Zusaetzlich muessen `fahrzeuge`, `verkaeufer` und `brandings` im AdminAnfragen geladen werden.
 
-### 2. AdminAnfragen.tsx -- Suchleiste, Ausblenden, neue Status
+### 2. AdminAnfrageDetail.tsx -- Kontaktdaten bearbeitbar
 
-**Suchleiste**: Input-Feld ueber der Tabelle, filtert `anfragen` clientseitig nach Name (`vorname`/`nachname`), E-Mail, Telefon, Fahrzeug (`fahrzeug_name`). Case-insensitive Substring-Suche.
+Name (Vorname/Nachname), E-Mail und Telefon als editierbare Felder darstellen. Aehnlich wie die Adressfelder: Input-Felder mit einem "Speichern"-Button. State-Variablen: `editVorname`, `editNachname`, `editEmail`, `editTelefon`, initialisiert aus `anfrage`. Speicherung via `supabase.from("anfragen").update(...)`.
 
-**Ausblenden-Button**: Neuer Button (EyeOff-Icon) pro Zeile in der Aktions-Spalte. Setzt `hidden = true` via Supabase-Update. Ausgeblendete Zeilen werden standardmaessig nicht angezeigt.
+### 3. AdminAnfrageDetail.tsx -- Expose-Button
 
-**Ausgeblendete anzeigen**: Toggle-Button neben der Suchleiste ("Ausgeblendete anzeigen"). Wenn aktiv, zeigt NUR die ausgeblendeten Anfragen. In diesem Modus bekommt jede Zeile einen "Wieder einblenden"-Button (Eye-Icon).
+In der Aktionsbuttons-Sektion (Zeile 286-300) einen weiteren Button "Expose erstellen" hinzufuegen. Bei Klick oeffnet sich derselbe Dialog wie in der Tabelle -- vorausgefuellt mit Fahrzeug, Verkaeufer und Branding der Anfrage.
 
-**Status-Aenderungen**: `statusOptions` und `statusColors` komplett ersetzen:
+### 4. AdminAnfrageDetail.tsx -- Mailbox-Verlauf Card
 
-| Status | Farbe |
-|---|---|
-| Neu | gray |
-| In Bearbeitung | blue |
-| Moechte Daten | yellow |
-| Service gesendet | cyan |
-| Moechte Angebot | indigo (NEU) |
-| Angebot gesendet | emerald |
-| Moechte Rechnung | orange |
-| Rechnung gesendet | purple |
-| Ueberwiesen (vorher "Bezahlt") | green |
-| Angekommen | lime (NEU) |
-| Kein Interesse | red (NEU) |
-
-### 3. AdminAnfrageDetail.tsx -- Kopieren, Adresse, Aktionsbuttons
-
-**Kopieren bei Klick**: Name-, E-Mail- und Telefon-Werte in der Kontaktdaten-Card klickbar machen (cursor-pointer, hover:underline). Bei Klick -> `navigator.clipboard.writeText()` + Toast.
-
-**Adressfelder**: Drei optionale Felder (Strasse & Hausnummer, PLZ, Stadt) in der Kontaktdaten-Card. Als editierbare Input-Felder dargestellt, gespeichert via Supabase-Update bei Aenderung (onBlur oder mit Save-Button). State: `adresseStrasse`, `adressePlz`, `adresseStadt`, initialisiert aus `anfrage`.
-
-**Aktionsbuttons-Sektion**: Neue full-width Card zwischen Header und den Kontakt/Nachricht-Cards. Enthaelt die gleichen Buttons wie in der Tabelle:
-- Notizen (StickyNote) -- scrollt zu Notizen-Bereich
-- Mailbox (Mail) -- Mailbox-Klick loggen
-- Angebot erstellen (Receipt) -- navigiert zu `/admin/angebote` mit vorausgefuellten Params (inkl. Adressdaten wenn vorhanden)
-- Status-Dropdown (bereits im Header vorhanden, bleibt dort)
-
-**Status**: Gleiche aktualisierte statusOptions/statusColors wie in AdminAnfragen.
-
-### 4. AdminAngebote.tsx -- Adress-Parameter uebernehmen
-
-URL-Parameter erweitern um `strasse`, `plz`, `stadt`. Beim Prefill die entsprechenden Felder (`interessentStrasse`, `interessentPlzStadt`) setzen.
-
-### 5. Angebot-Navigation aus Detail-Seite
-
-Der Receipt-Button navigiert zu:
-```
-/admin/angebote?fahrzeug={id}&verkaeufer={id}&branding={name}&name={name}&strasse={strasse}&plz={plz}&stadt={stadt}
-```
+Neue Card (nach der Verkaeuter-Card, Zeile 445) mit lila/rotem Akzent. Laedt `mailbox_clicks` fuer die aktuelle Anfrage-ID und zeigt eine chronologische Liste der Zeitstempel an. Gleiche Darstellung wie im Popup in der Tabelle.
 
 ### Dateien
 
 | Datei | Aenderung |
 |---|---|
-| Migration | 4 neue Spalten: hidden, strasse, plz, stadt |
-| `src/pages/AdminAnfragen.tsx` | Suchleiste, Hide/Show-Toggle, Hide-Button pro Zeile, neue Status |
-| `src/pages/AdminAnfrageDetail.tsx` | Kopier-Funktion, Adressfelder, Aktionsbuttons-Sektion, neue Status |
-| `src/pages/AdminAngebote.tsx` | Adress-URL-Params auslesen und vorausfuellen |
+| `src/lib/expose-pdf.ts` | NEU -- `generateExposePdf` und Hilfsfunktionen aus AdminExposes extrahiert |
+| `src/pages/AdminExposes.tsx` | Import aus `expose-pdf.ts` statt lokaler Definition |
+| `src/pages/AdminAnfragen.tsx` | Expose-Button + Dialog, Laden von fahrzeuge/verkaeufer/brandings |
+| `src/pages/AdminAnfrageDetail.tsx` | Kontaktdaten editierbar, Expose-Button+Dialog, Mailbox-Verlauf Card |
 
