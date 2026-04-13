@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp } from "lucide-react";
+import { Eye, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp, Receipt } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,9 @@ interface Anfrage {
   nachricht: string;
   fahrzeug_name: string;
   fahrzeug_preis: number;
+  fahrzeug_id: string;
   verkaeufer_name: string;
+  verkaeufer_id: string;
   branding_name: string;
   status: string;
   notizen: string | null;
@@ -39,7 +41,7 @@ interface LogEntry {
 }
 
 const statusOptions = [
-  "Neu", "In Bearbeitung", "Möchte Daten", "Möchte Rechnung", "Rechnung versendet", "Bezahlt"
+  "Neu", "In Bearbeitung", "Möchte Daten", "Möchte Rechnung", "Rechnung versendet", "Bezahlt", "Service gesendet", "Angebot gesendet"
 ];
 
 const statusColors: Record<string, string> = {
@@ -50,6 +52,8 @@ const statusColors: Record<string, string> = {
   "Möchte Rechnung": "bg-orange-100 text-orange-800",
   "Rechnung versendet": "bg-purple-100 text-purple-800",
   "Bezahlt": "bg-green-100 text-green-800",
+  "Service gesendet": "bg-cyan-100 text-cyan-800",
+  "Angebot gesendet": "bg-emerald-100 text-emerald-800",
 };
 
 const displayStatus = (s: string) => s === "NEU" ? "Neu" : s;
@@ -406,6 +410,19 @@ export default function AdminAnfragen() {
                             </span>
                           )}
                         </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                              onClick={() => navigate(`/admin/angebote?fahrzeug=${a.fahrzeug_id}&verkaeufer=${a.verkaeufer_id}&branding=${encodeURIComponent(a.branding_name)}&name=${encodeURIComponent(`${a.vorname} ${a.nachname}`)}`)}
+                            >
+                              <Receipt className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Angebot erstellen</TooltipContent>
+                        </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button

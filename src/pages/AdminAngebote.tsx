@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -189,7 +190,13 @@ async function generateAngebotPdf(
   // GW Plus image
   if (gwPlusImg) {
     const imgW = contentW;
-    const imgH = imgW * 0.45; // approximate aspect ratio
+    // Calculate actual aspect ratio from image
+    const imgEl = new Image();
+    const imgH = await new Promise<number>((resolve) => {
+      imgEl.onload = () => resolve(imgW * (imgEl.naturalHeight / imgEl.naturalWidth));
+      imgEl.onerror = () => resolve(imgW * 0.45);
+      imgEl.src = gwPlusImg;
+    });
     doc.addImage(gwPlusImg, "JPEG", marginL, y, imgW, imgH);
     y += imgH + 6;
   }
@@ -266,19 +273,13 @@ async function generateAngebotPdf(
     y += 5;
   };
 
-  drawLine(y - 2);
-  y += 2;
-
   drawPriceRow("Fahrzeugpreis", formatEur(fahrzeug.preis), true);
   drawPriceRow("- Nachlass", formatEur(nachlass), false);
-  drawLine(y - 2);
-  y += 1;
   drawPriceRow("Zwischensumme", formatEur(zwischensumme), true);
   drawPriceRow("Kostenlose Lieferung", "0,00", false);
   drawLine(y - 2);
   y += 1;
   drawPriceRow("Gesamtsumme", formatEur(gesamtsumme), true);
-  drawLine(y - 2);
   y += 4;
 
   doc.setFont("helvetica", "normal");
@@ -350,18 +351,6 @@ async function generateAngebotPdf(
       y += lineH;
     }
 
-    // Disclaimer at end
-    y += 4;
-    if (y > 255) {
-      y = startEquipmentPage();
-    }
-    doc.setFontSize(7);
-    doc.setTextColor(100);
-    doc.text("Angaben ohne Gewähr", marginL, y);
-    y += 3.5;
-    doc.text("Im Zuge der optischen Aufbereitung sind Teil- und Nachlackierungen nicht ausgeschlossen.", marginL, y);
-    doc.setTextColor(0);
-
     // Page code
     doc.setFontSize(7);
     doc.text("ABC_02_01", pageW - marginR, 285, { align: "right" });
@@ -374,6 +363,8 @@ const AdminAngebote = () => {
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [verkaeufer, setVerkaeufer] = useState<Verkaeufer[]>([]);
   const [brandings, setBrandings] = useState<Branding[]>([]);
+
+  const [searchParams] = useSearchParams();
 
   const [selectedFahrzeugId, setSelectedFahrzeugId] = useState("");
   const [selectedVerkaeuferId, setSelectedVerkaeuferId] = useState("");
@@ -395,12 +386,29 @@ const AdminAngebote = () => {
         supabase.from("verkaeufer").select("*").order("nachname"),
         supabase.from("brandings").select("*").order("name"),
       ]);
-      setFahrzeuge((fRes.data as Fahrzeug[]) ?? []);
-      setVerkaeufer((vRes.data as Verkaeufer[]) ?? []);
-      setBrandings((bRes.data as Branding[]) ?? []);
+      const fData = (fRes.data as Fahrzeug[]) ?? [];
+      const vData = (vRes.data as Verkaeufer[]) ?? [];
+      const bData = (bRes.data as Branding[]) ?? [];
+      setFahrzeuge(fData);
+      setVerkaeufer(vData);
+      setBrandings(bData);
+
+      // Prefill from URL params
+      const paramFahrzeug = searchParams.get("fahrzeug");
+      const paramVerkaeufer = searchParams.get("verkaeufer");
+      const paramBranding = searchParams.get("branding");
+      const paramName = searchParams.get("name");
+
+      if (paramFahrzeug && fData.some((f) => f.id === paramFahrzeug)) setSelectedFahrzeugId(paramFahrzeug);
+      if (paramVerkaeufer && vData.some((v) => v.id === paramVerkaeufer)) setSelectedVerkaeuferId(paramVerkaeufer);
+      if (paramBranding) {
+        const match = bData.find((b) => b.name === paramBranding);
+        if (match) setSelectedBrandingId(match.id);
+      }
+      if (paramName) setInteressentName(decodeURIComponent(paramName));
     };
     fetchData();
-  }, []);
+  }, [searchParams]);
 
   const selectedFahrzeug = fahrzeuge.find((f) => f.id === selectedFahrzeugId);
   const selectedVerkaeuferObj = verkaeufer.find((v) => v.id === selectedVerkaeuferId);
