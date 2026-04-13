@@ -1,26 +1,33 @@
 
+Ziel: Das falsche Mail-Logo in `supabase/functions/send-anfrage-email/index.ts` sauber ersetzen.
 
-## Fix: Echtes Audi Logo in der Anfrage-Bestaetigungs-E-Mail
+Problem
+- Aktuell steckt dort ein hartcodiertes Base64-PNG.
+- Dieses PNG ist offensichtlich falsch erzeugt bzw. falsch gecroppt/skaliert: Im Screenshot sieht man nur einen kleinen/verrutschten Teil der Ringe auf schwarzem Hintergrund.
+- Das eigentliche Audi-SVG ist vorhanden; für E-Mail-Clients muss es aber als korrekt erzeugtes weißes PNG eingebettet werden.
 
-### Problem
-Die E-Mail verwendet derzeit inline-SVG-Kreise als Logo-Ersatz. Viele E-Mail-Clients (Outlook, Gmail) rendern inline-SVGs nicht. Das echte Audi-Logo aus `public/images/Audi.svg` wird nicht verwendet.
+Umsetzung
+1. In `supabase/functions/send-anfrage-email/index.ts` das aktuelle defekte `data:image/png;base64,...` komplett entfernen.
+2. Das von dir bereitgestellte Audi-Logo als Ausgangsbasis nehmen und eine weiße Variante erzeugen:
+   - gleicher Pfad / gleiche Proportionen
+   - weiß auf transparentem Hintergrund
+   - korrekt auf den Inhalt gecroppt, ohne riesige leere Fläche
+3. Diese weiße Variante als neues Base64-PNG in das `<img>` im schwarzen Mail-Header einbetten.
+4. Im `<img>` feste sinnvolle Maße setzen, damit nichts verzerrt:
+   - Breite ca. 150–160px
+   - Höhe proportional
+   - `display:block; margin:0 auto; border:0; outline:none; text-decoration:none;`
+5. Sicherstellen, dass nur das echte Audi-Logo verwendet wird und keine gezeichnete Ersatzgrafik / kein fehlerhaftes altes PNG mehr.
 
-### Loesung
+Technische Details
+- Datei: `supabase/functions/send-anfrage-email/index.ts`
+- Austausch nur im Header-Bereich der HTML-Mail
+- Das Logo bleibt als Base64-PNG eingebettet, weil das in E-Mail-Clients deutlich zuverlässiger ist als SVG als `img`
+- Wichtig ist diesmal nicht nur “weiß”, sondern auch:
+  - korrektes Seitenverhältnis
+  - enger Zuschnitt um die Ringe
+  - transparente Fläche statt schwarzer Rasterfehler
+  - keine Verzerrung durch falsche Width/Height-Kombination
 
-**In `supabase/functions/send-anfrage-email/index.ts`:**
-
-1. Das inline-SVG (Zeilen 23-29, die 4 Kreise) durch ein `<img>`-Tag ersetzen, das auf das gehostete Audi-Logo zeigt
-2. Das Logo als weisse Version verwenden (weisser `fill` auf schwarzem Header-Hintergrund)
-3. Da E-Mail-Clients keine SVGs als `<img src>` unterstuetzen, wird das Logo als **Base64-kodiertes PNG** inline eingebettet (`src="data:image/png;base64,..."`)
-
-**Konkret:**
-- Eine weisse Version des Audi-SVG (gleicher Path, `fill="#ffffff"`) als Base64-PNG direkt in die Edge Function einbetten
-- Das garantiert Darstellung in allen E-Mail-Clients (Gmail, Outlook, Apple Mail)
-- Breite: ~160px, zentriert im schwarzen Header
-
-### Dateien
-
-| Datei | Aenderung |
-|---|---|
-| `supabase/functions/send-anfrage-email/index.ts` | Inline-SVG-Kreise durch Base64-PNG des echten Audi-Logos (weiss) ersetzen |
-
+Ergebnis
+- In der Anfrage-Bestätigung erscheint das Audi-Logo korrekt, mittig, weiß und vollständig sichtbar auf dem schwarzen Balken.
