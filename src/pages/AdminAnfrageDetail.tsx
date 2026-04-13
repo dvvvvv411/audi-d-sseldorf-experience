@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Save, User, Mail, Phone, Calendar,
   Car, Fuel, Gauge, Palette, CreditCard, Quote,
-  StickyNote, MapPin, Cog, Zap, Hash
+  StickyNote, MapPin, Cog, Zap, Hash, Receipt, Copy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -30,10 +31,14 @@ interface Anfrage {
   branding_name: string;
   status: string;
   notizen: string | null;
+  strasse?: string | null;
+  plz?: string | null;
+  stadt?: string | null;
 }
 
 const statusOptions = [
-  "Neu", "In Bearbeitung", "Möchte Daten", "Möchte Rechnung", "Rechnung versendet", "Bezahlt"
+  "Neu", "In Bearbeitung", "Möchte Daten", "Service gesendet", "Möchte Angebot",
+  "Angebot gesendet", "Möchte Rechnung", "Rechnung gesendet", "Überwiesen", "Angekommen", "Kein Interesse"
 ];
 
 const statusColors: Record<string, string> = {
@@ -41,9 +46,14 @@ const statusColors: Record<string, string> = {
   "NEU": "bg-gray-100 text-gray-800 border-gray-200",
   "In Bearbeitung": "bg-blue-100 text-blue-800 border-blue-200",
   "Möchte Daten": "bg-yellow-100 text-yellow-800 border-yellow-200",
+  "Service gesendet": "bg-cyan-100 text-cyan-800 border-cyan-200",
+  "Möchte Angebot": "bg-indigo-100 text-indigo-800 border-indigo-200",
+  "Angebot gesendet": "bg-emerald-100 text-emerald-800 border-emerald-200",
   "Möchte Rechnung": "bg-orange-100 text-orange-800 border-orange-200",
-  "Rechnung versendet": "bg-purple-100 text-purple-800 border-purple-200",
-  "Bezahlt": "bg-green-100 text-green-800 border-green-200",
+  "Rechnung gesendet": "bg-purple-100 text-purple-800 border-purple-200",
+  "Überwiesen": "bg-green-100 text-green-800 border-green-200",
+  "Angekommen": "bg-lime-100 text-lime-800 border-lime-200",
+  "Kein Interesse": "bg-red-100 text-red-800 border-red-200",
 };
 
 const displayStatus = (s: string) => s === "NEU" ? "Neu" : s;
@@ -59,6 +69,11 @@ export default function AdminAnfrageDetail() {
   const [loading, setLoading] = useState(true);
   const [fahrzeug, setFahrzeug] = useState<any>(null);
   const [verkaeufer, setVerkaeufer] = useState<any>(null);
+  const [adresseStrasse, setAdresseStrasse] = useState("");
+  const [adressePlz, setAdressePlz] = useState("");
+  const [adresseStadt, setAdresseStadt] = useState("");
+  const [adresseSaving, setAdresseSaving] = useState(false);
+  const notizenRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -70,6 +85,9 @@ export default function AdminAnfrageDetail() {
         .single();
       if (data) {
         setAnfrage(data);
+        setAdresseStrasse(data.strasse || "");
+        setAdressePlz(data.plz || "");
+        setAdresseStadt(data.stadt || "");
         const [fzRes, vkRes, notizenRes] = await Promise.all([
           supabase.from("fahrzeuge").select("*").eq("id", data.fahrzeug_id).single(),
           supabase.from("verkaeufer").select("*").eq("id", data.verkaeufer_id).single(),
@@ -83,6 +101,11 @@ export default function AdminAnfrageDetail() {
     };
     load();
   }, [id]);
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Kopiert", description: `${label} wurde kopiert.` });
+  };
 
   const handleStatusChange = async (newStatus: string) => {
     if (!anfrage || !id) return;
@@ -104,6 +127,21 @@ export default function AdminAnfrageDetail() {
       });
     }
     toast({ title: "Status geändert", description: `${displayStatus(oldStatus)} → ${newStatus}` });
+  };
+
+  const saveAdresse = async () => {
+    if (!id) return;
+    setAdresseSaving(true);
+    await supabase.from("anfragen").update({
+      strasse: adresseStrasse || null,
+      plz: adressePlz || null,
+      stadt: adresseStadt || null,
+    } as any).eq("id", id);
+    if (anfrage) {
+      setAnfrage({ ...anfrage, strasse: adresseStrasse || null, plz: adressePlz || null, stadt: adresseStadt || null });
+    }
+    toast({ title: "Adresse gespeichert" });
+    setAdresseSaving(false);
   };
 
   const addNotiz = async () => {
@@ -131,6 +169,35 @@ export default function AdminAnfrageDetail() {
     setSaving(false);
   };
 
+  const handleMailboxClick = async () => {
+    if (!id || !anfrage) return;
+    await supabase.from("mailbox_clicks").insert({ anfrage_id: id } as any);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("aktivitaets_log").insert({
+        user_email: user.email || "",
+        aktion: "mailbox_klick",
+        anfrage_id: id,
+        details: `${anfrage.vorname} ${anfrage.nachname}`,
+      });
+    }
+    toast({ title: "Mailbox-Klick registriert" });
+  };
+
+  const navigateToAngebot = () => {
+    if (!anfrage) return;
+    const params = new URLSearchParams({
+      fahrzeug: anfrage.fahrzeug_id,
+      verkaeufer: anfrage.verkaeufer_id,
+      branding: anfrage.branding_name,
+      name: `${anfrage.vorname} ${anfrage.nachname}`,
+    });
+    if (adresseStrasse) params.set("strasse", adresseStrasse);
+    if (adressePlz && adresseStadt) params.set("plzstadt", `${adressePlz} ${adresseStadt}`);
+    else if (adresseStadt) params.set("plzstadt", adresseStadt);
+    navigate(`/admin/angebote?${params.toString()}`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -155,12 +222,14 @@ export default function AdminAnfrageDetail() {
     </div>
   );
 
-  const DetailRow = ({ icon, iconColor, label, value, href }: { icon: any; iconColor: string; label: string; value: string | null | undefined; href?: string }) => (
+  const DetailRow = ({ icon, iconColor, label, value, href, onClick }: { icon: any; iconColor: string; label: string; value: string | null | undefined; href?: string; onClick?: () => void }) => (
     <div className="flex items-center gap-3 py-2.5">
       <IconBadge icon={icon} color={iconColor} />
       <div className="min-w-0 flex-1">
         <p className="text-xs text-gray-400 uppercase tracking-wide">{label}</p>
-        {href && value ? (
+        {onClick && value ? (
+          <p className="text-sm font-medium text-gray-900 cursor-pointer hover:underline hover:text-blue-600 transition-colors" onClick={onClick}>{value}</p>
+        ) : href && value ? (
           <a href={href} className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline">{value}</a>
         ) : (
           <p className="text-sm font-medium text-gray-900">{value || "–"}</p>
@@ -188,7 +257,7 @@ export default function AdminAnfrageDetail() {
       </button>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div className="flex items-center gap-4">
           <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 text-blue-700">
             <User className="w-6 h-6" />
@@ -212,6 +281,24 @@ export default function AdminAnfrageDetail() {
         </Select>
       </div>
 
+      {/* Aktionsbuttons */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-6">
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => notizenRef.current?.scrollIntoView({ behavior: "smooth" })}>
+            <StickyNote className="w-4 h-4" />
+            Notizen
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={handleMailboxClick}>
+            <Mail className="w-4 h-4" />
+            Mailbox
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={navigateToAngebot}>
+            <Receipt className="w-4 h-4" />
+            Angebot erstellen
+          </Button>
+        </div>
+      </div>
+
       {/* Row 1: Kontakt + Nachricht */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Kontaktdaten */}
@@ -223,10 +310,44 @@ export default function AdminAnfrageDetail() {
               Kontaktdaten
             </h3>
             <div className="space-y-1">
-              <DetailRow icon={User} iconColor="bg-blue-50 text-blue-600" label="Name" value={`${anfrage.vorname} ${anfrage.nachname}`} />
-              <DetailRow icon={Mail} iconColor="bg-blue-50 text-blue-600" label="E-Mail" value={anfrage.email} href={`mailto:${anfrage.email}`} />
-              <DetailRow icon={Phone} iconColor="bg-blue-50 text-blue-600" label="Telefon" value={anfrage.telefon} href={`tel:${anfrage.telefon}`} />
+              <DetailRow icon={User} iconColor="bg-blue-50 text-blue-600" label="Name" value={`${anfrage.vorname} ${anfrage.nachname}`} onClick={() => copyToClipboard(`${anfrage.vorname} ${anfrage.nachname}`, "Name")} />
+              <DetailRow icon={Mail} iconColor="bg-blue-50 text-blue-600" label="E-Mail" value={anfrage.email} onClick={() => copyToClipboard(anfrage.email, "E-Mail")} />
+              <DetailRow icon={Phone} iconColor="bg-blue-50 text-blue-600" label="Telefon" value={anfrage.telefon} onClick={() => copyToClipboard(anfrage.telefon, "Telefon")} />
               <DetailRow icon={Calendar} iconColor="bg-blue-50 text-blue-600" label="Eingegangen" value={formatDate(anfrage.created_at)} />
+            </div>
+
+            {/* Adressfelder */}
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <h4 className="text-xs text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5" />
+                Adresse (optional)
+              </h4>
+              <div className="space-y-2">
+                <Input
+                  value={adresseStrasse}
+                  onChange={(e) => setAdresseStrasse(e.target.value)}
+                  placeholder="Straße & Hausnummer"
+                  className="h-8 text-sm"
+                />
+                <div className="grid grid-cols-3 gap-2">
+                  <Input
+                    value={adressePlz}
+                    onChange={(e) => setAdressePlz(e.target.value)}
+                    placeholder="PLZ"
+                    className="h-8 text-sm"
+                  />
+                  <Input
+                    value={adresseStadt}
+                    onChange={(e) => setAdresseStadt(e.target.value)}
+                    placeholder="Stadt"
+                    className="h-8 text-sm col-span-2"
+                  />
+                </div>
+                <Button size="sm" variant="outline" className="gap-1.5 mt-1" onClick={saveAdresse} disabled={adresseSaving}>
+                  <Save className="w-3.5 h-3.5" />
+                  Speichern
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -281,7 +402,7 @@ export default function AdminAnfrageDetail() {
         </div>
 
         {/* Notizen */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+        <div ref={notizenRef} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
           <div className="h-1 bg-gray-400" />
           <div className="p-6 flex flex-col h-full">
             <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -331,7 +452,6 @@ export default function AdminAnfrageDetail() {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-            {/* Spalte 1: Avatar + Name */}
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-11 h-11 rounded-full bg-purple-100 text-purple-700 font-bold text-sm">
                 {initials}
@@ -342,12 +462,10 @@ export default function AdminAnfrageDetail() {
               </div>
             </div>
 
-            {/* Spalte 2: E-Mail */}
             {verkaeufer && (
               <DetailRow icon={Mail} iconColor="bg-purple-50 text-purple-600" label="E-Mail" value={verkaeufer.email} href={`mailto:${verkaeufer.email}`} />
             )}
 
-            {/* Spalte 3: Telefon */}
             {verkaeufer && (
               <DetailRow icon={Phone} iconColor="bg-purple-50 text-purple-600" label="Telefon" value={verkaeufer.telefon} href={`tel:${verkaeufer.telefon}`} />
             )}

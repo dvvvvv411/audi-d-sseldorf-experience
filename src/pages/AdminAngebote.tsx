@@ -395,6 +395,8 @@ const AdminAngebote = () => {
       const paramVerkaeufer = searchParams.get("verkaeufer");
       const paramBranding = searchParams.get("branding");
       const paramName = searchParams.get("name");
+      const paramStrasse = searchParams.get("strasse");
+      const paramPlzStadt = searchParams.get("plzstadt");
 
       if (paramFahrzeug && fData.some((f) => f.id === paramFahrzeug)) setSelectedFahrzeugId(paramFahrzeug);
       if (paramVerkaeufer && vData.some((v) => v.id === paramVerkaeufer)) setSelectedVerkaeuferId(paramVerkaeufer);
@@ -403,6 +405,8 @@ const AdminAngebote = () => {
         if (match) setSelectedBrandingId(match.id);
       }
       if (paramName) setInteressentName(decodeURIComponent(paramName));
+      if (paramStrasse) setInteressentStrasse(decodeURIComponent(paramStrasse));
+      if (paramPlzStadt) setInteressentPlzStadt(decodeURIComponent(paramPlzStadt));
     };
     fetchData();
   }, [searchParams]);
