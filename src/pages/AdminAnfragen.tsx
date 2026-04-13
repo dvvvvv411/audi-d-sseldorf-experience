@@ -654,6 +654,62 @@ export default function AdminAnfragen() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Expose Dialog */}
+      <Dialog open={!!exposeDialogAnfrage} onOpenChange={(open) => { if (!open) { setExposeDialogAnfrage(null); setExposePdfBlob(null); } }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Exposé erstellen – {exposeDialogAnfrage?.fahrzeug_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-600">Fahrzeug</label>
+              <Select value={exposeSelectedFahrzeugId} onValueChange={setExposeSelectedFahrzeugId}>
+                <SelectTrigger><SelectValue placeholder="Fahrzeug wählen…" /></SelectTrigger>
+                <SelectContent>
+                  {exposeFahrzeuge.map((f) => (
+                    <SelectItem key={f.id} value={f.id}>{f.fahrzeugname}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-600">Verkäufer</label>
+              <Select value={exposeSelectedVerkaeuferId} onValueChange={setExposeSelectedVerkaeuferId}>
+                <SelectTrigger><SelectValue placeholder="Verkäufer wählen…" /></SelectTrigger>
+                <SelectContent>
+                  {exposeVerkaeufer.map((v) => (
+                    <SelectItem key={v.id} value={v.id}>{v.vorname} {v.nachname}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-600">Branding</label>
+              <Select value={exposeSelectedBrandingId} onValueChange={setExposeSelectedBrandingId}>
+                <SelectTrigger><SelectValue placeholder="Branding wählen…" /></SelectTrigger>
+                <SelectContent>
+                  {exposeBrandings.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-3">
+              <Button onClick={handleExposeGenerate} disabled={!exposeSelectedFahrzeugId || !exposeSelectedVerkaeuferId || !exposeSelectedBrandingId || exposeGenerating}>
+                {exposeGenerating ? <Loader2 className="animate-spin w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                {exposeGenerating ? "Wird erstellt…" : "Exposé erstellen"}
+              </Button>
+              {exposePdfBlob && (
+                <Button variant="outline" onClick={handleExposeDownload}>
+                  <Download className="w-4 h-4" />
+                  PDF herunterladen
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
