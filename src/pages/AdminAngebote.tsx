@@ -451,7 +451,8 @@ const AdminAngebote = () => {
     const a = document.createElement("a");
     a.href = url;
     const safeName = selectedFahrzeug.fahrzeugname.replace(/[^a-zA-Z0-9äöüÄÖÜß\-_ ]/g, "").replace(/\s+/g, "_");
-    a.download = `${safeName}_Angebot.pdf`;
+    const safePerson = interessentName.replace(/[^a-zA-Z0-9äöüÄÖÜß\-_ ]/g, "").replace(/\s+/g, "_");
+    a.download = `${safeName}_Angebot_${safePerson}.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
