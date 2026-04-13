@@ -1,25 +1,18 @@
 
 
-## Fix: Disclaimer-Text im Footer nutzt volle Breite
+## Fixes: Audi Logo Verzerrung + Hardcoded "Audi AG"
 
-### Problem
-Der Disclaimer-Text ist manuell in kurze Zeilen aufgeteilt (hardcoded Array mit 5 Zeilen), statt die verfügbare 60%-Breite zu nutzen. Dadurch bricht der Text viel zu früh um.
+### Problem 1: Logo verzerrt
+Das SVG hat `width="62" height="22"` (Seitenverhältnis ~2.82:1), aber der Code verwendet `logoH * 4` (4:1 Ratio). Zudem ist `img.width * 2` bei einem 62px-SVG nur 124px Canvas -- zu niedrig aufgelöst.
 
-### Lösung in `src/pages/AdminExposes.tsx`
+### Problem 2: Header zeigt `branding.name` statt "Audi AG"
 
-Die hardcodierten `disclaimerLines` (Zeilen 329-335) durch `doc.splitTextToSize()` ersetzen, das den gesamten Disclaimer-Text automatisch auf die volle `leftW` (60% = ~108mm) umbricht:
+### Änderungen in `src/pages/AdminExposes.tsx`
 
-```typescript
-// Statt hardcodierter Zeilen:
-const disclaimerText = "Da wir uns Zwischenverkauf vorbehalten müssen, empfehlen wir Ihnen, vor einer Besichtigung beim genannten Ansprechpartner telefonisch rückzufragen, ob das Fahrzeug noch unverkauft ist.";
-const disclaimerLines = doc.splitTextToSize(disclaimerText, leftW);
-```
+**Logo-Fix (Zeilen 50-70, 174-177):**
+- Canvas-Auflösung erhöhen: `canvas.width = 800`, `canvas.height = Math.round(800 * (99/284))` (= ~279px) -- basierend auf viewBox 284x99
+- Logo-Aspect-Ratio korrigieren: `logoW = logoH * (284/99)` statt `logoH * 4`
 
-Der Rest bleibt gleich — die Zeilen werden weiterhin mit 3.5mm Zeilenabstand gerendert, gefolgt von "Erstellt am:" und "Zwischenverkauf und Irrtum vorbehalten!".
-
-### Dateien
-
-| Datei | Änderung |
-|---|---|
-| `src/pages/AdminExposes.tsx` | Zeilen 329-335: Hardcoded Array → `splitTextToSize(disclaimerText, leftW)` |
+**Header-Fix (Zeile 155):**
+- `branding.name` → `"Audi AG"` (hardcoded)
 
