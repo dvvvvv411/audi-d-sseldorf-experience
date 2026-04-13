@@ -123,6 +123,15 @@ export default function AdminAnfragen() {
   const [logOpen, setLogOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showHidden, setShowHidden] = useState(false);
+  const [exposeFahrzeuge, setExposeFahrzeuge] = useState<ExposeFahrzeug[]>([]);
+  const [exposeVerkaeufer, setExposeVerkaeufer] = useState<ExposeVerkaeufer[]>([]);
+  const [exposeBrandings, setExposeBrandings] = useState<ExposeBranding[]>([]);
+  const [exposeDialogAnfrage, setExposeDialogAnfrage] = useState<Anfrage | null>(null);
+  const [exposeSelectedFahrzeugId, setExposeSelectedFahrzeugId] = useState("");
+  const [exposeSelectedVerkaeuferId, setExposeSelectedVerkaeuferId] = useState("");
+  const [exposeSelectedBrandingId, setExposeSelectedBrandingId] = useState("");
+  const [exposeGenerating, setExposeGenerating] = useState(false);
+  const [exposePdfBlob, setExposePdfBlob] = useState<Blob | null>(null);
 
   useEffect(() => {
     const load = async () => {
