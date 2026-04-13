@@ -1,6 +1,6 @@
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare, Mail, FileText, Receipt } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare, Mail, FileText, Receipt, MessageCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const AudiRingsSmall = () => (
@@ -24,6 +24,7 @@ const verwaltungNav = [
   { label: "Email Templates", icon: Mail, path: "/admin/email-templates" },
   { label: "Exposés", icon: FileText, path: "/admin/exposes" },
   { label: "Angebote", icon: Receipt, path: "/admin/angebote" },
+  { label: "Telegram", icon: MessageCircle, path: "/admin/telegram" },
 ];
 
 const AdminLayout = () => {
