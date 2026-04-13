@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp, Receipt, Search } from "lucide-react";
+import { Eye, EyeOff, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp, Receipt, Search, FileText, Download, Loader2 } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/comp
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { generateExposePdf, type ExposeFahrzeug, type ExposeVerkaeufer, type ExposeBranding } from "@/lib/expose-pdf";
 
 interface Anfrage {
   id: string;
@@ -122,6 +123,15 @@ export default function AdminAnfragen() {
   const [logOpen, setLogOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showHidden, setShowHidden] = useState(false);
+  const [exposeFahrzeuge, setExposeFahrzeuge] = useState<ExposeFahrzeug[]>([]);
+  const [exposeVerkaeufer, setExposeVerkaeufer] = useState<ExposeVerkaeufer[]>([]);
+  const [exposeBrandings, setExposeBrandings] = useState<ExposeBranding[]>([]);
+  const [exposeDialogAnfrage, setExposeDialogAnfrage] = useState<Anfrage | null>(null);
+  const [exposeSelectedFahrzeugId, setExposeSelectedFahrzeugId] = useState("");
+  const [exposeSelectedVerkaeuferId, setExposeSelectedVerkaeuferId] = useState("");
+  const [exposeSelectedBrandingId, setExposeSelectedBrandingId] = useState("");
+  const [exposeGenerating, setExposeGenerating] = useState(false);
+  const [exposePdfBlob, setExposePdfBlob] = useState<Blob | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -152,6 +162,61 @@ export default function AdminAnfragen() {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    const loadExposeData = async () => {
+      const [fRes, vRes, bRes] = await Promise.all([
+        supabase.from("fahrzeuge").select("*").eq("aktiv", true).order("fahrzeugname"),
+        supabase.from("verkaeufer").select("*").order("nachname"),
+        supabase.from("brandings").select("*").order("name"),
+      ]);
+      setExposeFahrzeuge((fRes.data as ExposeFahrzeug[]) ?? []);
+      setExposeVerkaeufer((vRes.data as ExposeVerkaeufer[]) ?? []);
+      setExposeBrandings((bRes.data as ExposeBranding[]) ?? []);
+    };
+    loadExposeData();
+  }, []);
+
+  const openExposeDialog = (a: Anfrage) => {
+    setExposeDialogAnfrage(a);
+    setExposeSelectedFahrzeugId(a.fahrzeug_id);
+    setExposeSelectedVerkaeuferId(a.verkaeufer_id);
+    const matchedBranding = exposeBrandings.find((b) => b.name === a.branding_name);
+    setExposeSelectedBrandingId(matchedBranding?.id || "");
+    setExposePdfBlob(null);
+    setExposeGenerating(false);
+  };
+
+  const handleExposeGenerate = async () => {
+    const fz = exposeFahrzeuge.find((f) => f.id === exposeSelectedFahrzeugId);
+    const vk = exposeVerkaeufer.find((v) => v.id === exposeSelectedVerkaeuferId);
+    const br = exposeBrandings.find((b) => b.id === exposeSelectedBrandingId);
+    if (!fz || !vk || !br) return;
+    setExposeGenerating(true);
+    try {
+      const blob = await generateExposePdf(fz, vk, br);
+      setExposePdfBlob(blob);
+      toast({ title: "Exposé erstellt" });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Fehler", description: "Exposé konnte nicht erstellt werden.", variant: "destructive" });
+    } finally {
+      setExposeGenerating(false);
+    }
+  };
+
+  const handleExposeDownload = () => {
+    if (!exposePdfBlob || !exposeDialogAnfrage) return;
+    const url = URL.createObjectURL(exposePdfBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeName = exposeDialogAnfrage.fahrzeug_name.replace(/[^a-zA-Z0-9äöüÄÖÜß\-_ ]/g, "").replace(/\s+/g, "_");
+    a.download = `${safeName}_Expose.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const addLogEntry = (entry: LogEntry) => {
     setLogEntries((prev) => [entry, ...prev].slice(0, 50));
@@ -481,6 +546,19 @@ export default function AdminAnfragen() {
                               variant="ghost"
                               size="icon"
                               className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                              onClick={() => openExposeDialog(a)}
+                            >
+                              <FileText className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Exposé erstellen</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
                               onClick={() => navigate(`/admin/anfragen/${a.id}`)}
                             >
                               <Eye className="w-4 h-4" />
@@ -573,6 +651,62 @@ export default function AdminAnfragen() {
                 </div>
               ))
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Expose Dialog */}
+      <Dialog open={!!exposeDialogAnfrage} onOpenChange={(open) => { if (!open) { setExposeDialogAnfrage(null); setExposePdfBlob(null); } }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Exposé erstellen – {exposeDialogAnfrage?.fahrzeug_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-600">Fahrzeug</label>
+              <Select value={exposeSelectedFahrzeugId} onValueChange={setExposeSelectedFahrzeugId}>
+                <SelectTrigger><SelectValue placeholder="Fahrzeug wählen…" /></SelectTrigger>
+                <SelectContent>
+                  {exposeFahrzeuge.map((f) => (
+                    <SelectItem key={f.id} value={f.id}>{f.fahrzeugname}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-600">Verkäufer</label>
+              <Select value={exposeSelectedVerkaeuferId} onValueChange={setExposeSelectedVerkaeuferId}>
+                <SelectTrigger><SelectValue placeholder="Verkäufer wählen…" /></SelectTrigger>
+                <SelectContent>
+                  {exposeVerkaeufer.map((v) => (
+                    <SelectItem key={v.id} value={v.id}>{v.vorname} {v.nachname}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-600">Branding</label>
+              <Select value={exposeSelectedBrandingId} onValueChange={setExposeSelectedBrandingId}>
+                <SelectTrigger><SelectValue placeholder="Branding wählen…" /></SelectTrigger>
+                <SelectContent>
+                  {exposeBrandings.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-3">
+              <Button onClick={handleExposeGenerate} disabled={!exposeSelectedFahrzeugId || !exposeSelectedVerkaeuferId || !exposeSelectedBrandingId || exposeGenerating}>
+                {exposeGenerating ? <Loader2 className="animate-spin w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                {exposeGenerating ? "Wird erstellt…" : "Exposé erstellen"}
+              </Button>
+              {exposePdfBlob && (
+                <Button variant="outline" onClick={handleExposeDownload}>
+                  <Download className="w-4 h-4" />
+                  PDF herunterladen
+                </Button>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
