@@ -47,18 +47,27 @@ interface Branding {
   email: string;
 }
 
-function drawAudiRings(doc: jsPDF, x: number, y: number, scale: number = 1) {
-  const r = 5.5 * scale;
-  const overlap = 3.5 * scale;
-  const cx1 = x;
-  const cx2 = x + (2 * r - overlap);
-  const cx3 = x + 2 * (2 * r - overlap);
-  const cx4 = x + 3 * (2 * r - overlap);
-  doc.setDrawColor(0);
-  doc.setLineWidth(0.6 * scale);
-  [cx1, cx2, cx3, cx4].forEach(cx => {
-    doc.circle(cx, y, r, "S");
-  });
+async function loadAudiLogoAsBase64(): Promise<string | null> {
+  try {
+    const response = await fetch("/images/Audi.svg");
+    const svgText = await response.text();
+    const img = new Image();
+    return new Promise((resolve) => {
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * 2;
+        canvas.height = img.height * 2;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = () => resolve(null);
+      const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+      img.src = URL.createObjectURL(blob);
+    });
+  } catch {
+    return null;
+  }
 }
 
 async function cropImageToFill(base64: string, targetW: number, targetH: number): Promise<string> {
@@ -93,7 +102,6 @@ const formatPrice = (price: number) => {
 
 const formatDate = (dateStr: string | null) => {
   if (!dateStr) return "–";
-  // Handle formats like "2024-10-30" or "10.2024" or "30.10.2024"
   return dateStr;
 };
 
@@ -135,7 +143,6 @@ async function generateExposePdf(
   const contentW = pageW - marginL - marginR;
   let y = 12;
 
-  // ── Helper ──
   const drawLine = (yPos: number) => {
     doc.setDrawColor(180);
     doc.setLineWidth(0.3);
@@ -143,7 +150,6 @@ async function generateExposePdf(
   };
 
   // ── HEADER ──
-  // Left: Branding info
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.text(branding.name, marginL, y);
@@ -163,8 +169,13 @@ async function generateExposePdf(
   y += 4;
   doc.text(`eMail: ${verkaeufer.email}`, marginL, y);
 
-  // Right: Audi Logo (drawn as 4 overlapping rings)
-  drawAudiRings(doc, pageW - marginR - 30, 16, 1);
+  // Right: Audi Logo from SVG
+  const audiLogo = await loadAudiLogoAsBase64();
+  if (audiLogo) {
+    const logoH = 12;
+    const logoW = logoH * 4; // Audi rings are roughly 4:1 aspect
+    doc.addImage(audiLogo, "PNG", pageW - marginR - logoW, 10, logoW, logoH);
+  }
 
   y += 6;
   drawLine(y);
@@ -177,27 +188,24 @@ async function generateExposePdf(
   y += 6;
   drawLine(y);
 
-  // ── BILDER ──
+  // ── BILDER (50/50) ──
   y += 3;
   const imgStartY = y;
   const totalImgH = 75;
   const gap = 3;
-  const bigW = 108;
-  const rightW = contentW - bigW - gap; // ~69mm
-  const smallW = (rightW - gap) / 2; // ~33mm
-  const smallH = (totalImgH - gap) / 2; // ~36mm
+  const bigW = (contentW - gap) / 2;
+  const smallW = (bigW - gap) / 2;
+  const smallH = (totalImgH - gap) / 2;
 
   const bilder = fahrzeug.bilder ?? [];
   const imageUrls = bilder.slice(0, 5).map(getSupabaseImageUrl);
   const rawImageData = await Promise.all(imageUrls.map(loadImageAsBase64));
 
-  // Crop images to fill their target dimensions without distortion
   const croppedBig = rawImageData[0] ? await cropImageToFill(rawImageData[0], bigW, totalImgH) : null;
   const croppedSmall = await Promise.all(
     [1, 2, 3, 4].map(i => rawImageData[i] ? cropImageToFill(rawImageData[i]!, smallW, smallH) : Promise.resolve(null))
   );
 
-  // Big image (left)
   if (croppedBig) {
     doc.addImage(croppedBig, "JPEG", marginL, imgStartY, bigW, totalImgH);
   } else {
@@ -208,7 +216,6 @@ async function generateExposePdf(
     doc.text("Kein Bild", marginL + bigW / 2, imgStartY + totalImgH / 2, { align: "center" });
   }
 
-  // Small images (right, 2x2)
   const smallPositions = [
     { x: marginL + bigW + gap, y: imgStartY },
     { x: marginL + bigW + gap + smallW + gap, y: imgStartY },
@@ -251,7 +258,7 @@ async function generateExposePdf(
     ["kW/(PS):", fahrzeug.kw && fahrzeug.ps ? `${fahrzeug.kw}/(${fahrzeug.ps})` : "–"],
     ["Hubraum:", fahrzeug.hubraum ? `${new Intl.NumberFormat("de-DE").format(fahrzeug.hubraum)}` : "–"],
     ["km-Stand:", formatKm(fahrzeug.km_stand)],
-    ["Motor/Antrieb:", [fahrzeug.kraftstoff, fahrzeug.getriebe].filter(Boolean).join(" ") || "–"],
+    ["Motor/Antrieb:", [fahrzeug.kraftstoff, fahrzeug.getriebe, fahrzeug.antrieb].filter(Boolean).join(" / ") || "–"],
   ];
 
   const rightData = [
@@ -286,9 +293,9 @@ async function generateExposePdf(
   drawLine(y);
   y += 4;
 
-  const footerY = 252; // Fixed footer position
+  const footerY = 252;
   const descLineH = 3.5;
-  const availableDescH = footerY - y - 10; // space for description before footer
+  const availableDescH = footerY - y - 10;
   const maxDescLines = Math.floor(availableDescH / descLineH);
 
   doc.setFont("helvetica", "normal");
@@ -305,13 +312,20 @@ async function generateExposePdf(
     y += descLineH;
   }
 
-  // ── FOOTER (fixed position) ──
+  // ── FOOTER (60/40 Layout) ──
   y = footerY;
   drawLine(y);
   y += 5;
 
+  const footerH = 25;
+  const leftW = contentW * 0.6;
+  const rightW = contentW * 0.4;
+  const rightX = marginL + leftW;
+
+  // Left 60%: Disclaimer text
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
+  doc.setTextColor(0);
   const disclaimerLines = [
     "Da wir uns Zwischenverkauf vorbehalten",
     "müssen, empfehlen wir Ihnen, vor einer",
@@ -319,46 +333,43 @@ async function generateExposePdf(
     "partner telefonisch rückzufragen, ob",
     "das Fahrzeug noch unverkauft ist.",
   ];
-  const footerStartY = y;
+  let leftY = y;
   for (const line of disclaimerLines) {
-    doc.text(line, marginL, y);
-    y += 3.5;
+    doc.text(line, marginL, leftY);
+    leftY += 3.5;
   }
-
-  // Price section (right side, same line as disclaimer start)
-  const priceX = pageW - marginR;
-  const priceStr = `${formatPrice(fahrzeug.preis)} €`;
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  const barpreisLabel = "Barpreis:";
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  const priceWidth = doc.getTextWidth(priceStr);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  const labelWidth = doc.getTextWidth(barpreisLabel);
-  
-  const priceRight = priceX;
-  const labelX = priceRight - priceWidth - labelWidth - 4;
-  doc.text(barpreisLabel, labelX, footerStartY);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  doc.text(priceStr, priceRight, footerStartY + 1, { align: "right" });
-
-  // MwSt line
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.text("MwSt-Ausweis möglich!", priceRight, footerStartY + 8, { align: "right" });
-
-  // Created date + disclaimer
-  y += 4;
+  leftY += 2;
   doc.setFontSize(7);
   const today = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
-  doc.text(`Erstellt am: ${today}`, marginL, y);
-  y += 3.5;
-  doc.text("Zwischenverkauf und Irrtum vorbehalten!", marginL, y);
+  doc.text(`Erstellt am: ${today}`, marginL, leftY);
+  leftY += 3.5;
+  doc.text("Zwischenverkauf und Irrtum vorbehalten!", marginL, leftY);
+
+  // Right 40%: Barpreis vertically centered
+  const priceStr = `${formatPrice(fahrzeug.preis)} €`;
+  const barpreisLabel = "Barpreis:";
+
+  // Calculate vertical center of footer section
+  const footerCenterY = y + footerH / 2;
+
+  // "Barpreis:" label
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  const rightCenterX = rightX + rightW / 2;
+  doc.text(barpreisLabel, rightCenterX, footerCenterY - 5, { align: "center" });
+
+  // Price (large, bold)
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  doc.text(priceStr, rightCenterX, footerCenterY + 4, { align: "center" });
+
+  // MwSt line in gray
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(140, 140, 140);
+  doc.text("MwSt-Ausweis möglich!", rightCenterX, footerCenterY + 10, { align: "center" });
+  doc.setTextColor(0);
 
   return doc.output("blob");
 }
@@ -430,9 +441,8 @@ const AdminExposes = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Fahrzeug */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Fahrzeug</label>
+          <label className="text-sm font-medium text-muted-foreground">Fahrzeug</label>
           <Select value={selectedFahrzeugId} onValueChange={setSelectedFahrzeugId}>
             <SelectTrigger><SelectValue placeholder="Fahrzeug wählen…" /></SelectTrigger>
             <SelectContent>
@@ -443,9 +453,8 @@ const AdminExposes = () => {
           </Select>
         </div>
 
-        {/* Verkäufer */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Verkäufer</label>
+          <label className="text-sm font-medium text-muted-foreground">Verkäufer</label>
           <Select value={selectedVerkaeuferId} onValueChange={setSelectedVerkaeuferId}>
             <SelectTrigger><SelectValue placeholder="Verkäufer wählen…" /></SelectTrigger>
             <SelectContent>
@@ -456,9 +465,8 @@ const AdminExposes = () => {
           </Select>
         </div>
 
-        {/* Branding */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Branding</label>
+          <label className="text-sm font-medium text-muted-foreground">Branding</label>
           <Select value={selectedBrandingId} onValueChange={setSelectedBrandingId}>
             <SelectTrigger><SelectValue placeholder="Branding wählen…" /></SelectTrigger>
             <SelectContent>
@@ -484,7 +492,7 @@ const AdminExposes = () => {
       </div>
 
       {pdfBlobUrl && (
-        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white" style={{ height: "80vh" }}>
+        <div className="border border-border rounded-lg overflow-hidden bg-background" style={{ height: "80vh" }}>
           <iframe src={pdfBlobUrl} className="w-full h-full" title="Exposé Vorschau" />
         </div>
       )}
