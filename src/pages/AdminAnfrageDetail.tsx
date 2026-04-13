@@ -4,15 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Save, User, Mail, Phone, Calendar,
   Car, Fuel, Gauge, Palette, CreditCard, Quote,
-  StickyNote, MapPin, Cog, Zap, Hash, Receipt, Copy
+  StickyNote, MapPin, Cog, Zap, Hash, Receipt, Copy,
+  FileText, Download, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { generateExposePdf, type ExposeFahrzeug, type ExposeVerkaeufer, type ExposeBranding } from "@/lib/expose-pdf";
 
 interface Anfrage {
   id: string;
@@ -75,6 +78,27 @@ export default function AdminAnfrageDetail() {
   const [adresseSaving, setAdresseSaving] = useState(false);
   const notizenRef = useRef<HTMLDivElement>(null);
 
+  // Editable contact fields
+  const [editVorname, setEditVorname] = useState("");
+  const [editNachname, setEditNachname] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editTelefon, setEditTelefon] = useState("");
+  const [contactSaving, setContactSaving] = useState(false);
+
+  // Mailbox history
+  const [mailboxClicks, setMailboxClicks] = useState<string[]>([]);
+
+  // Expose dialog
+  const [exposeOpen, setExposeOpen] = useState(false);
+  const [exposeFahrzeuge, setExposeFahrzeuge] = useState<ExposeFahrzeug[]>([]);
+  const [exposeVerkaeufer, setExposeVerkaeufer] = useState<ExposeVerkaeufer[]>([]);
+  const [exposeBrandings, setExposeBrandings] = useState<ExposeBranding[]>([]);
+  const [exposeSelectedFahrzeugId, setExposeSelectedFahrzeugId] = useState("");
+  const [exposeSelectedVerkaeuferId, setExposeSelectedVerkaeuferId] = useState("");
+  const [exposeSelectedBrandingId, setExposeSelectedBrandingId] = useState("");
+  const [exposeGenerating, setExposeGenerating] = useState(false);
+  const [exposePdfBlob, setExposePdfBlob] = useState<Blob | null>(null);
+
   useEffect(() => {
     const load = async () => {
       if (!id) return;
@@ -88,19 +112,39 @@ export default function AdminAnfrageDetail() {
         setAdresseStrasse(data.strasse || "");
         setAdressePlz(data.plz || "");
         setAdresseStadt(data.stadt || "");
-        const [fzRes, vkRes, notizenRes] = await Promise.all([
+        setEditVorname(data.vorname);
+        setEditNachname(data.nachname);
+        setEditEmail(data.email);
+        setEditTelefon(data.telefon);
+        const [fzRes, vkRes, notizenRes, clicksRes] = await Promise.all([
           supabase.from("fahrzeuge").select("*").eq("id", data.fahrzeug_id).single(),
           supabase.from("verkaeufer").select("*").eq("id", data.verkaeufer_id).single(),
           supabase.from("anfrage_notizen").select("*").eq("anfrage_id", data.id).order("created_at", { ascending: true }),
+          supabase.from("mailbox_clicks").select("*").eq("anfrage_id", data.id).order("clicked_at", { ascending: false }),
         ]);
         if (fzRes.data) setFahrzeug(fzRes.data);
         if (vkRes.data) setVerkaeufer(vkRes.data);
         if (notizenRes.data) setNotizen(notizenRes.data);
+        if (clicksRes.data) setMailboxClicks(clicksRes.data.map((c: any) => c.clicked_at));
       }
       setLoading(false);
     };
     load();
   }, [id]);
+
+  useEffect(() => {
+    const loadExposeData = async () => {
+      const [fRes, vRes, bRes] = await Promise.all([
+        supabase.from("fahrzeuge").select("*").eq("aktiv", true).order("fahrzeugname"),
+        supabase.from("verkaeufer").select("*").order("nachname"),
+        supabase.from("brandings").select("*").order("name"),
+      ]);
+      setExposeFahrzeuge((fRes.data as ExposeFahrzeug[]) ?? []);
+      setExposeVerkaeufer((vRes.data as ExposeVerkaeufer[]) ?? []);
+      setExposeBrandings((bRes.data as ExposeBranding[]) ?? []);
+    };
+    loadExposeData();
+  }, []);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -144,6 +188,24 @@ export default function AdminAnfrageDetail() {
     setAdresseSaving(false);
   };
 
+  const saveContact = async () => {
+    if (!id || !anfrage) return;
+    setContactSaving(true);
+    const { error } = await supabase.from("anfragen").update({
+      vorname: editVorname,
+      nachname: editNachname,
+      email: editEmail,
+      telefon: editTelefon,
+    }).eq("id", id);
+    if (error) {
+      toast({ title: "Fehler", description: "Kontaktdaten konnten nicht gespeichert werden.", variant: "destructive" });
+    } else {
+      setAnfrage({ ...anfrage, vorname: editVorname, nachname: editNachname, email: editEmail, telefon: editTelefon });
+      toast({ title: "Kontaktdaten gespeichert" });
+    }
+    setContactSaving(false);
+  };
+
   const addNotiz = async () => {
     if (!id || !neueNotiz.trim() || !anfrage) return;
     setSaving(true);
@@ -171,7 +233,9 @@ export default function AdminAnfrageDetail() {
 
   const handleMailboxClick = async () => {
     if (!id || !anfrage) return;
+    const now = new Date().toISOString();
     await supabase.from("mailbox_clicks").insert({ anfrage_id: id } as any);
+    setMailboxClicks((prev) => [now, ...prev]);
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       await supabase.from("aktivitaets_log").insert({
@@ -196,6 +260,48 @@ export default function AdminAnfrageDetail() {
     if (adressePlz && adresseStadt) params.set("plzstadt", `${adressePlz} ${adresseStadt}`);
     else if (adresseStadt) params.set("plzstadt", adresseStadt);
     navigate(`/admin/angebote?${params.toString()}`);
+  };
+
+  const openExposeDialog = () => {
+    if (!anfrage) return;
+    setExposeSelectedFahrzeugId(anfrage.fahrzeug_id);
+    setExposeSelectedVerkaeuferId(anfrage.verkaeufer_id);
+    const matchedBranding = exposeBrandings.find((b) => b.name === anfrage.branding_name);
+    setExposeSelectedBrandingId(matchedBranding?.id || "");
+    setExposePdfBlob(null);
+    setExposeGenerating(false);
+    setExposeOpen(true);
+  };
+
+  const handleExposeGenerate = async () => {
+    const fz = exposeFahrzeuge.find((f) => f.id === exposeSelectedFahrzeugId);
+    const vk = exposeVerkaeufer.find((v) => v.id === exposeSelectedVerkaeuferId);
+    const br = exposeBrandings.find((b) => b.id === exposeSelectedBrandingId);
+    if (!fz || !vk || !br) return;
+    setExposeGenerating(true);
+    try {
+      const blob = await generateExposePdf(fz, vk, br);
+      setExposePdfBlob(blob);
+      toast({ title: "Exposé erstellt" });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Fehler", description: "Exposé konnte nicht erstellt werden.", variant: "destructive" });
+    } finally {
+      setExposeGenerating(false);
+    }
+  };
+
+  const handleExposeDownload = () => {
+    if (!exposePdfBlob || !anfrage) return;
+    const url = URL.createObjectURL(exposePdfBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeName = anfrage.fahrzeug_name.replace(/[^a-zA-Z0-9äöüÄÖÜß\-_ ]/g, "").replace(/\s+/g, "_");
+    a.download = `${safeName}_Expose.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -296,6 +402,10 @@ export default function AdminAnfrageDetail() {
             <Receipt className="w-4 h-4" />
             Angebot erstellen
           </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={openExposeDialog}>
+            <FileText className="w-4 h-4" />
+            Exposé erstellen
+          </Button>
         </div>
       </div>
 
@@ -309,12 +419,46 @@ export default function AdminAnfrageDetail() {
               <User className="w-4 h-4 text-blue-500" />
               Kontaktdaten
             </h3>
-            <div className="space-y-1">
-              <DetailRow icon={User} iconColor="bg-blue-50 text-blue-600" label="Name" value={`${anfrage.vorname} ${anfrage.nachname}`} onClick={() => copyToClipboard(`${anfrage.vorname} ${anfrage.nachname}`, "Name")} />
-              <DetailRow icon={Mail} iconColor="bg-blue-50 text-blue-600" label="E-Mail" value={anfrage.email} onClick={() => copyToClipboard(anfrage.email, "E-Mail")} />
-              <DetailRow icon={Phone} iconColor="bg-blue-50 text-blue-600" label="Telefon" value={anfrage.telefon} onClick={() => copyToClipboard(anfrage.telefon, "Telefon")} />
-              <DetailRow icon={Calendar} iconColor="bg-blue-50 text-blue-600" label="Eingegangen" value={formatDate(anfrage.created_at)} />
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-gray-400 uppercase tracking-wide">Vorname</label>
+                  <Input value={editVorname} onChange={(e) => setEditVorname(e.target.value)} className="h-8 text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 uppercase tracking-wide">Nachname</label>
+                  <Input value={editNachname} onChange={(e) => setEditNachname(e.target.value)} className="h-8 text-sm" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wide">E-Mail</label>
+                <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wide">Telefon</label>
+                <Input value={editTelefon} onChange={(e) => setEditTelefon(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={saveContact} disabled={contactSaving}>
+                  <Save className="w-3.5 h-3.5" />
+                  Speichern
+                </Button>
+                <Button size="sm" variant="ghost" className="gap-1.5 text-gray-500" onClick={() => copyToClipboard(`${editVorname} ${editNachname}`, "Name")}>
+                  <Copy className="w-3.5 h-3.5" />
+                  Name
+                </Button>
+                <Button size="sm" variant="ghost" className="gap-1.5 text-gray-500" onClick={() => copyToClipboard(editEmail, "E-Mail")}>
+                  <Copy className="w-3.5 h-3.5" />
+                  E-Mail
+                </Button>
+                <Button size="sm" variant="ghost" className="gap-1.5 text-gray-500" onClick={() => copyToClipboard(editTelefon, "Telefon")}>
+                  <Copy className="w-3.5 h-3.5" />
+                  Telefon
+                </Button>
+              </div>
             </div>
+
+            <div className="text-xs text-gray-400 mt-3">{formatDate(anfrage.created_at)}</div>
 
             {/* Adressfelder */}
             <div className="mt-4 pt-4 border-t border-gray-100">
@@ -442,36 +586,120 @@ export default function AdminAnfrageDetail() {
         </div>
       </div>
 
-      {/* Row 3: Verkäufer */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-        <div className="h-1 bg-purple-500" />
-        <div className="p-6">
-          <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <User className="w-4 h-4 text-purple-500" />
-            Verkäufer
-          </h3>
+      {/* Row 3: Verkäufer + Mailbox-Verlauf */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+          <div className="h-1 bg-purple-500" />
+          <div className="p-6">
+            <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <User className="w-4 h-4 text-purple-500" />
+              Verkäufer
+            </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-11 h-11 rounded-full bg-purple-100 text-purple-700 font-bold text-sm">
-                {initials}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-11 h-11 rounded-full bg-purple-100 text-purple-700 font-bold text-sm">
+                  {initials}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">{anfrage.verkaeufer_name}</p>
+                  <p className="text-xs text-gray-500">{anfrage.branding_name}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-semibold text-gray-900">{anfrage.verkaeufer_name}</p>
-                <p className="text-xs text-gray-500">{anfrage.branding_name}</p>
-              </div>
+
+              {verkaeufer && (
+                <DetailRow icon={Mail} iconColor="bg-purple-50 text-purple-600" label="E-Mail" value={verkaeufer.email} href={`mailto:${verkaeufer.email}`} />
+              )}
+
+              {verkaeufer && (
+                <DetailRow icon={Phone} iconColor="bg-purple-50 text-purple-600" label="Telefon" value={verkaeufer.telefon} href={`tel:${verkaeufer.telefon}`} />
+              )}
             </div>
+          </div>
+        </div>
 
-            {verkaeufer && (
-              <DetailRow icon={Mail} iconColor="bg-purple-50 text-purple-600" label="E-Mail" value={verkaeufer.email} href={`mailto:${verkaeufer.email}`} />
-            )}
-
-            {verkaeufer && (
-              <DetailRow icon={Phone} iconColor="bg-purple-50 text-purple-600" label="Telefon" value={verkaeufer.telefon} href={`tel:${verkaeufer.telefon}`} />
-            )}
+        {/* Mailbox-Verlauf */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+          <div className="h-1 bg-red-500" />
+          <div className="p-6">
+            <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Mail className="w-4 h-4 text-red-500" />
+              Mailbox-Verlauf
+              {mailboxClicks.length > 0 && (
+                <span className="bg-red-100 text-red-700 text-xs font-bold rounded-full px-2 py-0.5">{mailboxClicks.length}</span>
+              )}
+            </h3>
+            <div className="max-h-[200px] overflow-y-auto space-y-1">
+              {mailboxClicks.length === 0 ? (
+                <p className="text-gray-400 text-sm text-center py-4">Keine Mailbox-Klicks vorhanden.</p>
+              ) : (
+                mailboxClicks.map((ts, i) => (
+                  <div key={i} className="text-sm text-gray-700 py-1.5 border-b border-gray-100 last:border-0 flex items-center gap-2">
+                    <Mail className="w-3.5 h-3.5 text-gray-400" />
+                    {format(new Date(ts), "dd.MM.yyyy HH:mm", { locale: de })}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Expose Dialog */}
+      <Dialog open={exposeOpen} onOpenChange={(open) => { if (!open) { setExposeOpen(false); setExposePdfBlob(null); } }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Exposé erstellen – {anfrage.fahrzeug_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-600">Fahrzeug</label>
+              <Select value={exposeSelectedFahrzeugId} onValueChange={setExposeSelectedFahrzeugId}>
+                <SelectTrigger><SelectValue placeholder="Fahrzeug wählen…" /></SelectTrigger>
+                <SelectContent>
+                  {exposeFahrzeuge.map((f) => (
+                    <SelectItem key={f.id} value={f.id}>{f.fahrzeugname}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-600">Verkäufer</label>
+              <Select value={exposeSelectedVerkaeuferId} onValueChange={setExposeSelectedVerkaeuferId}>
+                <SelectTrigger><SelectValue placeholder="Verkäufer wählen…" /></SelectTrigger>
+                <SelectContent>
+                  {exposeVerkaeufer.map((v) => (
+                    <SelectItem key={v.id} value={v.id}>{v.vorname} {v.nachname}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-600">Branding</label>
+              <Select value={exposeSelectedBrandingId} onValueChange={setExposeSelectedBrandingId}>
+                <SelectTrigger><SelectValue placeholder="Branding wählen…" /></SelectTrigger>
+                <SelectContent>
+                  {exposeBrandings.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-3">
+              <Button onClick={handleExposeGenerate} disabled={!exposeSelectedFahrzeugId || !exposeSelectedVerkaeuferId || !exposeSelectedBrandingId || exposeGenerating}>
+                {exposeGenerating ? <Loader2 className="animate-spin w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                {exposeGenerating ? "Wird erstellt…" : "Exposé erstellen"}
+              </Button>
+              {exposePdfBlob && (
+                <Button variant="outline" onClick={handleExposeDownload}>
+                  <Download className="w-4 h-4" />
+                  PDF herunterladen
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
