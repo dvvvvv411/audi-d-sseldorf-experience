@@ -55,8 +55,8 @@ async function loadAudiLogoAsBase64(): Promise<string | null> {
     return new Promise((resolve) => {
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        canvas.width = img.width * 2;
-        canvas.height = img.height * 2;
+        canvas.width = 800;
+        canvas.height = Math.round(800 * (99 / 284));
         const ctx = canvas.getContext("2d")!;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL("image/png"));
@@ -152,7 +152,7 @@ async function generateExposePdf(
   // ── HEADER ──
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.text(branding.name, marginL, y);
+  doc.text("Audi AG", marginL, y);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   y += 5;
@@ -173,7 +173,7 @@ async function generateExposePdf(
   const audiLogo = await loadAudiLogoAsBase64();
   if (audiLogo) {
     const logoH = 12;
-    const logoW = logoH * 4; // Audi rings are roughly 4:1 aspect
+    const logoW = logoH * (284 / 99);
     doc.addImage(audiLogo, "PNG", pageW - marginR - logoW, 10, logoW, logoH);
   }
 
