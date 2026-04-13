@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Save, User, Mail, Phone, Calendar,
   Car, Fuel, Gauge, Palette, CreditCard, Quote,
-  StickyNote, MapPin, Cog, Zap, Hash, Receipt, Copy,
-  FileText, Download, Loader2
+  StickyNote, MapPin, Cog, Zap, Hash, Receipt,
+  FileText, Download, Loader2, Pencil, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
