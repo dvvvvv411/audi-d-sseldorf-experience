@@ -163,6 +163,61 @@ export default function AdminAnfragen() {
     load();
   }, []);
 
+  useEffect(() => {
+    const loadExposeData = async () => {
+      const [fRes, vRes, bRes] = await Promise.all([
+        supabase.from("fahrzeuge").select("*").eq("aktiv", true).order("fahrzeugname"),
+        supabase.from("verkaeufer").select("*").order("nachname"),
+        supabase.from("brandings").select("*").order("name"),
+      ]);
+      setExposeFahrzeuge((fRes.data as ExposeFahrzeug[]) ?? []);
+      setExposeVerkaeufer((vRes.data as ExposeVerkaeufer[]) ?? []);
+      setExposeBrandings((bRes.data as ExposeBranding[]) ?? []);
+    };
+    loadExposeData();
+  }, []);
+
+  const openExposeDialog = (a: Anfrage) => {
+    setExposeDialogAnfrage(a);
+    setExposeSelectedFahrzeugId(a.fahrzeug_id);
+    setExposeSelectedVerkaeuferId(a.verkaeufer_id);
+    const matchedBranding = exposeBrandings.find((b) => b.name === a.branding_name);
+    setExposeSelectedBrandingId(matchedBranding?.id || "");
+    setExposePdfBlob(null);
+    setExposeGenerating(false);
+  };
+
+  const handleExposeGenerate = async () => {
+    const fz = exposeFahrzeuge.find((f) => f.id === exposeSelectedFahrzeugId);
+    const vk = exposeVerkaeufer.find((v) => v.id === exposeSelectedVerkaeuferId);
+    const br = exposeBrandings.find((b) => b.id === exposeSelectedBrandingId);
+    if (!fz || !vk || !br) return;
+    setExposeGenerating(true);
+    try {
+      const blob = await generateExposePdf(fz, vk, br);
+      setExposePdfBlob(blob);
+      toast({ title: "Exposé erstellt" });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Fehler", description: "Exposé konnte nicht erstellt werden.", variant: "destructive" });
+    } finally {
+      setExposeGenerating(false);
+    }
+  };
+
+  const handleExposeDownload = () => {
+    if (!exposePdfBlob || !exposeDialogAnfrage) return;
+    const url = URL.createObjectURL(exposePdfBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeName = exposeDialogAnfrage.fahrzeug_name.replace(/[^a-zA-Z0-9äöüÄÖÜß\-_ ]/g, "").replace(/\s+/g, "_");
+    a.download = `${safeName}_Expose.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const addLogEntry = (entry: LogEntry) => {
     setLogEntries((prev) => [entry, ...prev].slice(0, 50));
   };
