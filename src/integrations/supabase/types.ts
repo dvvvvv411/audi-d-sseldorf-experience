@@ -72,11 +72,15 @@ export type Database = {
           fahrzeug_id: string
           fahrzeug_name: string
           fahrzeug_preis: number
+          hidden: boolean
           id: string
           nachname: string
           nachricht: string
           notizen: string | null
+          plz: string | null
+          stadt: string | null
           status: string
+          strasse: string | null
           telefon: string
           verkaeufer_id: string
           verkaeufer_name: string
@@ -91,11 +95,15 @@ export type Database = {
           fahrzeug_id: string
           fahrzeug_name: string
           fahrzeug_preis: number
+          hidden?: boolean
           id?: string
           nachname: string
           nachricht: string
           notizen?: string | null
+          plz?: string | null
+          stadt?: string | null
           status?: string
+          strasse?: string | null
           telefon: string
           verkaeufer_id: string
           verkaeufer_name: string
@@ -110,11 +118,15 @@ export type Database = {
           fahrzeug_id?: string
           fahrzeug_name?: string
           fahrzeug_preis?: number
+          hidden?: boolean
           id?: string
           nachname?: string
           nachricht?: string
           notizen?: string | null
+          plz?: string | null
+          stadt?: string | null
           status?: string
+          strasse?: string | null
           telefon?: string
           verkaeufer_id?: string
           verkaeufer_name?: string

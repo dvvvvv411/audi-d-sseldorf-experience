@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp, Receipt } from "lucide-react";
+import { Eye, EyeOff, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp, Receipt, Search } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +30,10 @@ interface Anfrage {
   branding_name: string;
   status: string;
   notizen: string | null;
+  hidden?: boolean;
+  strasse?: string | null;
+  plz?: string | null;
+  stadt?: string | null;
 }
 
 interface LogEntry {
@@ -41,7 +46,8 @@ interface LogEntry {
 }
 
 const statusOptions = [
-  "Neu", "In Bearbeitung", "Möchte Daten", "Möchte Rechnung", "Rechnung versendet", "Bezahlt", "Service gesendet", "Angebot gesendet"
+  "Neu", "In Bearbeitung", "Möchte Daten", "Service gesendet", "Möchte Angebot",
+  "Angebot gesendet", "Möchte Rechnung", "Rechnung gesendet", "Überwiesen", "Angekommen", "Kein Interesse"
 ];
 
 const statusColors: Record<string, string> = {
@@ -49,11 +55,14 @@ const statusColors: Record<string, string> = {
   "NEU": "bg-gray-100 text-gray-800",
   "In Bearbeitung": "bg-blue-100 text-blue-800",
   "Möchte Daten": "bg-yellow-100 text-yellow-800",
-  "Möchte Rechnung": "bg-orange-100 text-orange-800",
-  "Rechnung versendet": "bg-purple-100 text-purple-800",
-  "Bezahlt": "bg-green-100 text-green-800",
   "Service gesendet": "bg-cyan-100 text-cyan-800",
+  "Möchte Angebot": "bg-indigo-100 text-indigo-800",
   "Angebot gesendet": "bg-emerald-100 text-emerald-800",
+  "Möchte Rechnung": "bg-orange-100 text-orange-800",
+  "Rechnung gesendet": "bg-purple-100 text-purple-800",
+  "Überwiesen": "bg-green-100 text-green-800",
+  "Angekommen": "bg-lime-100 text-lime-800",
+  "Kein Interesse": "bg-red-100 text-red-800",
 };
 
 const displayStatus = (s: string) => s === "NEU" ? "Neu" : s;
@@ -111,6 +120,8 @@ export default function AdminAnfragen() {
   const [notizenCounts, setNotizenCounts] = useState<Record<string, number>>({});
   const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [logOpen, setLogOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showHidden, setShowHidden] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -286,11 +297,41 @@ export default function AdminAnfragen() {
         </CollapsibleContent>
       </Collapsible>
 
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Anfragen</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Anfragen</h2>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Name, E-Mail, Telefon, Fahrzeug…"
+              className="pl-9 w-[300px] h-9 text-sm"
+            />
+          </div>
+          <Button
+            variant={showHidden ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowHidden(!showHidden)}
+            className="gap-1.5"
+          >
+            {showHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            {showHidden ? "Ausgeblendete" : "Ausgeblendete"}
+          </Button>
+        </div>
+      </div>
 
-      {anfragen.length === 0 ? (
-        <p className="text-gray-500">Noch keine Anfragen vorhanden.</p>
-      ) : (
+      {(() => {
+        const q = searchQuery.toLowerCase();
+        const filtered = anfragen.filter((a) => {
+          const matchHidden = showHidden ? a.hidden === true : a.hidden !== true;
+          if (!matchHidden) return false;
+          if (!q) return true;
+          const fullName = `${a.vorname} ${a.nachname}`.toLowerCase();
+          return fullName.includes(q) || a.email.toLowerCase().includes(q) || a.telefon.toLowerCase().includes(q) || a.fahrzeug_name.toLowerCase().includes(q);
+        });
+        if (filtered.length === 0) return <p className="text-gray-500">Keine Anfragen gefunden.</p>;
+        return (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <Table>
             <TableHeader className="bg-gray-50">
@@ -305,11 +346,11 @@ export default function AdminAnfragen() {
                 <TableHead className="text-gray-600 font-semibold">Fahrzeug</TableHead>
                 <TableHead className="text-gray-600 font-semibold">Branding</TableHead>
                 <TableHead className="text-gray-600 font-semibold">Status</TableHead>
-                <TableHead className="w-24" />
+                <TableHead className="w-28" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {anfragen.map((a) => (
+              {filtered.map((a) => (
                 <TableRow key={a.id} className="border-gray-100 cursor-pointer hover:bg-gray-50" onClick={() => navigate(`/admin/anfragen/${a.id}`)}>
                   <TableCell className="whitespace-nowrap text-gray-500 text-sm">{format(new Date(a.created_at), "dd.MM.yyyy HH:mm", { locale: de })}</TableCell>
                   <TableCell className="font-medium whitespace-nowrap text-gray-900">
@@ -412,11 +453,22 @@ export default function AdminAnfragen() {
                         </div>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button
+                             <Button
                               variant="ghost"
                               size="icon"
                               className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-                              onClick={() => navigate(`/admin/angebote?fahrzeug=${a.fahrzeug_id}&verkaeufer=${a.verkaeufer_id}&branding=${encodeURIComponent(a.branding_name)}&name=${encodeURIComponent(`${a.vorname} ${a.nachname}`)}`)}
+                              onClick={() => {
+                                const params = new URLSearchParams({
+                                  fahrzeug: a.fahrzeug_id,
+                                  verkaeufer: a.verkaeufer_id,
+                                  branding: a.branding_name,
+                                  name: `${a.vorname} ${a.nachname}`,
+                                });
+                                if (a.strasse) params.set("strasse", a.strasse);
+                                if (a.plz && a.stadt) params.set("plzstadt", `${a.plz} ${a.stadt}`);
+                                else if (a.stadt) params.set("plzstadt", a.stadt);
+                                navigate(`/admin/angebote?${params.toString()}`);
+                              }}
                             >
                               <Receipt className="w-4 h-4" />
                             </Button>
@@ -436,6 +488,24 @@ export default function AdminAnfragen() {
                           </TooltipTrigger>
                           <TooltipContent>Details</TooltipContent>
                         </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                              onClick={async () => {
+                                const newHidden = !a.hidden;
+                                await supabase.from("anfragen").update({ hidden: newHidden } as any).eq("id", a.id);
+                                setAnfragen((prev) => prev.map((x) => x.id === a.id ? { ...x, hidden: newHidden } : x));
+                                toast({ title: newHidden ? "Ausgeblendet" : "Eingeblendet" });
+                              }}
+                            >
+                              {a.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>{a.hidden ? "Einblenden" : "Ausblenden"}</TooltipContent>
+                        </Tooltip>
                       </div>
                     </TooltipProvider>
                   </TableCell>
@@ -444,7 +514,8 @@ export default function AdminAnfragen() {
             </TableBody>
           </Table>
         </div>
-      )}
+        );
+      })()}
 
       <Dialog open={!!selectedAnfrageId} onOpenChange={(open) => !open && setSelectedAnfrageId(null)}>
         <DialogContent className="max-w-lg">
