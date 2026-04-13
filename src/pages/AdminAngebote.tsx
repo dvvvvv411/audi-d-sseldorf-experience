@@ -274,11 +274,11 @@ async function generateAngebotPdf(
   };
 
   drawPriceRow("Fahrzeugpreis", formatEur(fahrzeug.preis), true);
-  drawPriceRow("- Nachlass", formatEur(nachlass), false);
-  drawPriceRow("Zwischensumme", formatEur(zwischensumme), true);
+  if (nachlass > 0) {
+    drawPriceRow("- Nachlass", formatEur(nachlass), false);
+    drawPriceRow("Zwischensumme", formatEur(zwischensumme), true);
+  }
   drawPriceRow("Kostenlose Lieferung", "0,00", false);
-  drawLine(y - 2);
-  y += 1;
   drawPriceRow("Gesamtsumme", formatEur(gesamtsumme), true);
   y += 4;
 
@@ -351,9 +351,6 @@ async function generateAngebotPdf(
       y += lineH;
     }
 
-    // Page code
-    doc.setFontSize(7);
-    doc.text("ABC_02_01", pageW - marginR, 285, { align: "right" });
   }
 
   return doc.output("blob");
