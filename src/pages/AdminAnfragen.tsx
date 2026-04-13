@@ -362,28 +362,26 @@ export default function AdminAnfragen() {
         </CollapsibleContent>
       </Collapsible>
 
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Anfragen</h2>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Name, E-Mail, Telefon, Fahrzeug…"
-              className="pl-9 w-[300px] h-9 text-sm"
-            />
-          </div>
-          <Button
-            variant={showHidden ? "default" : "outline"}
-            size="sm"
-            onClick={() => setShowHidden(!showHidden)}
-            className="gap-1.5"
-          >
-            {showHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            {showHidden ? "Ausgeblendete" : "Ausgeblendete"}
-          </Button>
+      <div className="flex items-center gap-3 mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 whitespace-nowrap">Anfragen</h2>
+        <div className="relative flex-1 max-w-[500px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Name, E-Mail, Telefon, Fahrzeug…"
+            className="pl-9 h-9 text-sm w-full"
+          />
         </div>
+        <Button
+          variant={showHidden ? "default" : "outline"}
+          size="sm"
+          onClick={() => setShowHidden(!showHidden)}
+          className="gap-1.5 whitespace-nowrap"
+        >
+          {showHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          Ausgeblendete
+        </Button>
       </div>
 
       {(() => {

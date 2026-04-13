@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Save, User, Mail, Phone, Calendar,
   Car, Fuel, Gauge, Palette, CreditCard, Quote,
-  StickyNote, MapPin, Cog, Zap, Hash, Receipt, Copy,
-  FileText, Download, Loader2
+  StickyNote, MapPin, Cog, Zap, Hash, Receipt,
+  FileText, Download, Loader2, Pencil, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +84,8 @@ export default function AdminAnfrageDetail() {
   const [editEmail, setEditEmail] = useState("");
   const [editTelefon, setEditTelefon] = useState("");
   const [contactSaving, setContactSaving] = useState(false);
+  const [editingContact, setEditingContact] = useState(false);
+  const [editingAdresse, setEditingAdresse] = useState(false);
 
   // Mailbox history
   const [mailboxClicks, setMailboxClicks] = useState<string[]>([]);
@@ -418,80 +420,127 @@ export default function AdminAnfrageDetail() {
             <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <User className="w-4 h-4 text-blue-500" />
               Kontaktdaten
+              {!editingContact && (
+                <button onClick={() => setEditingContact(true)} className="ml-auto text-gray-400 hover:text-gray-600 transition-colors">
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              )}
             </h3>
-            <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs text-gray-400 uppercase tracking-wide">Vorname</label>
-                  <Input value={editVorname} onChange={(e) => setEditVorname(e.target.value)} className="h-8 text-sm" />
+
+            {editingContact ? (
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-400 uppercase tracking-wide">Vorname</label>
+                    <Input value={editVorname} onChange={(e) => setEditVorname(e.target.value)} className="h-8 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 uppercase tracking-wide">Nachname</label>
+                    <Input value={editNachname} onChange={(e) => setEditNachname(e.target.value)} className="h-8 text-sm" />
+                  </div>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 uppercase tracking-wide">Nachname</label>
-                  <Input value={editNachname} onChange={(e) => setEditNachname(e.target.value)} className="h-8 text-sm" />
+                  <label className="text-xs text-gray-400 uppercase tracking-wide">E-Mail</label>
+                  <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="h-8 text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 uppercase tracking-wide">Telefon</label>
+                  <Input value={editTelefon} onChange={(e) => setEditTelefon(e.target.value)} className="h-8 text-sm" />
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <Button size="sm" variant="outline" className="gap-1.5" onClick={async () => { await saveContact(); setEditingContact(false); }} disabled={contactSaving}>
+                    <Save className="w-3.5 h-3.5" />
+                    Speichern
+                  </Button>
+                  <Button size="sm" variant="ghost" className="gap-1.5 text-gray-500" onClick={() => {
+                    if (anfrage) {
+                      setEditVorname(anfrage.vorname);
+                      setEditNachname(anfrage.nachname);
+                      setEditEmail(anfrage.email);
+                      setEditTelefon(anfrage.telefon);
+                    }
+                    setEditingContact(false);
+                  }}>
+                    <X className="w-3.5 h-3.5" />
+                    Abbrechen
+                  </Button>
                 </div>
               </div>
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-wide">E-Mail</label>
-                <Input value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="h-8 text-sm" />
+            ) : (
+              <div className="space-y-1">
+                <DetailRow icon={User} iconColor="bg-blue-50 text-blue-600" label="Name" value={`${anfrage.vorname} ${anfrage.nachname}`} onClick={() => copyToClipboard(`${anfrage.vorname} ${anfrage.nachname}`, "Name")} />
+                <DetailRow icon={Mail} iconColor="bg-blue-50 text-blue-600" label="E-Mail" value={anfrage.email} onClick={() => copyToClipboard(anfrage.email, "E-Mail")} />
+                <DetailRow icon={Phone} iconColor="bg-blue-50 text-blue-600" label="Telefon" value={anfrage.telefon} onClick={() => copyToClipboard(anfrage.telefon, "Telefon")} />
               </div>
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-wide">Telefon</label>
-                <Input value={editTelefon} onChange={(e) => setEditTelefon(e.target.value)} className="h-8 text-sm" />
-              </div>
-              <div className="flex items-center gap-2 pt-1">
-                <Button size="sm" variant="outline" className="gap-1.5" onClick={saveContact} disabled={contactSaving}>
-                  <Save className="w-3.5 h-3.5" />
-                  Speichern
-                </Button>
-                <Button size="sm" variant="ghost" className="gap-1.5 text-gray-500" onClick={() => copyToClipboard(`${editVorname} ${editNachname}`, "Name")}>
-                  <Copy className="w-3.5 h-3.5" />
-                  Name
-                </Button>
-                <Button size="sm" variant="ghost" className="gap-1.5 text-gray-500" onClick={() => copyToClipboard(editEmail, "E-Mail")}>
-                  <Copy className="w-3.5 h-3.5" />
-                  E-Mail
-                </Button>
-                <Button size="sm" variant="ghost" className="gap-1.5 text-gray-500" onClick={() => copyToClipboard(editTelefon, "Telefon")}>
-                  <Copy className="w-3.5 h-3.5" />
-                  Telefon
-                </Button>
-              </div>
-            </div>
+            )}
 
             <div className="text-xs text-gray-400 mt-3">{formatDate(anfrage.created_at)}</div>
 
-            {/* Adressfelder */}
+            {/* Adresse */}
             <div className="mt-4 pt-4 border-t border-gray-100">
               <h4 className="text-xs text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5" />
-                Adresse (optional)
+                Adresse
+                {!editingAdresse && (
+                  <button onClick={() => setEditingAdresse(true)} className="ml-auto text-gray-400 hover:text-gray-600 transition-colors">
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                )}
               </h4>
-              <div className="space-y-2">
-                <Input
-                  value={adresseStrasse}
-                  onChange={(e) => setAdresseStrasse(e.target.value)}
-                  placeholder="Straße & Hausnummer"
-                  className="h-8 text-sm"
-                />
-                <div className="grid grid-cols-3 gap-2">
+
+              {editingAdresse ? (
+                <div className="space-y-2">
                   <Input
-                    value={adressePlz}
-                    onChange={(e) => setAdressePlz(e.target.value)}
-                    placeholder="PLZ"
+                    value={adresseStrasse}
+                    onChange={(e) => setAdresseStrasse(e.target.value)}
+                    placeholder="Straße & Hausnummer"
                     className="h-8 text-sm"
                   />
-                  <Input
-                    value={adresseStadt}
-                    onChange={(e) => setAdresseStadt(e.target.value)}
-                    placeholder="Stadt"
-                    className="h-8 text-sm col-span-2"
-                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    <Input
+                      value={adressePlz}
+                      onChange={(e) => setAdressePlz(e.target.value)}
+                      placeholder="PLZ"
+                      className="h-8 text-sm"
+                    />
+                    <Input
+                      value={adresseStadt}
+                      onChange={(e) => setAdresseStadt(e.target.value)}
+                      placeholder="Stadt"
+                      className="h-8 text-sm col-span-2"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={async () => { await saveAdresse(); setEditingAdresse(false); }} disabled={adresseSaving}>
+                      <Save className="w-3.5 h-3.5" />
+                      Speichern
+                    </Button>
+                    <Button size="sm" variant="ghost" className="gap-1.5 text-gray-500" onClick={() => {
+                      if (anfrage) {
+                        setAdresseStrasse(anfrage.strasse || "");
+                        setAdressePlz(anfrage.plz || "");
+                        setAdresseStadt(anfrage.stadt || "");
+                      }
+                      setEditingAdresse(false);
+                    }}>
+                      <X className="w-3.5 h-3.5" />
+                      Abbrechen
+                    </Button>
+                  </div>
                 </div>
-                <Button size="sm" variant="outline" className="gap-1.5 mt-1" onClick={saveAdresse} disabled={adresseSaving}>
-                  <Save className="w-3.5 h-3.5" />
-                  Speichern
-                </Button>
-              </div>
+              ) : (
+                <p
+                  className="text-sm text-gray-900 cursor-pointer hover:text-blue-600 transition-colors"
+                  onClick={() => {
+                    const addr = [adresseStrasse, [adressePlz, adresseStadt].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+                    if (addr) copyToClipboard(addr, "Adresse");
+                  }}
+                >
+                  {adresseStrasse || adressePlz || adresseStadt
+                    ? [adresseStrasse, [adressePlz, adresseStadt].filter(Boolean).join(" ")].filter(Boolean).join(", ")
+                    : "–"}
+                </p>
+              )}
             </div>
           </div>
         </div>
