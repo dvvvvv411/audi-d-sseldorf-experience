@@ -326,13 +326,8 @@ async function generateExposePdf(
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(0);
-  const disclaimerLines = [
-    "Da wir uns Zwischenverkauf vorbehalten",
-    "müssen, empfehlen wir Ihnen, vor einer",
-    "Besichtigung beim genannten Ansprech-",
-    "partner telefonisch rückzufragen, ob",
-    "das Fahrzeug noch unverkauft ist.",
-  ];
+  const disclaimerText = "Da wir uns Zwischenverkauf vorbehalten müssen, empfehlen wir Ihnen, vor einer Besichtigung beim genannten Ansprechpartner telefonisch rückzufragen, ob das Fahrzeug noch unverkauft ist.";
+  const disclaimerLines = doc.splitTextToSize(disclaimerText, leftW);
   let leftY = y;
   for (const line of disclaimerLines) {
     doc.text(line, marginL, leftY);
