@@ -196,6 +196,8 @@ export default function Gebrauchtwagen() {
             branding_id: v.branding_id,
             fahrzeug_id: fahrzeug.id,
             kunde_email: anfrageForm.email.trim(),
+            kunde_name: `${anfrageForm.vorname.trim()} ${anfrageForm.nachname.trim()}`,
+            kunde_telefon: anfrageForm.telefon.trim(),
           },
         }).catch((err) => console.error("Email send error:", err));
       }
