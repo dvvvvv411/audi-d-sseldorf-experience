@@ -1,18 +1,29 @@
 
 
-## PDF-Bereinigung: ABC_02_01, Nachlass-Logik, Divider
+## Sonderausstattungen formatiert darstellen
 
-### Änderungen in `src/pages/AdminAngebote.tsx`
+### Änderung in `src/pages/AdminAngebote.tsx`
 
-1. **"ABC_02_01" entfernen** (Zeilen 354-356): Den Page-Code-Block komplett löschen.
+Die Sonderausstattungen-Seite(n) werden so angepasst, dass Zeilen die als Überschriften/Kategorien erkennbar sind (z.B. komplett in Großbuchstaben, oder Zeilen die mit einem Doppelpunkt enden, oder Zeilen ohne führendes Sonderzeichen) **bold** gerendert werden, während die einzelnen Ausstattungsmerkmale darunter normal formatiert jeweils in einer eigenen Zeile stehen.
 
-2. **Nachlass/Zwischensumme bedingt anzeigen** (Zeilen 276-278): Nur wenn `nachlass > 0`, die Zeilen "- Nachlass" und "Zwischensumme" rendern. Bei `nachlass === 0` direkt nur Fahrzeugpreis, Kostenlose Lieferung und Gesamtsumme anzeigen.
+### Logik zur Erkennung von Titeln
 
-3. **Divider über Gesamtsumme entfernen** (Zeile 280): `drawLine(y - 2)` und `y += 1` entfernen.
+Eine Heuristik prüft jede Zeile:
+- Zeile ist komplett in Großbuchstaben → Titel (bold, etwas größere Schrift, Abstand davor)
+- Oder Zeile endet mit `:` → Titel
+- Alles andere → normaler Eintrag mit leichtem Einzug oder Aufzählungszeichen
+
+### Umsetzung
+
+In der Schleife `for (const line of equipmentLines)` (Zeilen 345-351):
+- Vor einem Titel zusätzlichen Abstand einfügen (`y += 3`)
+- Titel in `helvetica bold`, Größe 9
+- Normale Zeilen in `helvetica normal`, Größe 8
+- Jede Zeile bleibt auf einer eigenen Zeile (ist bereits so)
 
 ### Datei
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminAngebote.tsx` | 3 Stellen anpassen |
+| `src/pages/AdminAngebote.tsx` | Titel-Erkennung und bold-Formatierung in der Ausstattungs-Schleife |
 
