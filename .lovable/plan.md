@@ -1,32 +1,18 @@
 
 
-## PDF-Dateiname um Interessenten-Name erweitern
+## PDF-Bereinigung: ABC_02_01, Nachlass-Logik, Divider
 
-Kleine Änderung in `src/pages/AdminAngebote.tsx` in der `handleDownload`-Funktion:
+### Änderungen in `src/pages/AdminAngebote.tsx`
 
-Der Dateiname wird aktuell so generiert:
-```
-{Fahrzeugname}_Angebot.pdf
-```
+1. **"ABC_02_01" entfernen** (Zeilen 354-356): Den Page-Code-Block komplett löschen.
 
-Neues Format:
-```
-{Fahrzeugname}_Angebot_{InteressentName}.pdf
-```
+2. **Nachlass/Zwischensumme bedingt anzeigen** (Zeilen 276-278): Nur wenn `nachlass > 0`, die Zeilen "- Nachlass" und "Zwischensumme" rendern. Bei `nachlass === 0` direkt nur Fahrzeugpreis, Kostenlose Lieferung und Gesamtsumme anzeigen.
 
-### Umsetzung
-
-Zeile 453-454: Den `interessentName` ebenfalls bereinigen und an den Dateinamen anhängen:
-
-```ts
-const safeName = selectedFahrzeug.fahrzeugname.replace(/[^a-zA-Z0-9äöüÄÖÜß\-_ ]/g, "").replace(/\s+/g, "_");
-const safePerson = interessentName.replace(/[^a-zA-Z0-9äöüÄÖÜß\-_ ]/g, "").replace(/\s+/g, "_");
-a.download = `${safeName}_Angebot_${safePerson}.pdf`;
-```
+3. **Divider über Gesamtsumme entfernen** (Zeile 280): `drawLine(y - 2)` und `y += 1` entfernen.
 
 ### Datei
 
 | Datei | Änderung |
 |---|---|
-| `src/pages/AdminAngebote.tsx` | Dateiname um Interessenten-Name ergänzen |
+| `src/pages/AdminAngebote.tsx` | 3 Stellen anpassen |
 
