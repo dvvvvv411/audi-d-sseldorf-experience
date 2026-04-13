@@ -176,8 +176,10 @@ async function generateAngebotPdf(
   doc.setFontSize(10);
   doc.text(`für ${interessent.name}`, marginL, y);
   y += 5;
-  doc.text(interessent.strasse, marginL, y);
-  y += 5;
+  if (interessent.strasse.trim()) {
+    doc.text(interessent.strasse, marginL, y);
+    y += 5;
+  }
   doc.text(interessent.plzStadt, marginL, y);
   y += 10;
 
@@ -409,7 +411,6 @@ const AdminAngebote = () => {
     selectedVerkaeuferObj &&
     selectedBrandingObj &&
     interessentName.trim() &&
-    interessentStrasse.trim() &&
     interessentPlzStadt.trim();
 
   const handleGenerate = async () => {
@@ -495,7 +496,7 @@ const AdminAngebote = () => {
           <Input value={interessentName} onChange={(e) => setInteressentName(e.target.value)} placeholder="Max Mustermann" />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Straße + Hausnummer</label>
+          <label className="text-sm font-medium text-muted-foreground">Straße + Hausnummer (optional)</label>
           <Input value={interessentStrasse} onChange={(e) => setInteressentStrasse(e.target.value)} placeholder="Musterstr. 1" />
         </div>
         <div className="space-y-2">
