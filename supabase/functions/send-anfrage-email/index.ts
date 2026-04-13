@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { branding_id, fahrzeug_id, kunde_email } = await req.json();
+    const { branding_id, fahrzeug_id, kunde_email, kunde_name, kunde_telefon } = await req.json();
 
     if (!branding_id || !fahrzeug_id || !kunde_email) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
@@ -144,6 +144,33 @@ Deno.serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // --- Telegram notification ---
+    try {
+      const telegramToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
+      if (telegramToken) {
+        const { data: chatIds } = await supabase
+          .from("telegram_chat_ids")
+          .select("chat_id");
+
+        if (chatIds && chatIds.length > 0) {
+          const preis = Number(fahrzeug.preis).toLocaleString("de-DE", { minimumFractionDigits: 0 });
+          const tgMessage = `🚗 <b>Neue Anfrage eingegangen!</b>\n\n<b>Name:</b> ${kunde_name || "–"}\n📞 ${kunde_telefon || "–"}\n📧 ${kunde_email}\n\n<b>Fahrzeug:</b> ${fahrzeug.fahrzeugname}\n<b>Preis:</b> ${preis} €`;
+
+          await Promise.allSettled(
+            chatIds.map((c: { chat_id: string }) =>
+              fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: c.chat_id, text: tgMessage, parse_mode: "HTML" }),
+              })
+            )
+          );
+        }
+      }
+    } catch (tgErr) {
+      console.error("Telegram notification error:", tgErr);
     }
 
     return new Response(JSON.stringify({ success: true, id: resendData.id }), {
