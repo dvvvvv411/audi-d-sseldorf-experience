@@ -342,12 +342,31 @@ async function generateAngebotPdf(
     const maxY = 265;
     const lineH = 4;
 
+    const isTitle = (l: string) => {
+      const trimmed = l.trim();
+      if (!trimmed) return false;
+      if (trimmed.endsWith(":")) return true;
+      const letters = trimmed.replace(/[^a-zA-ZÄÖÜäöüß]/g, "");
+      return letters.length > 2 && letters === letters.toUpperCase();
+    };
+
     for (const line of equipmentLines) {
-      if (y + lineH > maxY) {
-        // Disclaimer on bottom before page break won't fit, start new page
+      const trimmed = line.trim();
+      const title = isTitle(trimmed);
+      const needed = title ? lineH + 3 : lineH;
+      if (y + needed > maxY) {
         y = startEquipmentPage();
       }
-      doc.text(line.trim(), marginL, y);
+      if (title) {
+        y += 3;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.text(trimmed, marginL, y);
+      } else {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.text(`•  ${trimmed}`, marginL + 2, y);
+      }
       y += lineH;
     }
 
