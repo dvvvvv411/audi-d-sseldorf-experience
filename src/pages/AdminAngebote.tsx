@@ -108,7 +108,7 @@ async function generateAngebotPdf(
   fahrzeug: Fahrzeug,
   verkaeufer: Verkaeufer,
   branding: Branding,
-  interessent: { name: string; strasse: string; plzStadt: string },
+  interessent: { name: string; firma: string; strasse: string; plzStadt: string },
   nachlass: number
 ): Promise<Blob> {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -177,12 +177,19 @@ async function generateAngebotPdf(
   doc.setFontSize(10);
   doc.text(`für ${interessent.name}`, marginL, y);
   y += 5;
+  if (interessent.firma.trim()) {
+    doc.text(interessent.firma, marginL, y);
+    y += 5;
+  }
   if (interessent.strasse.trim()) {
     doc.text(interessent.strasse, marginL, y);
     y += 5;
   }
-  doc.text(interessent.plzStadt, marginL, y);
-  y += 10;
+  if (interessent.plzStadt.trim()) {
+    doc.text(interessent.plzStadt, marginL, y);
+    y += 5;
+  }
+  y += 5;
 
   drawLine(y);
   y += 8;
@@ -368,6 +375,7 @@ const AdminAngebote = () => {
   const [selectedBrandingId, setSelectedBrandingId] = useState("");
 
   const [interessentName, setInteressentName] = useState("");
+  const [interessentFirma, setInteressentFirma] = useState("");
   const [interessentStrasse, setInteressentStrasse] = useState("");
   const [interessentPlzStadt, setInteressentPlzStadt] = useState("");
   const [nachlass, setNachlass] = useState(0);
@@ -395,6 +403,7 @@ const AdminAngebote = () => {
       const paramVerkaeufer = searchParams.get("verkaeufer");
       const paramBranding = searchParams.get("branding");
       const paramName = searchParams.get("name");
+      const paramFirma = searchParams.get("firma");
       const paramStrasse = searchParams.get("strasse");
       const paramPlzStadt = searchParams.get("plzstadt");
 
@@ -405,6 +414,7 @@ const AdminAngebote = () => {
         if (match) setSelectedBrandingId(match.id);
       }
       if (paramName) setInteressentName(decodeURIComponent(paramName));
+      if (paramFirma) setInteressentFirma(decodeURIComponent(paramFirma));
       if (paramStrasse) setInteressentStrasse(decodeURIComponent(paramStrasse));
       if (paramPlzStadt) setInteressentPlzStadt(decodeURIComponent(paramPlzStadt));
     };
@@ -419,8 +429,7 @@ const AdminAngebote = () => {
     selectedFahrzeug &&
     selectedVerkaeuferObj &&
     selectedBrandingObj &&
-    interessentName.trim() &&
-    interessentPlzStadt.trim();
+    interessentName.trim();
 
   const handleGenerate = async () => {
     if (!canGenerate) return;
@@ -430,7 +439,7 @@ const AdminAngebote = () => {
         selectedFahrzeug,
         selectedVerkaeuferObj,
         selectedBrandingObj,
-        { name: interessentName, strasse: interessentStrasse, plzStadt: interessentPlzStadt },
+        { name: interessentName, firma: interessentFirma, strasse: interessentStrasse, plzStadt: interessentPlzStadt },
         nachlass
       );
       if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
@@ -500,17 +509,21 @@ const AdminAngebote = () => {
       </div>
 
       {/* Interessent + Nachlass */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">Voller Name (Interessent)</label>
           <Input value={interessentName} onChange={(e) => setInteressentName(e.target.value)} placeholder="Max Mustermann" />
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-muted-foreground">Unternehmensname (optional)</label>
+          <Input value={interessentFirma} onChange={(e) => setInteressentFirma(e.target.value)} placeholder="Firma GmbH" />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">Straße + Hausnummer (optional)</label>
           <Input value={interessentStrasse} onChange={(e) => setInteressentStrasse(e.target.value)} placeholder="Musterstr. 1" />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">PLZ + Stadt</label>
+          <label className="text-sm font-medium text-muted-foreground">PLZ + Stadt (optional)</label>
           <Input value={interessentPlzStadt} onChange={(e) => setInteressentPlzStadt(e.target.value)} placeholder="12345 Musterstadt" />
         </div>
         <div className="space-y-2">
