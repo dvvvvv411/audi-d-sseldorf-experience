@@ -47,87 +47,17 @@ async function loadAudiLogoAsBase64(): Promise<string | null> {
   }
 }
 
-// ── Icon drawing functions ──
-
-function drawPickupIcon(doc: jsPDF, cx: number, cy: number) {
-  // Car body
+// ── Number circle drawing ──
+function drawNumberCircle(doc: jsPDF, cx: number, cy: number, num: number) {
   doc.setDrawColor(40);
   doc.setLineWidth(0.8);
   doc.setFillColor(40, 40, 40);
-
-  // Car body (lower rectangle)
-  const bw = 11, bh = 4;
-  doc.roundedRect(cx - bw / 2, cy - 1, bw, bh, 1, 1, "S");
-
-  // Car roof (upper trapezoid as rounded rect)
-  const rw = 7, rh = 3.5;
-  doc.roundedRect(cx - rw / 2, cy - 4.5, rw, rh, 1, 1, "S");
-
-  // Wheels
-  doc.setFillColor(40, 40, 40);
-  doc.circle(cx - 3.2, cy + 3.5, 1.5, "F");
-  doc.circle(cx + 3.2, cy + 3.5, 1.5, "F");
-
-  // Arrow pointing right (pickup direction)
-  const arrowY = cy - 7;
-  doc.setLineWidth(0.7);
-  doc.line(cx - 3, arrowY, cx + 4, arrowY);
-  doc.line(cx + 2, arrowY - 2, cx + 4, arrowY);
-  doc.line(cx + 2, arrowY + 2, cx + 4, arrowY);
-}
-
-function drawInspectionIcon(doc: jsPDF, cx: number, cy: number) {
-  doc.setDrawColor(40);
-  doc.setLineWidth(0.8);
-
-  // Magnifying glass circle
-  const glassR = 5;
-  doc.circle(cx - 1, cy - 2, glassR, "S");
-
-  // Handle
-  doc.setLineWidth(1.2);
-  const handleAngle = Math.PI / 4;
-  const hx1 = cx - 1 + Math.cos(handleAngle) * glassR;
-  const hy1 = cy - 2 + Math.sin(handleAngle) * glassR;
-  doc.line(hx1, hy1, hx1 + 4, hy1 + 4);
-
-  // Checkmark inside the glass
-  doc.setLineWidth(0.9);
-  doc.setDrawColor(40);
-  const checkCx = cx - 1, checkCy = cy - 2;
-  doc.line(checkCx - 2.5, checkCy, checkCx - 0.5, checkCy + 2.5);
-  doc.line(checkCx - 0.5, checkCy + 2.5, checkCx + 3, checkCy - 2);
-}
-
-function drawReturnIcon(doc: jsPDF, cx: number, cy: number) {
-  doc.setDrawColor(40);
-  doc.setLineWidth(0.8);
-
-  // House outline
-  const hw = 12, hh = 8;
-  const roofPeak = cy - 6;
-  const houseTop = cy - 1;
-  const houseBottom = houseTop + hh;
-
-  // Roof (triangle)
-  doc.line(cx - hw / 2 - 1, houseTop, cx, roofPeak); // left slope
-  doc.line(cx, roofPeak, cx + hw / 2 + 1, houseTop); // right slope
-
-  // Walls
-  doc.line(cx - hw / 2, houseTop, cx - hw / 2, houseBottom);
-  doc.line(cx + hw / 2, houseTop, cx + hw / 2, houseBottom);
-  doc.line(cx - hw / 2, houseBottom, cx + hw / 2, houseBottom);
-
-  // Door
-  const dw = 3, dh = 4.5;
-  doc.rect(cx - dw / 2, houseBottom - dh, dw, dh, "S");
-
-  // Arrow pointing left (return direction) below
-  const arrowY = houseBottom + 3.5;
-  doc.setLineWidth(0.7);
-  doc.line(cx + 3, arrowY, cx - 4, arrowY);
-  doc.line(cx - 2, arrowY - 2, cx - 4, arrowY);
-  doc.line(cx - 2, arrowY + 2, cx - 4, arrowY);
+  doc.circle(cx, cy, 6, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(255, 255, 255);
+  doc.text(String(num), cx, cy + 1.5, { align: "center" });
+  doc.setTextColor(0);
 }
 
 async function generateInzahlungnahmePdf(
@@ -229,16 +159,16 @@ async function generateInzahlungnahmePdf(
   const stepSpacing = boxW / 4;
 
   const steps = [
-    { label: "Abholung", desc: ["Wir holen Ihr Fahrzeug", "kostenfrei bei Ihnen ab."], drawIcon: drawPickupIcon },
-    { label: "Prüfung", desc: ["Unser Expertenteam", "begutachtet Ihr Fahrzeug", "sorgfältig."], drawIcon: drawInspectionIcon },
-    { label: "Rückgabe", desc: ["Ihr Fahrzeug wird", "kostenfrei an Sie", "zurückgebracht."], drawIcon: drawReturnIcon },
+    { label: "Abholung", desc: ["Ein externer Dienstleister", "holt Ihr Fahrzeug kostenfrei", "bei Ihnen ab."], num: 1 },
+    { label: "Prüfung", desc: ["Unser Expertenteam", "begutachtet und bewertet Ihr", "Fahrzeug sorgfältig."], num: 2 },
+    { label: "Rückgabe", desc: ["Ihr Fahrzeug wird durch", "unseren Dienstleister kostenfrei", "zurückgebracht."], num: 3 },
   ];
 
   steps.forEach((step, i) => {
     const cx = boxX + stepSpacing * (i + 1);
 
     // Draw thematic icon
-    step.drawIcon(doc, cx, stepCenterY);
+    drawNumberCircle(doc, cx, stepCenterY, step.num);
 
     // Connecting arrows between icons
     if (i < steps.length - 1) {
@@ -282,7 +212,7 @@ async function generateInzahlungnahmePdf(
   doc.text(anredeText, marginL, y);
   y += 8;
 
-  const bodyText = `wir möchten Ihr Fahrzeug „${kundenfahrzeug}" gerne in Zahlung nehmen. Zur Begutachtung und Bewertung holen wir das Fahrzeug kostenfrei bei Ihnen ab. Nach Abschluss der Prüfung wird das Fahrzeug selbstverständlich kostenfrei wieder an Sie zurückgebracht.`;
+  const bodyText = `wir möchten Ihr Fahrzeug „${kundenfahrzeug}" gerne in Zahlung nehmen. Zur Begutachtung und Bewertung wird das Fahrzeug durch einen externen Dienstleister kostenfrei bei Ihnen abgeholt. Nach Abschluss der Prüfung wird das Fahrzeug selbstverständlich kostenfrei wieder an Sie zurückgebracht.`;
 
   const bodyLines = doc.splitTextToSize(bodyText, contentW);
   doc.text(bodyLines, marginL, y);
