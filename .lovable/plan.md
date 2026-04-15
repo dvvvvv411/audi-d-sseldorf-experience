@@ -1,32 +1,29 @@
 
 
-## Inzahlungnahme: 4 Spalten — "So erreichen Sie uns" entfernen, "Sitz der Gesellschaft" behalten
+## Inzahlungnahme: Footer-Abstände und Schriftgröße optimieren
 
-### Footer-Visualisierung (4 Spalten)
+### Visualisierung (4 Spalten, gleichmäßig verteilt)
 
 ```text
 ─────────────────────────────────────────────────────────────────────
-Ihr Berater:            USt-IdNr.:           Bankverbindung        Sitz der
-Max Mustermann          DE811115368          Audi AG Bank           Gesellschaft:
-Tel: 0123 456789        Amtsgericht          IBAN: DE72 3702       Auto-Union-
-E-Mail:                 Ingolstadt           0500 0001 0379 00     Straße 1
-max.mustermann@         HR B 1               BIC: AUIDE71XXX       85057
-audi.de                                                            Ingolstadt
+Ihr Berater:         USt-IdNr.:          Bankverbindung       Sitz der
+Max Mustermann       DE811115368         Audi AG Bank          Gesellschaft:
+Tel: 0123 456789     Amtsgericht         IBAN: DE72 3702      Auto-Union-
+E-Mail:              Ingolstadt          0500 0001 0379 00    Straße 1
+max@audi.de          HR B 1              BIC: AUIDE71XXX      85057 Ingolstadt
 ─────────────────────────────────────────────────────────────────────
 ```
 
-**Entfernt:** Spalte 1 ("So erreichen Sie uns: Audi AG Vertrieb...")
-**Behalten:** Sitz der Gesellschaft als Spalte 4
+### Änderungen in `src/pages/AdminInzahlungnahme.tsx`
 
-### Aenderungen in `src/pages/AdminInzahlungnahme.tsx`
-
-- Spalte 1 ("So erreichen Sie uns", Zeilen 249-258) komplett entfernen
-- `colX`-Array von 5 auf 4 Positionen: `[marginL, marginL + 42.5, marginL + 85, marginL + 127.5]`
-- Verbleibende 4 Spalten: Ihr Berater, USt-IdNr, Bankverbindung, Sitz der Gesellschaft
+- **Schriftgröße** von 6pt auf 7pt erhöhen
+- **Zeilenhöhe** (`fLineH`) von 3 auf 3.5 anpassen
+- **Spaltenabstände** gleichmäßiger verteilen: `colX = [marginL, marginL + 45, marginL + 90, marginL + 135]`
+- Spalte 4 "Sitz der Gesellschaft:" in eine Zeile zusammenfassen (Platz reicht bei 7pt)
 
 ### Dateien
 
-| Datei | Aenderung |
+| Datei | Änderung |
 |---|---|
-| `src/pages/AdminInzahlungnahme.tsx` | Spalte 1 entfernen, 4-Spalten-Grid mit breiterem Abstand |
+| `src/pages/AdminInzahlungnahme.tsx` | Footer: Schrift 7pt, Zeilenhöhe 3.5, breitere Spaltenverteilung |
 
