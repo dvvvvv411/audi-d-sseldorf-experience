@@ -241,14 +241,14 @@ async function generateInzahlungnahmePdf(
   const footerY = 262;
     drawLine(footerY);
     const fY = footerY + 4;
-    const colX = [marginL, marginL + 42.5, marginL + 85, marginL + 127.5];
-    const fLineH = 3;
+    const colX = [marginL, marginL + 45, marginL + 90, marginL + 135];
+    const fLineH = 3.5;
 
     doc.setTextColor(80, 80, 80);
 
     // Column 1: Ihr Berater
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(6);
+    doc.setFontSize(7);
     doc.text("Ihr Berater:", colX[0], fY);
     doc.setFont("helvetica", "normal");
     doc.text(`${verkaeufer.vorname} ${verkaeufer.nachname}`, colX[0], fY + fLineH);
@@ -276,13 +276,10 @@ async function generateInzahlungnahmePdf(
 
     // Column 4: Sitz der Gesellschaft
     doc.setFont("helvetica", "bold");
-    doc.text("Sitz der", colX[3], fY);
-    doc.text("Gesellschaft:", colX[3], fY + fLineH);
+    doc.text("Sitz der Gesellschaft:", colX[3], fY);
     doc.setFont("helvetica", "normal");
-    doc.text("Auto-Union-", colX[3], fY + fLineH * 2.5);
-    doc.text("Straße 1", colX[3], fY + fLineH * 3.5);
-    doc.text("85057", colX[3], fY + fLineH * 4.5);
-    doc.text("Ingolstadt", colX[3], fY + fLineH * 5.5);
+    doc.text("Auto-Union-Straße 1", colX[3], fY + fLineH);
+    doc.text("85057 Ingolstadt", colX[3], fY + fLineH * 2.5);
 
     doc.setTextColor(0);
 
