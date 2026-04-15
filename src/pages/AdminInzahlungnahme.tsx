@@ -47,23 +47,95 @@ async function loadAudiLogoAsBase64(): Promise<string | null> {
   }
 }
 
-function drawStepIcon(doc: jsPDF, cx: number, cy: number, radius: number, step: number) {
-  // Outer circle
-  doc.setDrawColor(0);
-  doc.setLineWidth(0.6);
-  doc.circle(cx, cy, radius);
+// ── Icon drawing functions ──
 
-  // Step number
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text(String(step), cx, cy + 1.5, { align: "center" });
+function drawPickupIcon(doc: jsPDF, cx: number, cy: number) {
+  // Car body
+  doc.setDrawColor(40);
+  doc.setLineWidth(0.8);
+  doc.setFillColor(40, 40, 40);
+
+  // Car body (lower rectangle)
+  const bw = 11, bh = 4;
+  doc.roundedRect(cx - bw / 2, cy - 1, bw, bh, 1, 1, "S");
+
+  // Car roof (upper trapezoid as rounded rect)
+  const rw = 7, rh = 3.5;
+  doc.roundedRect(cx - rw / 2, cy - 4.5, rw, rh, 1, 1, "S");
+
+  // Wheels
+  doc.setFillColor(40, 40, 40);
+  doc.circle(cx - 3.2, cy + 3.5, 1.5, "F");
+  doc.circle(cx + 3.2, cy + 3.5, 1.5, "F");
+
+  // Arrow pointing right (pickup direction)
+  const arrowY = cy - 7;
+  doc.setLineWidth(0.7);
+  doc.line(cx - 3, arrowY, cx + 4, arrowY);
+  doc.line(cx + 2, arrowY - 2, cx + 4, arrowY);
+  doc.line(cx + 2, arrowY + 2, cx + 4, arrowY);
+}
+
+function drawInspectionIcon(doc: jsPDF, cx: number, cy: number) {
+  doc.setDrawColor(40);
+  doc.setLineWidth(0.8);
+
+  // Magnifying glass circle
+  const glassR = 5;
+  doc.circle(cx - 1, cy - 2, glassR, "S");
+
+  // Handle
+  doc.setLineWidth(1.2);
+  const handleAngle = Math.PI / 4;
+  const hx1 = cx - 1 + Math.cos(handleAngle) * glassR;
+  const hy1 = cy - 2 + Math.sin(handleAngle) * glassR;
+  doc.line(hx1, hy1, hx1 + 4, hy1 + 4);
+
+  // Checkmark inside the glass
+  doc.setLineWidth(0.9);
+  doc.setDrawColor(40);
+  const checkCx = cx - 1, checkCy = cy - 2;
+  doc.line(checkCx - 2.5, checkCy, checkCx - 0.5, checkCy + 2.5);
+  doc.line(checkCx - 0.5, checkCy + 2.5, checkCx + 3, checkCy - 2);
+}
+
+function drawReturnIcon(doc: jsPDF, cx: number, cy: number) {
+  doc.setDrawColor(40);
+  doc.setLineWidth(0.8);
+
+  // House outline
+  const hw = 12, hh = 8;
+  const roofPeak = cy - 6;
+  const houseTop = cy - 1;
+  const houseBottom = houseTop + hh;
+
+  // Roof (triangle)
+  doc.line(cx - hw / 2 - 1, houseTop, cx, roofPeak); // left slope
+  doc.line(cx, roofPeak, cx + hw / 2 + 1, houseTop); // right slope
+
+  // Walls
+  doc.line(cx - hw / 2, houseTop, cx - hw / 2, houseBottom);
+  doc.line(cx + hw / 2, houseTop, cx + hw / 2, houseBottom);
+  doc.line(cx - hw / 2, houseBottom, cx + hw / 2, houseBottom);
+
+  // Door
+  const dw = 3, dh = 4.5;
+  doc.rect(cx - dw / 2, houseBottom - dh, dw, dh, "S");
+
+  // Arrow pointing left (return direction) below
+  const arrowY = houseBottom + 3.5;
+  doc.setLineWidth(0.7);
+  doc.line(cx + 3, arrowY, cx - 4, arrowY);
+  doc.line(cx - 2, arrowY - 2, cx - 4, arrowY);
+  doc.line(cx - 2, arrowY + 2, cx - 4, arrowY);
 }
 
 async function generateInzahlungnahmePdf(
   verkaeufer: Verkaeufer,
   branding: Branding,
   kunde: { name: string; strasse: string; plzStadt: string },
-  kundenfahrzeug: string
+  kundenfahrzeug: string,
+  anrede: "Herr" | "Frau"
 ): Promise<Blob> {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageW = 210;
@@ -153,77 +225,74 @@ async function generateInzahlungnahmePdf(
   doc.setLineWidth(0.4);
   doc.roundedRect(boxX, boxY, boxW, boxH, 3, 3, "FD");
 
-  const stepCenterY = boxY + 22;
+  const stepCenterY = boxY + 24;
   const stepSpacing = boxW / 4;
-  const iconRadius = 10;
 
   const steps = [
-    { num: 1, label: "Abholung", desc: ["Wir holen Ihr Fahrzeug", "kostenfrei bei Ihnen ab."] },
-    { num: 2, label: "Prüfung", desc: ["Unser Expertenteam", "begutachtet Ihr Fahrzeug", "sorgfältig."] },
-    { num: 3, label: "Rückgabe", desc: ["Ihr Fahrzeug wird", "kostenfrei an Sie", "zurückgebracht."] },
+    { label: "Abholung", desc: ["Wir holen Ihr Fahrzeug", "kostenfrei bei Ihnen ab."], drawIcon: drawPickupIcon },
+    { label: "Prüfung", desc: ["Unser Expertenteam", "begutachtet Ihr Fahrzeug", "sorgfältig."], drawIcon: drawInspectionIcon },
+    { label: "Rückgabe", desc: ["Ihr Fahrzeug wird", "kostenfrei an Sie", "zurückgebracht."], drawIcon: drawReturnIcon },
   ];
 
   steps.forEach((step, i) => {
     const cx = boxX + stepSpacing * (i + 1);
 
-    // Draw circle icon
-    doc.setFillColor(255, 255, 255);
-    doc.circle(cx, stepCenterY, iconRadius, "FD");
-    drawStepIcon(doc, cx, stepCenterY, iconRadius, step.num);
+    // Draw thematic icon
+    step.drawIcon(doc, cx, stepCenterY);
 
-    // Connecting lines between circles
+    // Connecting arrows between icons
     if (i < steps.length - 1) {
       const nextCx = boxX + stepSpacing * (i + 2);
-      doc.setDrawColor(180);
+      doc.setDrawColor(160);
       doc.setLineWidth(0.5);
       const arrowY = stepCenterY;
-      doc.line(cx + iconRadius + 2, arrowY, nextCx - iconRadius - 2, arrowY);
+      const startX = cx + 9;
+      const endX = nextCx - 9;
+      doc.line(startX, arrowY, endX, arrowY);
       // Arrow head
-      const arrowTipX = nextCx - iconRadius - 2;
-      doc.line(arrowTipX - 2, arrowY - 1.5, arrowTipX, arrowY);
-      doc.line(arrowTipX - 2, arrowY + 1.5, arrowTipX, arrowY);
+      doc.line(endX - 2, arrowY - 1.5, endX, arrowY);
+      doc.line(endX - 2, arrowY + 1.5, endX, arrowY);
     }
 
     // Label
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.setTextColor(0);
-    doc.text(step.label, cx, stepCenterY + iconRadius + 6, { align: "center" });
+    doc.text(step.label, cx, stepCenterY + 14, { align: "center" });
 
     // Description
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
     doc.setTextColor(80, 80, 80);
     step.desc.forEach((line, li) => {
-      doc.text(line, cx, stepCenterY + iconRadius + 11 + li * 3.5, { align: "center" });
+      doc.text(line, cx, stepCenterY + 19 + li * 3.5, { align: "center" });
     });
     doc.setTextColor(0);
   });
 
   y = boxY + boxH + 12;
 
-  // ── Formal text ──
+  // ── Formal text (full-width) ──
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   const nachname = kunde.name.split(" ").pop() || kunde.name;
 
-  const textLines = [
-    `Sehr geehrte/r Herr/Frau ${nachname},`,
-    "",
-    `wir möchten Ihr Fahrzeug „${kundenfahrzeug}" gerne in Zahlung nehmen.`,
-    "Zur Begutachtung und Bewertung holen wir das Fahrzeug kostenfrei",
-    "bei Ihnen ab. Nach Abschluss der Prüfung wird das Fahrzeug",
-    "selbstverständlich kostenfrei wieder an Sie zurückgebracht.",
-    "",
-    "Es entstehen Ihnen keinerlei Kosten.",
-  ];
+  const anredeText = anrede === "Herr" ? `Sehr geehrter Herr ${nachname},` : `Sehr geehrte Frau ${nachname},`;
 
-  textLines.forEach((line) => {
-    doc.text(line, marginL, y);
-    y += 5;
-  });
+  doc.text(anredeText, marginL, y);
+  y += 8;
 
-  y += 15;
+  const bodyText = `wir möchten Ihr Fahrzeug „${kundenfahrzeug}" gerne in Zahlung nehmen. Zur Begutachtung und Bewertung holen wir das Fahrzeug kostenfrei bei Ihnen ab. Nach Abschluss der Prüfung wird das Fahrzeug selbstverständlich kostenfrei wieder an Sie zurückgebracht.`;
+
+  const bodyLines = doc.splitTextToSize(bodyText, contentW);
+  doc.text(bodyLines, marginL, y);
+  y += bodyLines.length * 5;
+
+  y += 3;
+  const closingText = "Es entstehen Ihnen keinerlei Kosten.";
+  doc.text(closingText, marginL, y);
+
+  y += 20;
 
   // ── Signature lines ──
   doc.setDrawColor(0);
@@ -261,6 +330,7 @@ const AdminInzahlungnahme = () => {
 
   const [selectedVerkaeuferId, setSelectedVerkaeuferId] = useState("");
   const [selectedBrandingId, setSelectedBrandingId] = useState("");
+  const [anrede, setAnrede] = useState<"Herr" | "Frau">("Herr");
   const [kundenname, setKundenname] = useState("");
   const [kundenfahrzeug, setKundenfahrzeug] = useState("");
   const [strasse, setStrasse] = useState("");
@@ -299,7 +369,8 @@ const AdminInzahlungnahme = () => {
         selectedVerkaeuferObj,
         selectedBrandingObj,
         { name: kundenname.trim(), strasse: strasse.trim(), plzStadt: plzStadt.trim() },
-        kundenfahrzeug.trim()
+        kundenfahrzeug.trim(),
+        anrede
       );
       if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
       const url = URL.createObjectURL(blob);
@@ -329,7 +400,7 @@ const AdminInzahlungnahme = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">Verkäufer</label>
           <Select value={selectedVerkaeuferId} onValueChange={setSelectedVerkaeuferId}>
@@ -350,6 +421,17 @@ const AdminInzahlungnahme = () => {
               {brandings.map((b) => (
                 <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-muted-foreground">Anrede</label>
+          <Select value={anrede} onValueChange={(v) => setAnrede(v as "Herr" | "Frau")}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Herr">Herr</SelectItem>
+              <SelectItem value="Frau">Frau</SelectItem>
             </SelectContent>
           </Select>
         </div>
