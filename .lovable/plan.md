@@ -1,27 +1,95 @@
 
 
-## Angebote: PLZ/Stadt optional + Unternehmensname
+## Neuer Reiter "Inzahlungnahme" mit PDF-Generator
 
-### Aenderungen in `src/pages/AdminAngebote.tsx`
+### PDF-Visualisierung (A4 Layout)
 
-**1. PLZ + Stadt optional machen**
-- Label aendern zu "PLZ + Stadt (optional)"
-- `canGenerate` Bedingung: `interessentPlzStadt.trim()` entfernen -- nur noch Name ist Pflicht
-- PDF-Generierung: PLZ/Stadt-Zeile nur rendern wenn `interessent.plzStadt.trim()` nicht leer (gleiche Logik wie bei Strasse)
+```text
+┌─────────────────────────────────────────────────────┐
+│                                          [Audi Logo]│
+│  Audi AG                                            │
+│  Musterstraße 1                                     │
+│  12345 Musterstadt                                  │
+│                                                     │
+│  Ansprechpartner: Max Mustermann                    │
+│  Telefon: +49 123 456789                            │
+│  E-Mail: max@audi.de                                │
+│                                                     │
+│  ─────────────────────────────────────────────────── │
+│                                                     │
+│          I N Z A H L U N G N A H M E                │
+│                                                     │
+│  Kunde: Hans Beispiel                               │
+│  Musterweg 5                          (optional)    │
+│  54321 Beispielstadt                  (optional)    │
+│                                                     │
+│  Fahrzeug: BMW 320d Touring                         │
+│                                                     │
+│  ─────────────────────────────────────────────────── │
+│                                                     │
+│  ┌─────────────────────────────────────────────────┐ │
+│  │                                                 │ │
+│  │   ┌─────────┐   ┌─────────┐   ┌─────────┐     │ │
+│  │   │    1    │   │    2    │   │    3    │     │ │
+│  │   │  (car)  │   │ (check) │   │  (car)  │     │ │
+│  │   └─────────┘   └─────────┘   └─────────┘     │ │
+│  │   Abholung       Prüfung       Rückgabe        │ │
+│  │                                                 │ │
+│  │   Wir holen      Unser          Ihr Fahrzeug   │ │
+│  │   Ihr Fahrzeug   Expertenteam   wird kosten-   │ │
+│  │   kostenfrei     begutachtet    frei an Sie     │ │
+│  │   bei Ihnen ab.  Ihr Fahrzeug   zurückgebracht.│ │
+│  │                  sorgfältig.                    │ │
+│  │                                                 │ │
+│  └─────────────────────────────────────────────────┘ │
+│                                                     │
+│  Sehr geehrte/r Herr/Frau Beispiel,                │
+│                                                     │
+│  wir möchten Ihr Fahrzeug "BMW 320d Touring"        │
+│  gerne in Zahlung nehmen. Zur Begutachtung und      │
+│  Bewertung holen wir das Fahrzeug kostenfrei bei    │
+│  Ihnen ab. Nach Abschluss der Prüfung wird das     │
+│  Fahrzeug selbstverständlich kostenfrei wieder an   │
+│  Sie zurückgebracht.                                │
+│                                                     │
+│  Es entstehen Ihnen keinerlei Kosten.               │
+│                                                     │
+│                                                     │
+│  ____________          ___________________________  │
+│  Datum                 Unterschrift Verkäufer        │
+│                                                     │
+│  ─────────────────────────────────────────────────── │
+│  Audi AG · Musterstraße 1 · 12345 Musterstadt      │
+│  Erstellt am 15.04.2026                             │
+└─────────────────────────────────────────────────────┘
+```
 
-**2. Neues Feld "Unternehmensname"**
-- Neuer State: `const [interessentFirma, setInteressentFirma] = useState("")`
-- Neues Input-Feld im Formular (zwischen Name und Strasse), Label: "Unternehmensname (optional)"
-- `interessent`-Objekt erhaelt neues Feld `firma: string`
-- PDF-Generierung Seite 1: Nach `für {name}` wird, wenn `firma.trim()` nicht leer, eine Zeile mit dem Firmennamen eingefuegt
-- PDF Seite 2: Im `Angebot Nr. ... an {name}` Header bleibt nur der Name
+### Formularfelder
 
-**3. URL-Param Unterstuetzung**
-- Neuer optionaler URL-Param `firma` zum Vorausfuellen
+- **Verkäufer** (Select aus DB)
+- **Branding** (Select aus DB)
+- **Kundenname** (Eingabefeld, Pflicht)
+- **Kundenfahrzeug** (Eingabefeld, Pflicht -- Freitext)
+- **Straße + Hausnummer** (optional)
+- **PLZ + Stadt** (optional)
+
+### Umsetzung
+
+**Neue Datei `src/pages/AdminInzahlungnahme.tsx`:**
+- Gleiche Struktur wie AdminAngebote/AdminExposes (Selects, Eingabefelder, Generate/Download/Vorschau)
+- jsPDF-Generierung mit dem oben visualisierten Layout
+- 3-Schritte-Diagramm wird mit jsPDF-Zeichenfunktionen erstellt (Kreise, Linien, Text)
+- Kopf-/Fußbereich identisch zum Angebot-Stil (Audi-Logo rechts oben, Branding links)
+
+**`AdminLayout.tsx`:** Neuer Nav-Eintrag "Inzahlungnahme" mit `CarFront`-Icon
+
+**`App.tsx`:** Route `/admin/inzahlungnahme`
 
 ### Dateien
 
-| Datei | Aenderung |
+| Datei | Änderung |
 |---|---|
-| `src/pages/AdminAngebote.tsx` | PLZ/Stadt optional, neues Firma-Feld + PDF-Logik |
+| `src/pages/AdminInzahlungnahme.tsx` | NEU -- Formular + PDF-Generator |
+| `src/pages/AdminLayout.tsx` | Neuer Nav-Eintrag |
+| `src/App.tsx` | Neue Route |
 
