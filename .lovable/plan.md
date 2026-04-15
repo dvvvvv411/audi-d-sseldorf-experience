@@ -1,27 +1,24 @@
 
 
-## Inzahlungnahme verbessern: Anrede + Full-Width Text + Icons
+## Inzahlungnahme: Zahlen statt Icons + Text anpassen
 
 ### Aenderungen in `src/pages/AdminInzahlungnahme.tsx`
 
-**1. Anrede-Feld (Herr/Frau)**
-- Neuer State `anrede` mit Werten `"Herr"` | `"Frau"`
-- Select-Feld im Formular (vor Kundenname)
-- PDF-Text passt sich an: `"Sehr geehrter Herr Nachname"` oder `"Sehr geehrte Frau Nachname"`
+**1. Icons zurueck zu Zahlen (1, 2, 3)**
+- Die drei Icon-Funktionen (`drawPickupIcon`, `drawInspectionIcon`, `drawReturnIcon`) entfernen
+- Stattdessen wieder nummerierte Kreise zeichnen (Kreis mit Zahl 1/2/3 darin), wie urspruenglich
 
-**2. Full-Width Text**
-- Formellen Text (Zeilen 210-218) als zusammenhaengende Strings mit `doc.splitTextToSize(text, contentW)` umbrechen statt manueller Zeilenaufteilung
-- Ergibt sauberen Fliesstext ueber die volle Seitenbreite
-
-**3. Thematische Icons statt Nummern**
-- Schritt 1 (Abholung): Stilisiertes Auto-Symbol (Linien/Rechtecke)
-- Schritt 2 (Pruefung): Lupe mit Haekchen
-- Schritt 3 (Rueckgabe): Haus-Symbol mit Pfeil
-- Gezeichnet mit jsPDF-Vektorfunktionen (Linien, Kreise, Rechtecke)
+**2. Text praezisieren: externer Dienstleister**
+- Schritt-Beschreibungen anpassen:
+  - Schritt 1: "Ein externer Dienstleister holt Ihr Fahrzeug kostenfrei bei Ihnen ab."
+  - Schritt 2: "Unser Expertenteam begutachtet und bewertet Ihr Fahrzeug sorgfaeltig."
+  - Schritt 3: "Ihr Fahrzeug wird durch unseren Dienstleister kostenfrei zurueckgebracht."
+- Formeller Textabsatz anpassen:
+  - `"wir moechten Ihr Fahrzeug [...] gerne in Zahlung nehmen. Zur Begutachtung und Bewertung wird das Fahrzeug durch einen externen Dienstleister kostenfrei bei Ihnen abgeholt. Nach Abschluss der Pruefung wird das Fahrzeug selbstverstaendlich kostenfrei wieder an Sie zurueckgebracht."`
 
 ### Dateien
 
 | Datei | Aenderung |
 |---|---|
-| `src/pages/AdminInzahlungnahme.tsx` | Anrede-Select, full-width Text, thematische Icons |
+| `src/pages/AdminInzahlungnahme.tsx` | Zahlen-Kreise statt Icons, Text mit externem Dienstleister |
 
