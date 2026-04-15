@@ -238,18 +238,74 @@ async function generateInzahlungnahmePdf(
   doc.text("Unterschrift Verkäufer", pageW - marginR - 70, y + 5);
 
   // ── Footer ──
-  const footerY = 278;
-  drawLine(footerY);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7);
-  doc.setTextColor(120, 120, 120);
-  doc.text(
-    `Audi AG · ${branding.strasse} · ${branding.plz} ${branding.stadt}`,
-    marginL,
-    footerY + 5
-  );
-  doc.text(`Erstellt am ${today}`, pageW - marginR, footerY + 5, { align: "right" });
-  doc.setTextColor(0);
+  const footerY = 262;
+    drawLine(footerY);
+    const fY = footerY + 4;
+    const colX = [marginL, marginL + 34, marginL + 68, marginL + 102, marginL + 136];
+    const fLineH = 3;
+
+    doc.setTextColor(80, 80, 80);
+
+    // Column 1: Contact
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6);
+    doc.text("So erreichen", colX[0], fY);
+    doc.text("Sie uns:", colX[0], fY + fLineH);
+    doc.setFont("helvetica", "normal");
+    doc.text("Audi AG", colX[0], fY + fLineH * 2.5);
+    doc.text("Vertrieb", colX[0], fY + fLineH * 3.5);
+    doc.text(branding.strasse, colX[0], fY + fLineH * 4.5);
+    doc.text(`${branding.plz} ${branding.stadt}`, colX[0], fY + fLineH * 5.5);
+
+    // Column 2: Vorstand
+    doc.setFont("helvetica", "bold");
+    doc.text("Vorstand:", colX[1], fY);
+    doc.setFont("helvetica", "normal");
+    const vorstand = [
+      "Gernot Döllner",
+      "(Vorsitzender),",
+      "Geoffrey Bouquot,",
+      "Jürgen Ritters-",
+      "berger, Javier",
+      "Ros Hernández,",
+      "Marco Schubert,",
+      "Renate",
+      "Vachenauer,",
+      "Gerd Walker",
+    ];
+    vorstand.forEach((line, i) => {
+      doc.text(line, colX[1], fY + fLineH * (i + 1));
+    });
+
+    // Column 3: USt-IdNr / Amtsgericht
+    doc.setFont("helvetica", "bold");
+    doc.text("USt-IdNr.:", colX[2], fY);
+    doc.setFont("helvetica", "normal");
+    doc.text("DE811115368", colX[2], fY + fLineH);
+    doc.text("Amtsgericht", colX[2], fY + fLineH * 2.5);
+    doc.text("Ingolstadt", colX[2], fY + fLineH * 3.5);
+    doc.text("HR B 1", colX[2], fY + fLineH * 4.5);
+
+    // Column 4: Bankverbindung
+    doc.setFont("helvetica", "bold");
+    doc.text("Bankverbindung", colX[3], fY);
+    doc.setFont("helvetica", "normal");
+    doc.text("Audi AG Bank", colX[3], fY + fLineH);
+    doc.text("IBAN: DE72 3702", colX[3], fY + fLineH * 2.5);
+    doc.text("0500 0001 0379 00", colX[3], fY + fLineH * 3.5);
+    doc.text("BIC: AUIDE71XXX", colX[3], fY + fLineH * 4.5);
+
+    // Column 5: Sitz der Gesellschaft
+    doc.setFont("helvetica", "bold");
+    doc.text("Sitz der", colX[4], fY);
+    doc.text("Gesellschaft:", colX[4], fY + fLineH);
+    doc.setFont("helvetica", "normal");
+    doc.text("Auto-Union-", colX[4], fY + fLineH * 2.5);
+    doc.text("Straße 1", colX[4], fY + fLineH * 3.5);
+    doc.text("85057", colX[4], fY + fLineH * 4.5);
+    doc.text("Ingolstadt", colX[4], fY + fLineH * 5.5);
+
+    doc.setTextColor(0);
 
   return doc.output("blob");
 }
