@@ -257,25 +257,14 @@ async function generateInzahlungnahmePdf(
     doc.text(branding.strasse, colX[0], fY + fLineH * 4.5);
     doc.text(`${branding.plz} ${branding.stadt}`, colX[0], fY + fLineH * 5.5);
 
-    // Column 2: Vorstand
+    // Column 2: Ihr Berater
     doc.setFont("helvetica", "bold");
-    doc.text("Vorstand:", colX[1], fY);
+    doc.text("Ihr Berater:", colX[1], fY);
     doc.setFont("helvetica", "normal");
-    const vorstand = [
-      "Gernot Döllner",
-      "(Vorsitzender),",
-      "Geoffrey Bouquot,",
-      "Jürgen Ritters-",
-      "berger, Javier",
-      "Ros Hernández,",
-      "Marco Schubert,",
-      "Renate",
-      "Vachenauer,",
-      "Gerd Walker",
-    ];
-    vorstand.forEach((line, i) => {
-      doc.text(line, colX[1], fY + fLineH * (i + 1));
-    });
+    doc.text(`${verkaeufer.vorname} ${verkaeufer.nachname}`, colX[1], fY + fLineH);
+    doc.text(`Tel: ${verkaeufer.telefon}`, colX[1], fY + fLineH * 2);
+    doc.text("E-Mail:", colX[1], fY + fLineH * 3);
+    doc.text(verkaeufer.email, colX[1], fY + fLineH * 4);
 
     // Column 3: USt-IdNr / Amtsgericht
     doc.setFont("helvetica", "bold");
