@@ -350,12 +350,15 @@ async function generateAngebotPdf(
     const lineH = 4;
 
     for (const line of equipmentLines) {
-      if (y + lineH > maxY) {
-        // Disclaimer on bottom before page break won't fit, start new page
+      const wrappedLines = doc.splitTextToSize(line.trim(), contentW);
+      const blockH = wrappedLines.length * lineH;
+      if (y + blockH > maxY) {
         y = startEquipmentPage();
       }
-      doc.text(line.trim(), marginL, y);
-      y += lineH;
+      for (const wl of wrappedLines) {
+        doc.text(wl, marginL, y);
+        y += lineH;
+      }
     }
 
   }
