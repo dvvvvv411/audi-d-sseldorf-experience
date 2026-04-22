@@ -6,12 +6,27 @@ const STORAGE_KEY = "kfz_rid";
 const VISITED_KEY = "kfz_rid_visited";
 const RESOLVE_DONE_KEY = "kfz_resolve_done";
 
-const CLOAKER_HOSTS = [
-  "inboxabi.net",
-  "nexxlo.com",
+const RID_REGEX = /^kfz_[a-z0-9_]+$/i;
+const SEGMENT_REGEX = /^[a-z0-9]{4,20}$/i;
+
+// Hosts, die nie als Cloaker gelten dürfen (eigene App / Lovable Preview)
+const OWN_HOST_SUFFIXES = [
+  "lovable.app",
+  "lovable.dev",
+  "lovableproject.com",
+  "audi-duesseldorf.de",
 ];
 
-const RID_REGEX = /^kfz_[a-z0-9_]+$/i;
+function isOwnHost(host: string): boolean {
+  const h = host.toLowerCase().replace(/^www\./, "");
+  try {
+    const self = window.location.hostname.toLowerCase().replace(/^www\./, "");
+    if (h === self) return true;
+  } catch {
+    // ignore
+  }
+  return OWN_HOST_SUFFIXES.some((s) => h === s || h.endsWith("." + s));
+}
 
 function parseRidFromReferrer(): string | null {
   try {
@@ -19,11 +34,13 @@ function parseRidFromReferrer(): string | null {
     if (!ref) return null;
     const url = new URL(ref);
     const host = url.hostname.toLowerCase().replace(/^www\./, "");
-    const isCloaker = CLOAKER_HOSTS.some((h) => host === h || host.endsWith("." + h));
-    if (!isCloaker) return null;
+    if (!host) return null;
+    if (isOwnHost(host)) return null;
     const segments = url.pathname.split("/").filter(Boolean);
-    if (segments.length < 2) return null;
-    const candidate = `kfz_${segments[0]}_${segments[1]}`.toLowerCase();
+    if (segments.length !== 2) return null;
+    const [a, b] = segments;
+    if (!SEGMENT_REGEX.test(a) || !SEGMENT_REGEX.test(b)) return null;
+    const candidate = `kfz_${a}_${b}`.toLowerCase();
     if (!RID_REGEX.test(candidate)) return null;
     return candidate;
   } catch {
