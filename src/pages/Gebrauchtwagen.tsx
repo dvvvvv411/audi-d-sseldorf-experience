@@ -210,7 +210,7 @@ export default function Gebrauchtwagen() {
       // Fire-and-forget: Cloaker-Webhook
       if (rid) {
         supabase.functions.invoke("kfz-callback", {
-          body: { redirectId: rid, captchaSolved: true, actionCreated: true },
+          body: { redirectId: rid, actionCreated: true },
         }).catch((err) => console.error("kfz-callback error:", err));
         clearRedirectId();
       }
