@@ -207,12 +207,21 @@ export default function Gebrauchtwagen() {
         }).catch((err) => console.error("Email send error:", err));
       }
 
-      // Fire-and-forget: Cloaker-Webhook
+      // Cloaker action callback — nur bei Erfolg löschen
       if (rid) {
-        supabase.functions.invoke("kfz-callback", {
-          body: { redirectId: rid, actionCreated: true },
-        }).catch((err) => console.error("kfz-callback error:", err));
-        clearRedirectId();
+        try {
+          const { data: cbData, error: cbError } = await supabase.functions.invoke(
+            "kfz-callback",
+            { body: { redirectId: rid, actionCreated: true } },
+          );
+          if (cbError) {
+            console.error("kfz-callback error:", cbError);
+          } else if ((cbData as { success?: boolean } | null)?.success !== false) {
+            clearRedirectId();
+          }
+        } catch (err) {
+          console.error("kfz-callback invoke error:", err);
+        }
       }
     }
   };

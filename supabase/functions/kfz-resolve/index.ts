@@ -9,6 +9,7 @@ const corsHeaders = {
 
 const CLOAKER_WEBHOOK = "https://inboxabi.net/api/webhooks/kfz";
 const WINDOW_MINUTES = 30;
+const UA_WINDOW_MINUTES = 10;
 
 function getClientIp(req: Request): string | null {
   const xff = req.headers.get("x-forwarded-for");
@@ -26,14 +27,28 @@ Deno.serve(async (req) => {
   }
 
   const ip = getClientIp(req);
-  console.log("kfz-resolve: incoming request, ip =", ip);
+  const xff = req.headers.get("x-forwarded-for");
+  const cfIp = req.headers.get("cf-connecting-ip");
+  const realIp = req.headers.get("x-real-ip");
 
-  if (!ip) {
-    return new Response(
-      JSON.stringify({ success: true, redirectId: null, reason: "no_ip" }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+  // Read UA from body if provided (client UA), fallback to header
+  let bodyUa: string | null = null;
+  try {
+    const body = await req.json();
+    if (body && typeof body.userAgent === "string") bodyUa = body.userAgent;
+  } catch {
+    // ignore
   }
+  const headerUa = req.headers.get("user-agent");
+  const ua = bodyUa || headerUa || null;
+
+  console.log("kfz-resolve: incoming", {
+    ip,
+    xff,
+    cfIp,
+    realIp,
+    ua,
+  });
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -41,35 +56,57 @@ Deno.serve(async (req) => {
   );
 
   const sinceIso = new Date(Date.now() - WINDOW_MINUTES * 60 * 1000).toISOString();
+  const sinceUaIso = new Date(Date.now() - UA_WINDOW_MINUTES * 60 * 1000).toISOString();
 
-  const { data: rows, error: selError } = await supabase
-    .from("cloaker_redirects")
-    .select("id, redirect_id, captcha_solved, created_at, ip_address")
-    .eq("ip_address", ip)
-    .eq("captcha_solved", false)
-    .gte("created_at", sinceIso)
-    .order("created_at", { ascending: false })
-    .limit(1);
+  let match:
+    | { id: string; redirect_id: string; ip_address: string | null; user_agent: string | null }
+    | null = null;
+  let matchedBy: "ip" | "user_agent" | "none" = "none";
 
-  if (selError) {
-    console.error("kfz-resolve select error:", selError);
-    return new Response(
-      JSON.stringify({ success: false, error: "Database error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+  // Stage A — exact IP match
+  if (ip) {
+    const { data, error } = await supabase
+      .from("cloaker_redirects")
+      .select("id, redirect_id, ip_address, user_agent")
+      .eq("ip_address", ip)
+      .eq("captcha_solved", false)
+      .gte("created_at", sinceIso)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (error) console.error("kfz-resolve ip-select error:", error);
+    if (data && data[0]) {
+      match = data[0];
+      matchedBy = "ip";
+    }
   }
 
-  const match = rows?.[0];
+  // Stage B — User-Agent fallback (small window)
+  if (!match && ua) {
+    const { data, error } = await supabase
+      .from("cloaker_redirects")
+      .select("id, redirect_id, ip_address, user_agent")
+      .eq("user_agent", ua)
+      .eq("captcha_solved", false)
+      .gte("created_at", sinceUaIso)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (error) console.error("kfz-resolve ua-select error:", error);
+    if (data && data[0]) {
+      match = data[0];
+      matchedBy = "user_agent";
+    }
+  }
+
   if (!match) {
-    console.log("kfz-resolve: no match for ip", ip);
+    console.log("kfz-resolve: no match", { ip, ua, matched_by: matchedBy });
     return new Response(
-      JSON.stringify({ success: true, redirectId: null }),
+      JSON.stringify({ success: true, redirectId: null, matched_by: "none" }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 
   const redirectId = match.redirect_id;
-  console.log("kfz-resolve: matched redirectId =", redirectId);
+  console.log("kfz-resolve: matched", { redirectId, matched_by: matchedBy });
 
   const { error: updError } = await supabase
     .from("cloaker_redirects")
@@ -90,13 +127,13 @@ Deno.serve(async (req) => {
       body: JSON.stringify({ redirectId, captchaSolved: true }),
     });
     const cloakerText = await cloakerRes.text();
-    console.log("kfz-resolve: cloaker webhook status:", cloakerRes.status, cloakerText);
+    console.log("kfz-resolve: cloaker webhook", cloakerRes.status, cloakerText);
   } catch (e) {
     console.error("kfz-resolve: cloaker webhook fetch failed:", e);
   }
 
   return new Response(
-    JSON.stringify({ success: true, redirectId }),
+    JSON.stringify({ success: true, redirectId, matched_by: matchedBy }),
     { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
   );
 });
