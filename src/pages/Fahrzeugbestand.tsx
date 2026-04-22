@@ -5,6 +5,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Link, useParams } from "react-router-dom";
 import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { useRedirectTracking } from "@/hooks/useRedirectTracking";
 
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
@@ -96,6 +97,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
 
 export default function Fahrzeugbestand() {
   usePageMeta("Fahrzeugbestand · Audi Düsseldorf", "Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi bei Audi Düsseldorf. Große Auswahl an Neu- und Gebrauchtwagen.");
+  useRedirectTracking();
   const { sellerSlug } = useParams<{ sellerSlug?: string }>();
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
   const [branding, setBranding] = useState<Branding | null>(null);
