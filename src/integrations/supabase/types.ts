@@ -78,6 +78,7 @@ export type Database = {
           nachricht: string
           notizen: string | null
           plz: string | null
+          redirect_id: string | null
           stadt: string | null
           status: string
           strasse: string | null
@@ -101,6 +102,7 @@ export type Database = {
           nachricht: string
           notizen?: string | null
           plz?: string | null
+          redirect_id?: string | null
           stadt?: string | null
           status?: string
           strasse?: string | null
@@ -124,6 +126,7 @@ export type Database = {
           nachricht?: string
           notizen?: string | null
           plz?: string | null
+          redirect_id?: string | null
           stadt?: string | null
           status?: string
           strasse?: string | null
@@ -185,6 +188,39 @@ export type Database = {
           stadt?: string
           strasse?: string
           ust_id?: string
+        }
+        Relationships: []
+      }
+      cloaker_redirects: {
+        Row: {
+          action_created: boolean
+          callback_sent_at: string | null
+          captcha_solved: boolean
+          created_at: string
+          id: string
+          ip_address: string | null
+          redirect_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          action_created?: boolean
+          callback_sent_at?: string | null
+          captcha_solved?: boolean
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          redirect_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          action_created?: boolean
+          callback_sent_at?: string | null
+          captcha_solved?: boolean
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          redirect_id?: string
+          user_agent?: string | null
         }
         Relationships: []
       }

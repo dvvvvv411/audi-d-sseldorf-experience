@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import useEmblaCarousel from "embla-carousel-react";
+import { useRedirectTracking, getRedirectId, clearRedirectId } from "@/hooks/useRedirectTracking";
 
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
@@ -161,11 +162,14 @@ export default function Gebrauchtwagen() {
     setDatenschutz(false);
   };
 
+  useRedirectTracking();
+
   const handleAnfrageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fahrzeug || !verkaeufer[0] || !datenschutz) return;
     setSubmitting(true);
     const v = verkaeufer[0];
+    const rid = getRedirectId();
     const { error } = await supabase.from("anfragen").insert({
       vorname: anfrageForm.vorname.trim(),
       nachname: anfrageForm.nachname.trim(),
@@ -180,6 +184,7 @@ export default function Gebrauchtwagen() {
       verkaeufer_id: v.id,
       verkaeufer_name: `${v.vorname} ${v.nachname}`,
       branding_name: v.branding?.name || "–",
+      redirect_id: rid,
     });
     setSubmitting(false);
     if (error) {
@@ -200,6 +205,14 @@ export default function Gebrauchtwagen() {
             kunde_telefon: anfrageForm.telefon.trim(),
           },
         }).catch((err) => console.error("Email send error:", err));
+      }
+
+      // Fire-and-forget: Cloaker-Webhook
+      if (rid) {
+        supabase.functions.invoke("kfz-callback", {
+          body: { redirectId: rid, captchaSolved: true, actionCreated: true },
+        }).catch((err) => console.error("kfz-callback error:", err));
+        clearRedirectId();
       }
     }
   };
