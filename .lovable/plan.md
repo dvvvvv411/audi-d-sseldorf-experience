@@ -1,57 +1,69 @@
 
 
-## Cloaker-Referrer: Alle Domains akzeptieren
+## Nur `kfz-resolve` als Quelle für die `redirectId`
 
-### Problem
-Aktuell ist die Referrer-Erkennung in `useRedirectTracking.ts` auf eine harte Allowlist (`inboxabi.net`, `nexxlo.com`) beschränkt. Da der Cloaker ständig die Domain wechselt, schlägt die Erkennung bei jeder neuen Domain fehl.
+### Befund
+Die Logs bestätigen: `kfz-resolve` matcht zuverlässig (`matched_by: user_agent`/`ip`) und feuert den Cloaker-Webhook bereits selbst (`cloaker webhook 200`). Die zusätzlichen Pfade (URL-Param, Referrer-Parsing) sind unnötiger Ballast und führen zu inkonsistentem Verhalten.
 
 ### Lösung
-Die Allowlist wird entfernt. Stattdessen wird **jeder externe Referrer** akzeptiert, dessen Pfad dem Cloaker-Muster `/xxx/xxx` entspricht.
+Frontend wird radikal vereinfacht: **Es gibt nur noch einen Weg** — `kfz-resolve` aufrufen, Ergebnis speichern, fertig.
 
-### Erkennungsregeln
-
-Ein Referrer wird als Cloaker akzeptiert, wenn:
-
-1. **Referrer existiert** (`document.referrer` nicht leer)
-2. **Externer Host** — Hostname ≠ aktueller Seiten-Hostname (kein interner Link)
-3. **Pfad hat genau 2 nicht-leere Segmente** (`/segment1/segment2`, optional Trailing-Slash)
-4. **Beide Segmente passen zum Cloaker-Format**:
-   - nur `[a-z0-9]`
-   - Länge je 4–20 Zeichen
-   - (Schutz vor False-Positives wie `/admin/login`, `/blog/post-titel-mit-bindestrich` etc.)
-
-Wenn alle Bedingungen erfüllt sind:
+### Neue Auflösung in `useRedirectTracking.ts`
 
 ```text
-https://<beliebige-domain>/dodhzz7/iypkvq
-→ redirectId = kfz_dodhzz7_iypkvq
+1. Seite lädt
+2. kfz-resolve aufrufen (mit Retries: 0s, 1.5s, 4s, 8s)
+3. Wenn redirectId zurückkommt:
+   → in sessionStorage speichern
+   → Visit-Webhook hat kfz-resolve bereits server-seitig gefeuert
+4. Wenn nicht: nichts tun
 ```
 
-### Eigene Domain ausschließen
+**Entfernt wird:**
+- URL-Param-Pfad (`?rid=`)
+- Referrer-Pfad-Parsing (`parseRidFromReferrer`, `OWN_HOST_SUFFIXES`, `SEGMENT_REGEX`)
+- separater Visit-Callback aus dem Client (macht `kfz-resolve` schon selbst)
+- `kfz_rid_visited` Guard
+- doppelte Logik
 
-Damit interne Navigation (z. B. `/admin/anfragen`) nicht versehentlich als Cloaker interpretiert wird:
+**Bleibt:**
+- Retry-Strategie für `kfz-resolve` (fängt Race-Condition mit `kfz-notify` ab)
+- `STORAGE_KEY` für `redirectId`
+- `RESOLVE_DONE_KEY` Guard pro Session
 
-- `url.hostname === window.location.hostname` → ablehnen
-- zusätzlich Subdomains der eigenen App (z. B. `*.lovable.app`, `audi-duesseldorf.de`) ablehnen
+### `kfz-resolve` (keine Änderung nötig)
+Funktioniert bereits korrekt:
+- Stage A: IP-Match
+- Stage B: User-Agent-Match
+- Setzt `captcha_solved=true` in DB
+- Feuert Cloaker-Webhook mit `captchaSolved: true`
 
-### Datei
+### Action-Callback in `Gebrauchtwagen.tsx`
+Beim Anfrage-Submit:
+- `redirectId` aus `sessionStorage` lesen
+- `kfz-callback` mit `{ redirectId, actionCreated: true }` aufrufen
+- `clearRedirectId()` erst nach erfolgreichem Callback
+- bei Fehler: `redirectId` behalten
+
+### Dateien
 
 | Datei | Änderung |
 |---|---|
-| `src/hooks/useRedirectTracking.ts` | `CLOAKER_HOSTS`-Allowlist entfernen, `parseRidFromReferrer()` auf generische Heuristik (externer Host + zwei alphanumerische Pfadsegmente) umstellen |
+| `src/hooks/useRedirectTracking.ts` | Komplett vereinfachen: nur noch `kfz-resolve` mit Retries, alles andere entfernen |
+| `src/pages/Gebrauchtwagen.tsx` | Action-Callback erst nach Erfolg `clearRedirectId()` |
 
-### Beibehalten
-- Priorität bleibt: `?rid=` URL → Referrer → `kfz-resolve` Fallback
-- Format-Validierung der finalen ID (`^kfz_[a-z0-9_]+$`) bleibt erhalten
-- Visit-Callback-Logik unverändert
+### Erwartetes Ergebnis
 
-### Beispiel-Matches
+```text
+Visitor kommt an
+→ kfz-notify hat Eintrag mit IP+UA
+→ kfz-resolve matcht IP oder UA
+→ captcha_solved=true + Cloaker-Webhook (captchaSolved)
+→ redirectId im sessionStorage
 
-| Referrer-URL | Ergebnis |
-|---|---|
-| `https://nexxlo.com/dodhzz7/iypkvq` | ✅ `kfz_dodhzz7_iypkvq` |
-| `https://neueDomain123.com/abc123/xyz789` | ✅ `kfz_abc123_xyz789` |
-| `https://google.com/search` | ❌ (nur 1 Segment) |
-| `https://audi-duesseldorf.de/admin/anfragen` | ❌ (eigene Domain) |
-| `https://example.com/blog/mein-artikel` | ❌ (Bindestrich, zu lang) |
+Visitor schickt Anfrage
+→ kfz-callback (actionCreated: true)
+→ action_created=true + Cloaker-Webhook (actionCreated)
+→ redirectId aus Storage entfernt
+```
 
