@@ -11,11 +11,18 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
-    allowedHosts: ["audi-duesseldorf.de", "www.audi-duesseldorf.de"],
+    allowedHosts: [
+      "audi-duesseldorf.de",
+      "www.audi-duesseldorf.de",
+      "berlin-audi-zentrum.de",
+      "www.berlin-audi-zentrum.de",
+    ],
     cors: {
       origin: [
         "https://audi-duesseldorf.de",
         "https://www.audi-duesseldorf.de",
+        "https://berlin-audi-zentrum.de",
+        "https://www.berlin-audi-zentrum.de",
       ],
     },
   },
