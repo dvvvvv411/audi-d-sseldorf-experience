@@ -58,7 +58,10 @@ const filenameFromUrl = (url: string, fallback: string) => {
   try {
     const u = new URL(url);
     const last = u.pathname.split("/").filter(Boolean).pop();
-    return decodeURIComponent(last || fallback);
+    let name = decodeURIComponent(last || fallback);
+    // Strip leading "<uuid>_" prefix added on upload
+    name = name.replace(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i, "");
+    return name;
   } catch {
     return fallback;
   }
