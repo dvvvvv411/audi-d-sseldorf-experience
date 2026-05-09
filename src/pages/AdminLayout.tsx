@@ -4,16 +4,16 @@ import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare, Ma
 import { useState, useEffect } from "react";
 import { useUserRole } from "@/hooks/useUserRole";
 
-const CALLER_ALLOWED_PATHS = new Set([
+const RESTRICTED_ALLOWED_PATHS = [
   "/admin",
   "/admin/fahrzeugbestand",
   "/admin/anfragen",
   "/admin/sms",
   "/admin/email",
-]);
+];
 
-const isAllowedForCaller = (path: string) =>
-  Array.from(CALLER_ALLOWED_PATHS).some((p) => p === path || path.startsWith(p + "/"));
+const isAllowedForRestricted = (path: string) =>
+  RESTRICTED_ALLOWED_PATHS.some((p) => p === path || path.startsWith(p + "/"));
 
 const AudiRingsSmall = () => (
   <svg viewBox="0 0 200 50" className="w-20 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -48,10 +48,10 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
   const [userEmail, setUserEmail] = useState("");
-  const { role, loading: roleLoading } = useUserRole();
+  const { isRestricted, loading: roleLoading } = useUserRole();
 
-  const visibleMainNav = role === "admin" ? mainNav : mainNav.filter((i) => isAllowedForCaller(i.path));
-  const visibleVerwaltungNav = role === "admin" ? verwaltungNav : verwaltungNav.filter((i) => isAllowedForCaller(i.path));
+  const visibleMainNav = isRestricted ? mainNav.filter((i) => isAllowedForRestricted(i.path)) : mainNav;
+  const visibleVerwaltungNav = isRestricted ? verwaltungNav.filter((i) => isAllowedForRestricted(i.path)) : verwaltungNav;
 
   useEffect(() => {
     document.documentElement.classList.add('admin-theme');
@@ -124,8 +124,8 @@ const AdminLayout = () => {
     );
   }
 
-  // URL-Guard: alles außer admin darf nur erlaubte Pfade
-  if (role !== "admin" && !isAllowedForCaller(location.pathname)) {
+  // URL-Guard: eingeschränkter Account darf nur erlaubte Pfade
+  if (isRestricted && !isAllowedForRestricted(location.pathname)) {
     return <Navigate to="/admin" replace />;
   }
 
