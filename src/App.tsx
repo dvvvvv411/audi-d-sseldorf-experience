@@ -20,6 +20,7 @@ import AdminAngebote from "./pages/AdminAngebote.tsx";
 import AdminTelegram from "./pages/AdminTelegram.tsx";
 import AdminInzahlungnahme from "./pages/AdminInzahlungnahme.tsx";
 import AdminSmsVerlauf from "./pages/AdminSmsVerlauf.tsx";
+import AdminEmailVerlauf from "./pages/AdminEmailVerlauf.tsx";
 import Gebrauchtwagen from "./pages/Gebrauchtwagen.tsx";
 import Fahrzeugbestand from "./pages/Fahrzeugbestand.tsx";
 import Impressum from "./pages/rechtliches/Impressum.tsx";
