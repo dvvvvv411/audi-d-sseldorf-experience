@@ -533,6 +533,74 @@ const AdminEmailTemplates = () => {
           </div>
         )}
       </div>
+
+      {/* Persönliches Angebot */}
+      <div className="space-y-6">
+        <h2 className="text-lg font-semibold">Persönliches Angebot</h2>
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="space-y-1.5 min-w-[260px]">
+            <label className="text-sm font-medium text-muted-foreground">Kunde</label>
+            <Select value={paKunde} onValueChange={setPaKunde}>
+              <SelectTrigger><SelectValue placeholder="Kunde wählen" /></SelectTrigger>
+              <SelectContent>
+                {anfragen.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.vorname} {a.nachname} – {a.fahrzeug_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 min-w-[220px]">
+            <label className="text-sm font-medium text-muted-foreground">Verkäufer</label>
+            <Select value={paVerkaeufer} onValueChange={setPaVerkaeufer}>
+              <SelectTrigger><SelectValue placeholder="Verkäufer wählen" /></SelectTrigger>
+              <SelectContent>
+                {verkaeufer.map((v) => (<SelectItem key={v.id} value={v.id}>{v.vorname} {v.nachname}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 min-w-[220px]">
+            <label className="text-sm font-medium text-muted-foreground">Branding</label>
+            <Select value={paBranding} onValueChange={setPaBranding}>
+              <SelectTrigger><SelectValue placeholder="Branding wählen" /></SelectTrigger>
+              <SelectContent>
+                {brandings.map((b) => (<SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 min-w-[260px]">
+            <label className="text-sm font-medium text-muted-foreground">Fahrzeug</label>
+            <Select value={paFahrzeug} onValueChange={setPaFahrzeug}>
+              <SelectTrigger><SelectValue placeholder="Fahrzeug wählen" /></SelectTrigger>
+              <SelectContent>
+                {fahrzeuge.map((f) => (<SelectItem key={f.id} value={f.id}>{f.fahrzeugname}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          {paHtml && (
+            <Button variant="outline" onClick={() => handleCopy(paHtml, "HTML")}>
+              <Copy className="mr-1.5 h-4 w-4" /> HTML kopieren
+            </Button>
+          )}
+        </div>
+        {paBetreff && (
+          <div className="flex items-center gap-2">
+            <div className="space-y-1.5 flex-1">
+              <label className="text-sm font-medium text-muted-foreground">Betreff</label>
+              <Input value={paBetreff} readOnly className="bg-muted" />
+            </div>
+            <Button variant="outline" size="icon" className="mt-6" onClick={() => handleCopy(paBetreff, "Betreff")}>
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        {paHtml && (
+          <div className="border border-border rounded-md overflow-hidden bg-muted">
+            <iframe srcDoc={paHtml} title="Persönliches Angebot Vorschau" className="w-full border-0" style={{ minHeight: 700 }} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
