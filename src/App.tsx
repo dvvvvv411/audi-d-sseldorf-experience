@@ -68,6 +68,7 @@ const App = () => (
             <Route path="angebote" element={<AdminAngebote />} />
             <Route path="telegram" element={<AdminTelegram />} />
             <Route path="inzahlungnahme" element={<AdminInzahlungnahme />} />
+            <Route path="sms" element={<AdminSmsVerlauf />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
