@@ -77,12 +77,14 @@ const AdminBrandings = () => {
       absendername: b.absendername ?? "",
       sevenio_absendername: b.sevenio_absendername ?? "",
       sevenio_api_key: b.sevenio_api_key ?? "",
+      meta_pixel_aktiv: b.meta_pixel_aktiv ?? false,
+      meta_pixel_code: b.meta_pixel_code ?? "",
     });
     setEditId(b.id);
     setDialogOpen(true);
   };
 
-  const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
+  const set = (key: string, value: string | boolean) => setForm((f) => ({ ...f, [key]: value }));
 
   const handleSave = async () => {
     if (!form.name || !form.strasse || !form.plz || !form.stadt || !form.email || !form.amtsgericht || !form.handelsregister || !form.geschaeftsfuehrer || !form.ust_id) {
