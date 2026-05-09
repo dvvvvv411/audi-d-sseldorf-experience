@@ -108,15 +108,18 @@ export default function AdminFahrzeugDetail() {
   const servicenachweise = fahrzeug.servicenachweis_urls || [];
   const beschreibungSections = parseBeschreibung(fahrzeug.beschreibung);
 
+  const isImageUrl = (url: string) => /\.(jpe?g|png|webp)(\?|$)/i.test(url);
+
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0 || !id) return;
     setUploadingPdf(true);
 
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
     const newUrls: string[] = [];
     for (const file of Array.from(files)) {
-      if (file.type !== "application/pdf") {
-        toast.error(`${file.name} ist keine PDF-Datei`);
+      if (!allowedTypes.includes(file.type)) {
+        toast.error(`${file.name} ist kein gültiges Format (PDF, JPG, PNG)`);
         continue;
       }
       const path = `servicenachweise/${id}/${crypto.randomUUID()}_${file.name}`;
@@ -138,7 +141,7 @@ export default function AdminFahrzeugDetail() {
       if (error) {
         toast.error("Fehler beim Speichern");
       } else {
-        toast.success("PDF hochgeladen");
+        toast.success("Datei hochgeladen");
         loadFahrzeug();
       }
     }
@@ -156,15 +159,14 @@ export default function AdminFahrzeugDetail() {
     if (error) {
       toast.error("Fehler beim Entfernen");
     } else {
-      toast.success("PDF entfernt");
+      toast.success("Datei entfernt");
       loadFahrzeug();
     }
   };
 
   const getPdfFilename = (url: string) => {
     const parts = url.split("/");
-    const last = parts[parts.length - 1];
-    // Remove UUID prefix if present
+    const last = parts[parts.length - 1].split("?")[0];
     const uuidPattern = /^[a-f0-9-]{36}_/;
     return decodeURIComponent(last.replace(uuidPattern, ""));
   };
@@ -231,12 +233,12 @@ export default function AdminFahrzeugDetail() {
                   <Button variant="outline" size="sm" className="gap-1.5" asChild>
                     <span>
                       <Upload className="w-3.5 h-3.5" />
-                      {uploadingPdf ? "Laden…" : "PDF hochladen"}
+                      {uploadingPdf ? "Laden…" : "Datei hochladen"}
                     </span>
                   </Button>
                   <input
                     type="file"
-                    accept="application/pdf"
+                    accept="application/pdf,image/jpeg,image/png,image/webp"
                     multiple
                     onChange={handlePdfUpload}
                     className="hidden"
@@ -255,9 +257,13 @@ export default function AdminFahrzeugDetail() {
                       className="relative group flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 hover:border-gray-300 bg-gray-50 cursor-pointer transition-colors"
                       onClick={() => setPdfViewer(url)}
                     >
-                      <div className="flex items-center justify-center w-10 h-10 rounded bg-red-50 text-red-500 shrink-0">
-                        <FileText className="w-5 h-5" />
-                      </div>
+                      {isImageUrl(url) ? (
+                        <img src={url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+                      ) : (
+                        <div className="flex items-center justify-center w-10 h-10 rounded bg-red-50 text-red-500 shrink-0">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                      )}
                       <p className="text-xs text-gray-700 truncate flex-1">{getPdfFilename(url)}</p>
                       <button
                         onClick={(e) => {
@@ -383,11 +389,17 @@ export default function AdminFahrzeugDetail() {
       <Dialog open={pdfViewer !== null} onOpenChange={() => setPdfViewer(null)}>
         <DialogContent className="max-w-4xl h-[85vh] p-0 overflow-hidden">
           {pdfViewer && (
-            <iframe
-              src={pdfViewer}
-              className="w-full h-full"
-              title="Servicenachweis PDF"
-            />
+            isImageUrl(pdfViewer) ? (
+              <div className="w-full h-full flex items-center justify-center bg-black">
+                <img src={pdfViewer} alt="Servicenachweis" className="max-w-full max-h-full object-contain" />
+              </div>
+            ) : (
+              <iframe
+                src={pdfViewer}
+                className="w-full h-full"
+                title="Servicenachweis"
+              />
+            )
           )}
         </DialogContent>
       </Dialog>
