@@ -227,6 +227,57 @@ export type Database = {
         }
         Relationships: []
       }
+      email_verlauf: {
+        Row: {
+          absender: string | null
+          anfrage_id: string | null
+          attachments: Json | null
+          betreff: string | null
+          branding_id: string | null
+          created_at: string
+          empfaenger: string
+          fehler: string | null
+          html: string | null
+          id: string
+          resend_id: string | null
+          status: string
+          template: string | null
+          verkaeufer_id: string | null
+        }
+        Insert: {
+          absender?: string | null
+          anfrage_id?: string | null
+          attachments?: Json | null
+          betreff?: string | null
+          branding_id?: string | null
+          created_at?: string
+          empfaenger: string
+          fehler?: string | null
+          html?: string | null
+          id?: string
+          resend_id?: string | null
+          status: string
+          template?: string | null
+          verkaeufer_id?: string | null
+        }
+        Update: {
+          absender?: string | null
+          anfrage_id?: string | null
+          attachments?: Json | null
+          betreff?: string | null
+          branding_id?: string | null
+          created_at?: string
+          empfaenger?: string
+          fehler?: string | null
+          html?: string | null
+          id?: string
+          resend_id?: string | null
+          status?: string
+          template?: string | null
+          verkaeufer_id?: string | null
+        }
+        Relationships: []
+      }
       fahrzeuge: {
         Row: {
           aktiv: boolean
