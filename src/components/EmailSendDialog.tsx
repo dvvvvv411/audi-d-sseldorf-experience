@@ -300,6 +300,7 @@ export default function EmailSendDialog({ anfrage, onClose, onSent }: Props) {
           html: previewHtml,
           attachments: attachments.map((a) => ({ filename: a.filename, content_base64: a.content_base64 })),
           anfrage_id: anfrage.id,
+          template: template === "servicebericht" ? "service" : "angebot",
         },
       });
       if (emailErr || (emailRes as any)?.error) {
