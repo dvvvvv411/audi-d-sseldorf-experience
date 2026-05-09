@@ -1,20 +1,16 @@
-## Pagination & Auto-Hide auf /admin/anfragen
+## Priorisierte Status oben in /admin/anfragen
 
-### 1. Auto-Hide bei "Kein Interesse"
-In der bestehenden Status-Update-Logik in `AdminAnfragen.tsx` (und ggf. `AdminAnfrageDetail.tsx`): Wenn der neue Status `"Kein Interesse"` ist, wird zusätzlich `hidden = true` in der `anfragen`-Tabelle gesetzt. So verschwindet die Anfrage automatisch aus der Standard-Liste und taucht nur noch unter "Ausgeblendete" auf.
+In `AdminAnfragen.tsx` wird die Sortierung der gefilterten Anfragen so angepasst, dass Anfragen mit den folgenden Status **immer ganz oben** stehen:
 
-### 2. Pagination
-Direkt über/unter der Anfragen-Tabelle in `AdminAnfragen.tsx`:
+1. "Möchte Daten"
+2. "Möchte Angebot"
+3. "Möchte Rechnung"
 
-- Neuer State: `pageSize` (Default 25) und `currentPage` (Default 1).
-- Dropdown (`Select`) rechts oberhalb der Tabelle mit Optionen: 25, 50, 75, 100.
-- Pagination-Komponente (`@/components/ui/pagination`) unterhalb der Tabelle: Prev / Seitenzahlen / Next.
-- Pagination wird auf das **bereits gefilterte** Array (`filtered`) angewendet — d.h. Suche + Hidden-Filter laufen weiterhin clientseitig über alle Anfragen, danach wird auf die aktuelle Seite zugeschnitten.
-- Bei Änderung von `searchQuery`, `showHidden` oder `pageSize` → `currentPage` auf 1 zurücksetzen.
-- Anzeige "Zeige X–Y von Z Anfragen" links neben der Pagination.
+### Logik
+- Vor dem Pagination-Slice wird `filtered` zusätzlich sortiert.
+- Eine Prioritäts-Map vergibt den drei Status feste Indexe (0, 1, 2). Alle anderen Status erhalten einen niedrigeren Rang (z. B. 99).
+- Sortierung primär nach Priorität (aufsteigend), sekundär nach `created_at` (absteigend, wie bisher) — damit innerhalb jeder Gruppe weiterhin die neueste Anfrage oben steht.
+- Funktioniert nahtlos mit Pagination, Suche und Hidden-Filter.
 
-### Geänderte Dateien
-- `src/pages/AdminAnfragen.tsx` — pageSize/currentPage State, Slice von `filtered`, Pagination-UI, Auto-Hide bei Status "Kein Interesse"
-- `src/pages/AdminAnfrageDetail.tsx` — falls Status dort ebenfalls auf "Kein Interesse" geändert werden kann, gleiche Auto-Hide-Logik
-
-Keine DB-Migration nötig (`hidden` existiert bereits).
+### Geänderte Datei
+- `src/pages/AdminAnfragen.tsx` — Sortierungs-Schritt zwischen Filter und Pagination

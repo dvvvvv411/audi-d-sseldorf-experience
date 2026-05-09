@@ -400,6 +400,13 @@ export default function AdminAnfragen() {
           const fullName = `${a.vorname} ${a.nachname}`.toLowerCase();
           return fullName.includes(q) || a.email.toLowerCase().includes(q) || a.telefon.toLowerCase().includes(q) || a.fahrzeug_name.toLowerCase().includes(q);
         });
+        const priorityMap: Record<string, number> = { "Möchte Daten": 0, "Möchte Angebot": 1, "Möchte Rechnung": 2 };
+        filtered.sort((a, b) => {
+          const pa = priorityMap[displayStatus(a.status)] ?? 99;
+          const pb = priorityMap[displayStatus(b.status)] ?? 99;
+          if (pa !== pb) return pa - pb;
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
         if (filtered.length === 0) return <p className="text-gray-500">Keine Anfragen gefunden.</p>;
         const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
         const safePage = Math.min(currentPage, totalPages);
