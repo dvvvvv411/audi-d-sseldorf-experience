@@ -111,8 +111,8 @@ async function logAktivitaet(aktion: string, details?: string | null, anfrageId?
 export default function AdminAnfragen() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { role } = useUserRole();
-  const isAdmin = role === "admin";
+  const { isRestricted } = useUserRole();
+  const isAdmin = !isRestricted;
   const [anfragen, setAnfragen] = useState<Anfrage[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAnfrageId, setSelectedAnfrageId] = useState<string | null>(null);

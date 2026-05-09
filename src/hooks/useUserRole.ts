@@ -3,38 +3,53 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "admin" | "caller" | null;
 
+export const RESTRICTED_EMAIL = "caller@caller.de";
+
 export interface UserRoleState {
   role: AppRole;
+  email: string | null;
+  isRestricted: boolean;
   loading: boolean;
 }
 
 export const useUserRole = (): UserRoleState => {
-  const [state, setState] = useState<UserRoleState>({ role: null, loading: true });
+  const [state, setState] = useState<UserRoleState>({
+    role: null,
+    email: null,
+    isRestricted: false,
+    loading: true,
+  });
 
   useEffect(() => {
     let active = true;
 
     const refresh = async () => {
-      if (active) setState((s) => ({ role: s.role, loading: true }));
+      if (active) setState((s) => ({ ...s, loading: true }));
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        if (active) setState({ role: null, loading: false });
+        if (active) setState({ role: null, email: null, isRestricted: false, loading: false });
         return;
       }
+      const email = session.user.email ?? null;
       const { data } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", session.user.id)
         .maybeSingle();
       const next = (data?.role as AppRole) ?? null;
-      if (active) setState({ role: next, loading: false });
+      if (active) setState({
+        role: next,
+        email,
+        isRestricted: email?.toLowerCase() === RESTRICTED_EMAIL,
+        loading: false,
+      });
     };
 
     refresh();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
-        if (active) setState({ role: null, loading: false });
+        if (active) setState({ role: null, email: null, isRestricted: false, loading: false });
       } else {
         refresh();
       }
