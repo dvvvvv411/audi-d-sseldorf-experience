@@ -24,12 +24,14 @@ type Branding = {
   email_absender: string | null;
   absendername: string | null;
   sevenio_absendername: string | null;
+  sevenio_api_key: string | null;
 };
 
 const emptyForm = {
   name: "", strasse: "", plz: "", stadt: "", email: "",
   amtsgericht: "", handelsregister: "", geschaeftsfuehrer: "", ust_id: "",
   resend_api_key: "", email_absender: "", absendername: "", sevenio_absendername: "",
+  sevenio_api_key: "",
 };
 
 const AdminBrandings = () => {
