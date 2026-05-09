@@ -51,8 +51,10 @@ const AdminLayout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
-  const [userEmail, setUserEmail] = useState("");
-  const { isRestricted, loading: roleLoading } = useUserRole();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [emailLoaded, setEmailLoaded] = useState(false);
+
+  const isRestricted = emailLoaded && normalizeEmail(userEmail) === RESTRICTED_EMAIL;
 
   const visibleMainNav = isRestricted ? mainNav.filter((i) => isAllowedForRestricted(i.path)) : mainNav;
   const visibleVerwaltungNav = isRestricted ? verwaltungNav.filter((i) => isAllowedForRestricted(i.path)) : verwaltungNav;
@@ -63,6 +65,20 @@ const AdminLayout = () => {
   }, []);
 
   useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!active) return;
+      setUserEmail(session?.user?.email ?? null);
+      setEmailLoaded(true);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUserEmail(session?.user?.email ?? null);
+      setEmailLoaded(true);
+    });
+    return () => { active = false; subscription.unsubscribe(); };
+  }, []);
+
+  useEffect(() => {
     const fetchCount = async () => {
       const { count } = await supabase
         .from("anfragen")
@@ -70,12 +86,7 @@ const AdminLayout = () => {
         .in("status", ["NEU", "Neu"]);
       setNeuCount(count ?? 0);
     };
-    const fetchUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUserEmail(data.user?.email ?? "");
-    };
     fetchCount();
-    fetchUser();
   }, []);
 
   const handleLogout = async () => {
