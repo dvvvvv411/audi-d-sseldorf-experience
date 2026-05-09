@@ -113,6 +113,7 @@ export default function Fahrzeugbestand() {
       ? `Unser aktueller Fahrzeugbestand bei ${brandLabel}. Große Auswahl an Neu- und Gebrauchtwagen.`
       : `Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi. Große Auswahl an Neu- und Gebrauchtwagen.`
   );
+  useMetaPixel((branding as any)?.meta_pixel_code, (branding as any)?.meta_pixel_aktiv);
 
   useEffect(() => {
     const load = async () => {
