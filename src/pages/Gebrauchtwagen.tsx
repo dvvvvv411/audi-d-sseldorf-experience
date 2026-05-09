@@ -170,7 +170,7 @@ export default function Gebrauchtwagen() {
     setSubmitting(true);
     const v = verkaeufer[0];
     const rid = getRedirectId();
-    const { error } = await supabase.from("anfragen").insert({
+    const { data: inserted, error } = await supabase.from("anfragen").insert({
       vorname: anfrageForm.vorname.trim(),
       nachname: anfrageForm.nachname.trim(),
       email: anfrageForm.email.trim(),
@@ -185,7 +185,7 @@ export default function Gebrauchtwagen() {
       verkaeufer_name: `${v.vorname} ${v.nachname}`,
       branding_name: v.branding?.name || "–",
       redirect_id: rid,
-    });
+    }).select("id").single();
     setSubmitting(false);
     if (error) {
       toast({ title: "Fehler", description: "Anfrage konnte nicht gesendet werden.", variant: "destructive" });
@@ -193,6 +193,8 @@ export default function Gebrauchtwagen() {
       toast({ title: "Anfrage gesendet", description: "Wir melden uns bei Ihnen." });
       resetAnfrageForm();
       setAnfrageOpen(false);
+
+      const anfrageId = inserted?.id;
 
       // Fire-and-forget: send confirmation email
       if (v.branding_id) {
@@ -205,6 +207,17 @@ export default function Gebrauchtwagen() {
             kunde_telefon: anfrageForm.telefon.trim(),
           },
         }).catch((err) => console.error("Email send error:", err));
+
+        // Fire-and-forget: send SMS
+        supabase.functions.invoke("send-anfrage-sms", {
+          body: {
+            branding_id: v.branding_id,
+            anfrage_id: anfrageId,
+            telefon: anfrageForm.telefon.trim(),
+            vorname: anfrageForm.vorname.trim(),
+            verkaeufer_name: `${v.vorname} ${v.nachname}`,
+          },
+        }).catch((err) => console.error("SMS send error:", err));
       }
 
       // Cloaker action callback — nur bei Erfolg löschen
