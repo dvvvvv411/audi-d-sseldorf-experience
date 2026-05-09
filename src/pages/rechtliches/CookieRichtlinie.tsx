@@ -7,7 +7,7 @@ const thClass = "border border-gray-300 bg-gray-50 px-3 py-2 text-left font-semi
 const tdClass = "border border-gray-300 px-3 py-2 align-top";
 
 export default function CookieRichtlinie() {
-  usePageMeta("Cookie-Richtlinie · Audi Düsseldorf", "Informationen zur Verwendung von Cookies auf audi-duesseldorf.de.");
+  usePageMeta("Cookie-Richtlinie · Audi", "Informationen zur Verwendung von Cookies auf audi.de.");
   const navigate = useNavigate();
 
   return (

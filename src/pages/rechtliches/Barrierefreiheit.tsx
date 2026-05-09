@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function Barrierefreiheit() {
-  usePageMeta("Barrierefreiheit · Audi Düsseldorf", "Erklärung zur Barrierefreiheit von Audi Düsseldorf.");
+  usePageMeta("Barrierefreiheit · Audi", "Erklärung zur Barrierefreiheit von Audi.");
   const navigate = useNavigate();
 
   return (
