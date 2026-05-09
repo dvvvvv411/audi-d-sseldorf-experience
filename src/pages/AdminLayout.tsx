@@ -128,8 +128,8 @@ const AdminLayout = () => {
     );
   };
 
-  // Solange die Rolle lädt: kein Admin-UI rendern (verhindert Flackern für caller)
-  if (roleLoading) {
+  // Solange die E-Mail nicht geladen ist: kein Admin-UI rendern (verhindert Flackern)
+  if (!emailLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 admin-theme">
         <div className="text-gray-400 animate-pulse">
