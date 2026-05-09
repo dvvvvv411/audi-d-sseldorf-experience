@@ -636,6 +636,42 @@ export default function AdminAnfragen() {
             </TableBody>
           </Table>
         </div>
+        {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); if (safePage > 1) setCurrentPage(safePage - 1); }}
+                  className={safePage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              {getPageNumbers().map((p, i) => (
+                <PaginationItem key={i}>
+                  {p === "ellipsis" ? (
+                    <PaginationEllipsis />
+                  ) : (
+                    <PaginationLink
+                      href="#"
+                      isActive={p === safePage}
+                      onClick={(e) => { e.preventDefault(); setCurrentPage(p); }}
+                    >
+                      {p}
+                    </PaginationLink>
+                  )}
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); if (safePage < totalPages) setCurrentPage(safePage + 1); }}
+                  className={safePage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
+        </>
         );
       })()}
 
