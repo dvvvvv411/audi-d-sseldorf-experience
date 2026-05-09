@@ -244,6 +244,7 @@ const AdminEmailTemplates = () => {
           setSelectedBranding(b.data[0].id);
           setMarketingBranding(b.data[0].id);
           setSvcBranding(b.data[0].id);
+          setPaBranding(b.data[0].id);
         }
       }
       if (f.data) {
@@ -251,6 +252,7 @@ const AdminEmailTemplates = () => {
         if (f.data[0]) {
           setSelectedFahrzeug(f.data[0].id);
           setSvcFahrzeug(f.data[0].id);
+          setPaFahrzeug(f.data[0].id);
         }
       }
       if (v.data) {
@@ -258,11 +260,15 @@ const AdminEmailTemplates = () => {
         if (v.data[0]) {
           setMarketingVerkaeufer(v.data[0].id);
           setSvcVerkaeufer(v.data[0].id);
+          setPaVerkaeufer(v.data[0].id);
         }
       }
       if (a.data) {
         setAnfragen(a.data);
-        if (a.data[0]) setSvcKunde(a.data[0].id);
+        if (a.data[0]) {
+          setSvcKunde(a.data[0].id);
+          setPaKunde(a.data[0].id);
+        }
       }
     };
     load();
