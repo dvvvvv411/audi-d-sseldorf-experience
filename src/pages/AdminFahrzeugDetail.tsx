@@ -257,9 +257,13 @@ export default function AdminFahrzeugDetail() {
                       className="relative group flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 hover:border-gray-300 bg-gray-50 cursor-pointer transition-colors"
                       onClick={() => setPdfViewer(url)}
                     >
-                      <div className="flex items-center justify-center w-10 h-10 rounded bg-red-50 text-red-500 shrink-0">
-                        <FileText className="w-5 h-5" />
-                      </div>
+                      {isImageUrl(url) ? (
+                        <img src={url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+                      ) : (
+                        <div className="flex items-center justify-center w-10 h-10 rounded bg-red-50 text-red-500 shrink-0">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                      )}
                       <p className="text-xs text-gray-700 truncate flex-1">{getPdfFilename(url)}</p>
                       <button
                         onClick={(e) => {
