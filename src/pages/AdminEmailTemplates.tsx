@@ -149,6 +149,52 @@ const generateServiceberichtEmail = (
 </html>`;
 };
 
+const generatePersoenlichesAngebotEmail = (
+  branding: Branding,
+  verkaeufer: Verkaeufer,
+  fahrzeug: Fahrzeug,
+  anrede: string,
+) => {
+  const fullName = `${verkaeufer.vorname} ${verkaeufer.nachname}`;
+
+  return `<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#333;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
+    <tr><td style="padding:30px 20px 10px;">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;">
+        <tr><td style="padding:0 0 20px;font-size:14px;line-height:1.7;color:#333;">
+          ${anrede}<br/><br/>
+          vielen Dank für Ihr Interesse an unserem Fahrzeug sowie für das angenehme Telefonat.<br/><br/>
+          Wie bereits telefonisch besprochen, sende ich Ihnen hiermit Ihr persönliches Angebot zum <strong>${fahrzeug.fahrzeugname}</strong>. Alle relevanten Eckdaten, Konditionen und Ausstattungsmerkmale haben wir in dem beigefügten Dokument für Sie übersichtlich zusammengestellt.<br/><br/>
+          Wichtig ist uns: Sämtliche Fahrzeuge aus unserem Bestand werden grundsätzlich mit einer umfassenden Gebrauchtwagengarantie übergeben. Diese deckt zentrale Bauteile des Fahrzeugs ab – darunter Motor, Getriebe, Antrieb, Elektronik sowie zahlreiche weitere sicherheits- und komfortrelevante Komponenten. So können Sie Ihr neues Fahrzeug von Anfang an mit einem sicheren Gefühl genießen, ohne sich Sorgen um unerwartete Reparaturkosten machen zu müssen.<br/><br/>
+          Sollten Sie Fragen zum Angebot oder zur Garantie haben oder weitere Informationen wünschen, stehe ich Ihnen jederzeit gerne per E-Mail oder telefonisch unter <strong>${verkaeufer.telefon}</strong> zur Verfügung. Selbstverständlich können wir auch jederzeit einen Termin für eine Probefahrt vereinbaren.<br/><br/>
+          Ich freue mich auf Ihre Rückmeldung.<br/><br/>
+          Mit freundlichen Grüßen
+        </td></tr>
+        <tr><td style="padding:20px 0 0;border-top:1px solid #e0e0e0;">
+          <p style="margin:0;font-size:14px;font-weight:bold;color:#000;">${fullName}</p>
+          <p style="margin:2px 0 0;font-size:12px;color:#666;">Verkaufsberater | ${branding.name}</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#666;">${verkaeufer.telefon} · ${verkaeufer.email}</p>
+        </td></tr>
+        <tr><td style="padding:20px 0 0;">
+          <img src="https://www.tiemeyer.de/media/uploads/2025/06/Audi.svg" alt="Audi" width="80" style="display:block;" />
+        </td></tr>
+        <tr><td style="padding:15px 0 0;">
+          <p style="font-size:10px;color:#999;line-height:1.5;margin:0;">
+            ${branding.name} · ${branding.strasse}, ${branding.plz} ${branding.stadt}<br/>
+            ${branding.amtsgericht} · ${branding.handelsregister} · Geschäftsführer: ${branding.geschaeftsfuehrer}<br/>
+            USt-IdNr.: ${branding.ust_id}
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+};
+
 const buildAnrede = (gender: "male" | "female" | "unknown", nachname: string) => {
   if (gender === "male") return `Sehr geehrter Herr ${nachname},`;
   if (gender === "female") return `Sehr geehrte Frau ${nachname},`;
@@ -178,6 +224,12 @@ const AdminEmailTemplates = () => {
   const [svcFahrzeug, setSvcFahrzeug] = useState<string>("");
   const [genderCache, setGenderCache] = useState<Record<string, "male" | "female" | "unknown">>({});
 
+  // Persönliches Angebot
+  const [paKunde, setPaKunde] = useState<string>("");
+  const [paVerkaeufer, setPaVerkaeufer] = useState<string>("");
+  const [paBranding, setPaBranding] = useState<string>("");
+  const [paFahrzeug, setPaFahrzeug] = useState<string>("");
+
   useEffect(() => {
     const load = async () => {
       const [b, f, v, a] = await Promise.all([
@@ -192,6 +244,7 @@ const AdminEmailTemplates = () => {
           setSelectedBranding(b.data[0].id);
           setMarketingBranding(b.data[0].id);
           setSvcBranding(b.data[0].id);
+          setPaBranding(b.data[0].id);
         }
       }
       if (f.data) {
@@ -199,6 +252,7 @@ const AdminEmailTemplates = () => {
         if (f.data[0]) {
           setSelectedFahrzeug(f.data[0].id);
           setSvcFahrzeug(f.data[0].id);
+          setPaFahrzeug(f.data[0].id);
         }
       }
       if (v.data) {
@@ -206,11 +260,15 @@ const AdminEmailTemplates = () => {
         if (v.data[0]) {
           setMarketingVerkaeufer(v.data[0].id);
           setSvcVerkaeufer(v.data[0].id);
+          setPaVerkaeufer(v.data[0].id);
         }
       }
       if (a.data) {
         setAnfragen(a.data);
-        if (a.data[0]) setSvcKunde(a.data[0].id);
+        if (a.data[0]) {
+          setSvcKunde(a.data[0].id);
+          setPaKunde(a.data[0].id);
+        }
       }
     };
     load();
@@ -270,6 +328,45 @@ const AdminEmailTemplates = () => {
       ? generateServiceberichtEmail(sBranding, sVerkaeufer, sFahrzeug, svcAnrede)
       : "";
   const svcBetreff = sFahrzeug ? `Servicebericht & Exposé – ${sFahrzeug.fahrzeugname}` : "";
+
+  // Persönliches Angebot
+  const paKundeObj = anfragen.find((x) => x.id === paKunde);
+  useEffect(() => {
+    if (!paKundeObj) return;
+    if (genderCache[paKundeObj.vorname] !== undefined) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase.functions.invoke("detect-gender", {
+          body: { firstName: paKundeObj.vorname },
+        });
+        const g = (data?.gender as "male" | "female" | "unknown") || "unknown";
+        if (!cancelled) setGenderCache((prev) => ({ ...prev, [paKundeObj.vorname]: g }));
+      } catch {
+        if (!cancelled) setGenderCache((prev) => ({ ...prev, [paKundeObj.vorname]: "unknown" }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [paKundeObj?.vorname]);
+
+  useEffect(() => {
+    if (paKundeObj?.fahrzeug_id && fahrzeuge.find((f) => f.id === paKundeObj.fahrzeug_id)) {
+      setPaFahrzeug(paKundeObj.fahrzeug_id);
+    }
+  }, [paKundeObj?.fahrzeug_id, fahrzeuge]);
+
+  const paBrandingObj = brandings.find((b) => b.id === paBranding);
+  const paVerkaeuferObj = verkaeufer.find((v) => v.id === paVerkaeufer);
+  const paFahrzeugObj = fahrzeuge.find((f) => f.id === paFahrzeug);
+  const paGender = paKundeObj ? genderCache[paKundeObj.vorname] || "unknown" : "unknown";
+  const paAnrede = paKundeObj ? buildAnrede(paGender, paKundeObj.nachname) : "";
+  const paHtml =
+    paBrandingObj && paVerkaeuferObj && paFahrzeugObj && paKundeObj
+      ? generatePersoenlichesAngebotEmail(paBrandingObj, paVerkaeuferObj, paFahrzeugObj, paAnrede)
+      : "";
+  const paBetreff = paFahrzeugObj ? `Ihr persönliches Angebot – ${paFahrzeugObj.fahrzeugname}` : "";
 
   const handleCopy = async (text: string, label = "Inhalt") => {
     try {
@@ -433,6 +530,74 @@ const AdminEmailTemplates = () => {
         {svcHtml && (
           <div className="border border-border rounded-md overflow-hidden bg-muted">
             <iframe srcDoc={svcHtml} title="Servicebericht Vorschau" className="w-full border-0" style={{ minHeight: 700 }} />
+          </div>
+        )}
+      </div>
+
+      {/* Persönliches Angebot */}
+      <div className="space-y-6">
+        <h2 className="text-lg font-semibold">Persönliches Angebot</h2>
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="space-y-1.5 min-w-[260px]">
+            <label className="text-sm font-medium text-muted-foreground">Kunde</label>
+            <Select value={paKunde} onValueChange={setPaKunde}>
+              <SelectTrigger><SelectValue placeholder="Kunde wählen" /></SelectTrigger>
+              <SelectContent>
+                {anfragen.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.vorname} {a.nachname} – {a.fahrzeug_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 min-w-[220px]">
+            <label className="text-sm font-medium text-muted-foreground">Verkäufer</label>
+            <Select value={paVerkaeufer} onValueChange={setPaVerkaeufer}>
+              <SelectTrigger><SelectValue placeholder="Verkäufer wählen" /></SelectTrigger>
+              <SelectContent>
+                {verkaeufer.map((v) => (<SelectItem key={v.id} value={v.id}>{v.vorname} {v.nachname}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 min-w-[220px]">
+            <label className="text-sm font-medium text-muted-foreground">Branding</label>
+            <Select value={paBranding} onValueChange={setPaBranding}>
+              <SelectTrigger><SelectValue placeholder="Branding wählen" /></SelectTrigger>
+              <SelectContent>
+                {brandings.map((b) => (<SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 min-w-[260px]">
+            <label className="text-sm font-medium text-muted-foreground">Fahrzeug</label>
+            <Select value={paFahrzeug} onValueChange={setPaFahrzeug}>
+              <SelectTrigger><SelectValue placeholder="Fahrzeug wählen" /></SelectTrigger>
+              <SelectContent>
+                {fahrzeuge.map((f) => (<SelectItem key={f.id} value={f.id}>{f.fahrzeugname}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          {paHtml && (
+            <Button variant="outline" onClick={() => handleCopy(paHtml, "HTML")}>
+              <Copy className="mr-1.5 h-4 w-4" /> HTML kopieren
+            </Button>
+          )}
+        </div>
+        {paBetreff && (
+          <div className="flex items-center gap-2">
+            <div className="space-y-1.5 flex-1">
+              <label className="text-sm font-medium text-muted-foreground">Betreff</label>
+              <Input value={paBetreff} readOnly className="bg-muted" />
+            </div>
+            <Button variant="outline" size="icon" className="mt-6" onClick={() => handleCopy(paBetreff, "Betreff")}>
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        {paHtml && (
+          <div className="border border-border rounded-md overflow-hidden bg-muted">
+            <iframe srcDoc={paHtml} title="Persönliches Angebot Vorschau" className="w-full border-0" style={{ minHeight: 700 }} />
           </div>
         )}
       </div>
