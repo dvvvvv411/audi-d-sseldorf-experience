@@ -1,7 +1,19 @@
-import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import { useNavigate, useLocation, Outlet, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare, Mail, FileText, Receipt, MessageCircle, CarFront, Send, Inbox } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useUserRole } from "@/hooks/useUserRole";
+
+const CALLER_ALLOWED_PATHS = new Set([
+  "/admin",
+  "/admin/fahrzeugbestand",
+  "/admin/anfragen",
+  "/admin/sms",
+  "/admin/email",
+]);
+
+const isAllowedForCaller = (path: string) =>
+  Array.from(CALLER_ALLOWED_PATHS).some((p) => p === path || path.startsWith(p + "/"));
 
 const AudiRingsSmall = () => (
   <svg viewBox="0 0 200 50" className="w-20 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
