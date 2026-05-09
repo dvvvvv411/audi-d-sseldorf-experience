@@ -389,11 +389,17 @@ export default function AdminFahrzeugDetail() {
       <Dialog open={pdfViewer !== null} onOpenChange={() => setPdfViewer(null)}>
         <DialogContent className="max-w-4xl h-[85vh] p-0 overflow-hidden">
           {pdfViewer && (
-            <iframe
-              src={pdfViewer}
-              className="w-full h-full"
-              title="Servicenachweis PDF"
-            />
+            isImageUrl(pdfViewer) ? (
+              <div className="w-full h-full flex items-center justify-center bg-black">
+                <img src={pdfViewer} alt="Servicenachweis" className="max-w-full max-h-full object-contain" />
+              </div>
+            ) : (
+              <iframe
+                src={pdfViewer}
+                className="w-full h-full"
+                title="Servicenachweis"
+              />
+            )
           )}
         </DialogContent>
       </Dialog>
