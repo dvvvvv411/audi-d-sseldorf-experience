@@ -103,6 +103,7 @@ const AdminBrandings = () => {
       email_absender: form.email_absender.trim() || null,
       absendername: form.absendername.trim() || null,
       sevenio_absendername: form.sevenio_absendername.trim() || null,
+      sevenio_api_key: form.sevenio_api_key.trim() || null,
     };
 
     let error;
