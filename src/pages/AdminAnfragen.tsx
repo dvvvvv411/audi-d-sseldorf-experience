@@ -812,6 +812,14 @@ export default function AdminAnfragen() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <EmailSendDialog
+        anfrage={emailDialogAnfrage}
+        onClose={() => setEmailDialogAnfrage(null)}
+        onSent={(anfrageId, newStatus) => {
+          setAnfragen((prev) => prev.map((x) => x.id === anfrageId ? { ...x, status: newStatus } : x));
+        }}
+      />
     </div>
   );
 }
