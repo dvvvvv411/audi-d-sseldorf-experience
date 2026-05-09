@@ -70,6 +70,7 @@ const AdminBrandings = () => {
       email_absender: b.email_absender ?? "",
       absendername: b.absendername ?? "",
       sevenio_absendername: b.sevenio_absendername ?? "",
+      sevenio_api_key: b.sevenio_api_key ?? "",
     });
     setEditId(b.id);
     setDialogOpen(true);
