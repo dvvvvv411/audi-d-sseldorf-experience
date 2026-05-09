@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { generateExposePdf, type ExposeFahrzeug, type ExposeVerkaeufer, type ExposeBranding } from "@/lib/expose-pdf";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Anfrage {
   id: string;
@@ -65,6 +66,7 @@ export default function AdminAnfrageDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isRestricted } = useUserRole();
   const [anfrage, setAnfrage] = useState<Anfrage | null>(null);
   const [notizen, setNotizen] = useState<{ id: string; text: string; created_at: string }[]>([]);
   const [neueNotiz, setNeueNotiz] = useState("");
@@ -402,14 +404,18 @@ export default function AdminAnfrageDetail() {
             <Mail className="w-4 h-4" />
             Mailbox
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={navigateToAngebot}>
-            <Receipt className="w-4 h-4" />
-            Angebot erstellen
-          </Button>
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={openExposeDialog}>
-            <FileText className="w-4 h-4" />
-            Exposé erstellen
-          </Button>
+          {!isRestricted && (
+            <>
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={navigateToAngebot}>
+                <Receipt className="w-4 h-4" />
+                Angebot erstellen
+              </Button>
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={openExposeDialog}>
+                <FileText className="w-4 h-4" />
+                Exposé erstellen
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
