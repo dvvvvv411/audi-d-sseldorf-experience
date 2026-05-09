@@ -1,57 +1,42 @@
 ## Ziel
-Admin-Reiter "Email Verlauf" unter `/admin/email`, der alle aus `EmailSendDialog` versendeten Emails (Template "Servicebericht & Exposé" und "Persönliches Angebot") anzeigt — analog zum bestehenden SMS-Verlauf.
+`caller@caller.de` bekommt eine eigene Rolle `caller` mit eingeschränkter UI. Sichtbarkeit wird **flackerfrei** über einen synchronen localStorage-Cache gelöst.
 
 ## 1. Datenbank — Migration
-Neue Tabelle `email_verlauf` (analog `sms_verlauf`):
-- `id` uuid PK, `created_at` timestamptz default now()
-- `anfrage_id` uuid (nullable)
-- `branding_id` uuid (nullable)
-- `verkaeufer_id` uuid (nullable)
-- `empfaenger` text not null
-- `absender` text – z.B. `Markus Stoll - Audi Zentrum Berlin <…>`
-- `betreff` text
-- `template` text – `service` | `angebot`
-- `status` text – `gesendet` | `fehlgeschlagen`
-- `fehler` text (nullable)
-- `resend_id` text (nullable)
-- `attachments` jsonb (nullable) – `[{ filename, size }]`
-- `html` text (nullable) – für Detail-Preview
-- RLS: nur SELECT für `authenticated`. INSERT erfolgt ausschließlich aus der Edge Function via Service Role.
+- Enum `app_role` um Wert `'caller'` erweitern.
+- `UPDATE public.user_roles SET role='caller' WHERE user_id = (SELECT id FROM auth.users WHERE email='caller@caller.de')`.
+- `handle_new_user` bleibt unverändert (neue Signups bleiben `admin`).
 
-## 2. Edge Function `send-template-email`
-- Akzeptiert zusätzliches Feld `template` (`"service"` | `"angebot"`).
-- Nach erfolgreichem Resend-Call: Insert in `email_verlauf` mit Status `gesendet`, `resend_id` aus Resend-Response, Attachments-Metadaten (Dateiname + Bytegröße aus base64), html, betreff, absender (`senderName <email>`).
-- Bei Fehler: Insert mit Status `fehlgeschlagen` und `fehler`.
-- `aktivitaets_log` bleibt zusätzlich erhalten.
+## 2. Neuer Hook `src/hooks/useUserRole.ts`
+- Liest beim Mount **synchron** aus `localStorage["audi.userRole"]` → kein Flackern.
+- Lädt parallel im Hintergrund die echte Rolle aus `public.user_roles` und aktualisiert State + Cache, falls abweichend.
+- Bei `SIGNED_OUT` Cache leeren.
 
-## 3. `EmailSendDialog.tsx`
-- Beim Invoke von `send-template-email` zusätzlich `template: "service" | "angebot"` mitsenden (basierend auf Auswahl im Dialog).
+## 3. Login-Flow `src/pages/Auth.tsx`
+- Nach erfolgreichem `signInWithPassword`: Rolle einmal aus `user_roles` laden und in localStorage schreiben **bevor** auf `/admin` navigiert wird.
+- Garantiert: beim ersten Render im Admin-Bereich ist der korrekte Wert da.
 
-## 4. Neue Seite `src/pages/AdminEmailVerlauf.tsx`
-Layout & Styling übernommen aus `AdminSmsVerlauf`:
-- Tabelle: Datum, Empfänger, Absender, Template-Badge ("Service gesendet" / "Angebot gesendet"), Betreff, Status-Badge (grün/rot), Anhänge-Anzahl
-- Filter:
-  - Template-Dropdown: Alle / Service gesendet / Angebot gesendet
-  - Suchfeld (Empfänger, Betreff)
-  - Status-Filter (Alle / gesendet / fehlgeschlagen)
-- Sortierung: `created_at DESC`
-- Klick auf Zeile → Detail-Dialog (weißes Modal, dunkler Overlay):
-  - Metadaten (Empfänger, Absender, Betreff, Datum, Status, evtl. Fehler)
-  - Liste der Anhänge (Dateiname + KB)
-  - HTML-Preview in iframe (sandbox)
+## 4. Sichtbare Reiter pro Rolle (`AdminLayout.tsx`)
+Allowed-Pfade:
+- `admin`: alle (wie bisher)
+- `caller`: nur `/admin`, `/admin/fahrzeugbestand`, `/admin/anfragen`, `/admin/sms`, `/admin/email`
 
-## 5. Routing & Navigation
-- `src/App.tsx`: `<Route path="email" element={<AdminEmailVerlauf />} />`
-- `src/pages/AdminLayout.tsx`: Sidebar-Eintrag "Email Verlauf" (Mail-Icon) direkt unter "SMS Verlauf".
+`mainNav` und `verwaltungNav` werden vor dem Render mit dem Hook-Wert gefiltert.
+
+## 5. URL-Guard
+Kleines Hilfsmittel in `AdminLayout.tsx` (oder neuer Wrapper): Wenn `role === 'caller'` und aktueller Pfad nicht in der Allow-List → `<Navigate to="/admin" replace />`. Verhindert direkten URL-Zugriff auf verbotene Reiter.
+
+## 6. `AdminAnfragen.tsx`
+- Buttons **"Angebot erstellen"** und **"Exposé erstellen"** nur wenn `role === 'admin'` rendern.
+- Email senden, Status ändern, Notizen, Hide, Detail-Link: bleiben sichtbar.
 
 ## Geänderte/neue Dateien
-- **Migration:** Tabelle `email_verlauf` + RLS-Policy
-- **Neu:** `src/pages/AdminEmailVerlauf.tsx`
-- **Edit:** `src/App.tsx`, `src/pages/AdminLayout.tsx`, `src/components/EmailSendDialog.tsx`, `supabase/functions/send-template-email/index.ts`
+- Migration (Enum + Rolle aktualisieren)
+- **Neu:** `src/hooks/useUserRole.ts`
+- **Edit:** `src/pages/AdminLayout.tsx`, `src/pages/AdminAnfragen.tsx`, `src/pages/Auth.tsx`
 
-## Reihenfolge der Umsetzung
-1. Migration `email_verlauf` (mit RLS)
-2. Edge Function `send-template-email` um Insert + `template`-Feld erweitern
-3. `EmailSendDialog.tsx` → `template` mitsenden
-4. `AdminEmailVerlauf.tsx` (Liste + Detail-Dialog)
-5. Route + Sidebar-Eintrag
+## Reihenfolge
+1. Migration
+2. `useUserRole` Hook
+3. `Auth.tsx` Rolle cachen
+4. Sidebar filtern + URL-Guard in `AdminLayout`
+5. Buttons in `AdminAnfragen` ausblenden
