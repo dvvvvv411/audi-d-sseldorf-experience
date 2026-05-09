@@ -207,7 +207,6 @@ export default function Gebrauchtwagen() {
       resetAnfrageForm();
       setAnfrageOpen(false);
 
-      const anfrageId = inserted?.id;
 
       // Fire-and-forget: send confirmation email
       if (v.branding_id) {
