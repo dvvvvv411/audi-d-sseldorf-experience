@@ -442,11 +442,13 @@ export default function AdminAnfragen() {
                       value={displayStatus(a.status)}
                       onValueChange={async (val) => {
                         const oldStatus = displayStatus(a.status);
-                        const { error } = await supabase.from("anfragen").update({ status: val }).eq("id", a.id);
+                        const updatePayload: { status: string; hidden?: boolean } = { status: val };
+                        if (val === "Kein Interesse") updatePayload.hidden = true;
+                        const { error } = await supabase.from("anfragen").update(updatePayload as any).eq("id", a.id);
                         if (error) {
                           toast({ title: "Fehler", description: "Status konnte nicht aktualisiert werden.", variant: "destructive" });
                         } else {
-                          setAnfragen((prev) => prev.map((x) => x.id === a.id ? { ...x, status: val } : x));
+                          setAnfragen((prev) => prev.map((x) => x.id === a.id ? { ...x, status: val, hidden: val === "Kein Interesse" ? true : x.hidden } : x));
                           toast({ title: "Status aktualisiert", description: `Status auf "${val}" gesetzt.` });
                           const email = await getUserEmail();
                           const now = new Date().toISOString();
