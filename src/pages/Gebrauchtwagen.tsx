@@ -170,7 +170,9 @@ export default function Gebrauchtwagen() {
     setSubmitting(true);
     const v = verkaeufer[0];
     const rid = getRedirectId();
-    const { data: inserted, error } = await supabase.from("anfragen").insert({
+    const anfrageId = crypto.randomUUID();
+    const { error } = await supabase.from("anfragen").insert({
+      id: anfrageId,
       vorname: anfrageForm.vorname.trim(),
       nachname: anfrageForm.nachname.trim(),
       email: anfrageForm.email.trim(),
@@ -185,7 +187,7 @@ export default function Gebrauchtwagen() {
       verkaeufer_name: `${v.vorname} ${v.nachname}`,
       branding_name: v.branding?.name || "–",
       redirect_id: rid,
-    }).select("id").single();
+    });
     setSubmitting(false);
     if (error) {
       console.error("[Anfrage Insert Fehler]", {
