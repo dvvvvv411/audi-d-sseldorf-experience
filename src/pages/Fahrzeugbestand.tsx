@@ -105,6 +105,14 @@ export default function Fahrzeugbestand() {
   const [vfMap, setVfMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
+  const cityLabel = branding?.stadt ? `Audi ${branding.stadt}` : "Audi";
+  usePageMeta(
+    `Fahrzeugbestand · ${cityLabel}`,
+    branding?.stadt
+      ? `Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi bei ${cityLabel}. Große Auswahl an Neu- und Gebrauchtwagen.`
+      : `Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi. Große Auswahl an Neu- und Gebrauchtwagen.`
+  );
+
   useEffect(() => {
     const load = async () => {
       if (sellerSlug) {
