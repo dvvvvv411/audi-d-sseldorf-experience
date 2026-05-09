@@ -1,24 +1,14 @@
-Verstanden: Es geht nicht um Rollen. `caller@caller.de` bleibt Admin. Die Einschränkung muss ausschließlich an der eingeloggten E-Mail hängen.
+## Ziel
+Nur der User mit der ID `0bc8bcc6-3555-4888-80b5-8a74df8a6873` bekommt eine eingeschränkte `/admin`-Navigation und startet immer direkt bei `Anfragen`.
 
-Plan:
-1. Rollenlogik aus der Sidebar-Restriktion entfernen
-   - `AdminLayout` soll nicht mehr auf `role` oder `user_roles` warten, um die Sidebar für diesen Fall zu filtern.
-   - Die Restriktion wird direkt aus `supabase.auth.getSession()` / `session.user.email` abgeleitet.
-   - Vergleich robust: `email.trim().toLowerCase() === "caller@caller.de"`.
+## Änderungen
+1. **Restriction von E-Mail auf User-ID umstellen**
+   - In `AdminLayout.tsx` wird nicht mehr `caller@caller.de` geprüft.
+   - Stattdessen wird `session.user.id === "0bc8bcc6-3555-4888-80b5-8a74df8a6873"` geprüft.
 
-2. Sofortiger, flackerfreier Sidebar-Zustand
-   - Beim Laden von `/admin` wird zuerst die Auth-Session gelesen.
-   - Solange die E-Mail nicht bestimmt ist, wird keine Sidebar gerendert.
-   - Sobald die E-Mail `caller@caller.de` ist, wird direkt nur die reduzierte Navigation gerendert.
-
-3. Explizite Sidebar-Allowlist für `caller@caller.de`
-   - Sichtbar bleiben nur:
+2. **Sidebar exakt filtern**
+   - Für genau diese User-ID werden diese Reiter ausgeblendet:
      - Dashboard
-     - Fahrzeugbestand
-     - Anfragen
-     - SMS Verlauf
-     - Email Verlauf
-   - Ausgeblendet werden exakt:
      - Verkäufer
      - Brandings
      - Email Templates
@@ -26,10 +16,28 @@ Plan:
      - Angebote
      - Telegram
      - Inzahlungnahme
+   - Sichtbar bleiben:
+     - Fahrzeugbestand
+     - Anfragen
+     - SMS Verlauf
+     - Email Verlauf
 
-4. Direkte URL-Sperre nur für `caller@caller.de`
-   - Wenn `caller@caller.de` einen gesperrten Pfad direkt öffnet, sofort Redirect nach `/admin`.
-   - Andere Admin-Nutzer bleiben komplett unverändert und sehen weiterhin alles.
+3. **Startseite erzwingen**
+   - Wenn dieser User `/admin` öffnet, wird er direkt nach `/admin/anfragen` weitergeleitet.
+   - `Dashboard` ist für ihn nicht mehr erreichbar.
 
-5. Buttons bleiben wie aktuell funktionierend
-   - Die bereits funktionierende Ausblendung von „Angebot erstellen“ und „Exposé erstellen“ bleibt ebenfalls an `caller@caller.de` gekoppelt, nicht an Rollen.
+4. **Direktzugriff sperren**
+   - Wenn dieser User eine verbotene Admin-URL direkt öffnet, wird er nach `/admin/anfragen` weitergeleitet.
+   - Alle anderen Admin-User behalten unverändert vollen Zugriff.
+
+## Technische Details
+- `AdminLayout.tsx` speichert zusätzlich die aktuelle `userId` aus `supabase.auth.getSession()` und `onAuthStateChange`.
+- `isRestricted` basiert ausschließlich auf der User-ID, nicht auf Rolle und nicht auf E-Mail.
+- Die erlaubten Pfade für diese User-ID sind:
+  - `/admin/fahrzeugbestand`
+  - `/admin/fahrzeugbestand/:id`
+  - `/admin/anfragen`
+  - `/admin/anfragen/:id`
+  - `/admin/sms`
+  - `/admin/email`
+- `/admin` selbst leitet für diese User-ID sofort auf `/admin/anfragen` weiter.

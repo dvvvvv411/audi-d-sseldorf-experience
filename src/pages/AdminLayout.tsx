@@ -3,10 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare, Mail, FileText, Receipt, MessageCircle, CarFront, Send, Inbox } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const RESTRICTED_EMAIL = "caller@caller.de";
+const RESTRICTED_USER_ID = "0bc8bcc6-3555-4888-80b5-8a74df8a6873";
 
 const RESTRICTED_ALLOWED_PATHS = [
-  "/admin",
   "/admin/fahrzeugbestand",
   "/admin/anfragen",
   "/admin/sms",
@@ -15,9 +14,6 @@ const RESTRICTED_ALLOWED_PATHS = [
 
 const isAllowedForRestricted = (path: string) =>
   RESTRICTED_ALLOWED_PATHS.some((p) => p === path || path.startsWith(p + "/"));
-
-const normalizeEmail = (e: string | null | undefined) =>
-  (e ?? "").trim().toLowerCase();
 
 const AudiRingsSmall = () => (
   <svg viewBox="0 0 200 50" className="w-20 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -52,9 +48,10 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [emailLoaded, setEmailLoaded] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
 
-  const isRestricted = emailLoaded && normalizeEmail(userEmail) === RESTRICTED_EMAIL;
+  const isRestricted = authLoaded && userId === RESTRICTED_USER_ID;
 
   const visibleMainNav = isRestricted ? mainNav.filter((i) => isAllowedForRestricted(i.path)) : mainNav;
   const visibleVerwaltungNav = isRestricted ? verwaltungNav.filter((i) => isAllowedForRestricted(i.path)) : verwaltungNav;
@@ -69,11 +66,13 @@ const AdminLayout = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!active) return;
       setUserEmail(session?.user?.email ?? null);
-      setEmailLoaded(true);
+      setUserId(session?.user?.id ?? null);
+      setAuthLoaded(true);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setUserEmail(session?.user?.email ?? null);
-      setEmailLoaded(true);
+      setUserId(session?.user?.id ?? null);
+      setAuthLoaded(true);
     });
     return () => { active = false; subscription.unsubscribe(); };
   }, []);
@@ -128,8 +127,8 @@ const AdminLayout = () => {
     );
   };
 
-  // Solange die E-Mail nicht geladen ist: kein Admin-UI rendern (verhindert Flackern)
-  if (!emailLoaded) {
+  // Solange die Auth nicht geladen ist: kein Admin-UI rendern (verhindert Flackern)
+  if (!authLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 admin-theme">
         <div className="text-gray-400 animate-pulse">
@@ -139,9 +138,9 @@ const AdminLayout = () => {
     );
   }
 
-  // URL-Guard: eingeschränkter Account darf nur erlaubte Pfade
+  // URL-Guard: eingeschränkter Account darf nur erlaubte Pfade, Start = /admin/anfragen
   if (isRestricted && !isAllowedForRestricted(location.pathname)) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/admin/anfragen" replace />;
   }
 
   return (
