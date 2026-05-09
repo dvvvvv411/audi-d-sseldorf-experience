@@ -3,11 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "admin" | "caller" | null;
 
+export const RESTRICTED_USER_ID = "0bc8bcc6-3555-4888-80b5-8a74df8a6873";
 export const RESTRICTED_EMAIL = "caller@caller.de";
 
 export interface UserRoleState {
   role: AppRole;
   email: string | null;
+  userId: string | null;
   isRestricted: boolean;
   loading: boolean;
 }
