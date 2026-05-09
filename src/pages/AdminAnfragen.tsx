@@ -571,6 +571,19 @@ export default function AdminAnfragen() {
                         </div>
                         <Tooltip>
                           <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                              onClick={() => setEmailDialogAnfrage(a)}
+                            >
+                              <Send className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Email senden</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                              <Button
                               variant="ghost"
                               size="icon"
