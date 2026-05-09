@@ -31,6 +31,7 @@ Deno.serve(async (req) => {
       html,
       attachments,
       anfrage_id,
+      template,
     } = body ?? {};
 
     if (!branding_id || !verkaeufer_id || !to || !subject || !html) {
