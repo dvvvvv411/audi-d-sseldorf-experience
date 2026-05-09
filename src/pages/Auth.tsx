@@ -92,7 +92,7 @@ const Auth = () => {
         <div className="relative z-10 flex flex-col items-center text-center gap-6">
           <AudiRings />
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight">
-            Audi <span className="font-semibold">Düsseldorf</span>
+            Audi <span className="font-semibold">AG</span>
           </h1>
           <p className="text-white/50 text-sm md:text-base tracking-[0.25em] uppercase font-light">
             Verwaltungsportal
