@@ -2,7 +2,8 @@ import { useNavigate, useLocation, Outlet, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare, Mail, FileText, Receipt, MessageCircle, CarFront, Send, Inbox } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useUserRole } from "@/hooks/useUserRole";
+
+const RESTRICTED_EMAIL = "caller@caller.de";
 
 const RESTRICTED_ALLOWED_PATHS = [
   "/admin",
@@ -14,6 +15,9 @@ const RESTRICTED_ALLOWED_PATHS = [
 
 const isAllowedForRestricted = (path: string) =>
   RESTRICTED_ALLOWED_PATHS.some((p) => p === path || path.startsWith(p + "/"));
+
+const normalizeEmail = (e: string | null | undefined) =>
+  (e ?? "").trim().toLowerCase();
 
 const AudiRingsSmall = () => (
   <svg viewBox="0 0 200 50" className="w-20 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,8 +51,10 @@ const AdminLayout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
-  const [userEmail, setUserEmail] = useState("");
-  const { isRestricted, loading: roleLoading } = useUserRole();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [emailLoaded, setEmailLoaded] = useState(false);
+
+  const isRestricted = emailLoaded && normalizeEmail(userEmail) === RESTRICTED_EMAIL;
 
   const visibleMainNav = isRestricted ? mainNav.filter((i) => isAllowedForRestricted(i.path)) : mainNav;
   const visibleVerwaltungNav = isRestricted ? verwaltungNav.filter((i) => isAllowedForRestricted(i.path)) : verwaltungNav;
@@ -59,6 +65,20 @@ const AdminLayout = () => {
   }, []);
 
   useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!active) return;
+      setUserEmail(session?.user?.email ?? null);
+      setEmailLoaded(true);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUserEmail(session?.user?.email ?? null);
+      setEmailLoaded(true);
+    });
+    return () => { active = false; subscription.unsubscribe(); };
+  }, []);
+
+  useEffect(() => {
     const fetchCount = async () => {
       const { count } = await supabase
         .from("anfragen")
@@ -66,12 +86,7 @@ const AdminLayout = () => {
         .in("status", ["NEU", "Neu"]);
       setNeuCount(count ?? 0);
     };
-    const fetchUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUserEmail(data.user?.email ?? "");
-    };
     fetchCount();
-    fetchUser();
   }, []);
 
   const handleLogout = async () => {
@@ -113,8 +128,8 @@ const AdminLayout = () => {
     );
   };
 
-  // Solange die Rolle lädt: kein Admin-UI rendern (verhindert Flackern für caller)
-  if (roleLoading) {
+  // Solange die E-Mail nicht geladen ist: kein Admin-UI rendern (verhindert Flackern)
+  if (!emailLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 admin-theme">
         <div className="text-gray-400 animate-pulse">
