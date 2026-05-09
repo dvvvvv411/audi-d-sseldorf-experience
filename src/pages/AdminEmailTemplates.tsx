@@ -329,6 +329,45 @@ const AdminEmailTemplates = () => {
       : "";
   const svcBetreff = sFahrzeug ? `Servicebericht & Exposé – ${sFahrzeug.fahrzeugname}` : "";
 
+  // Persönliches Angebot
+  const paKundeObj = anfragen.find((x) => x.id === paKunde);
+  useEffect(() => {
+    if (!paKundeObj) return;
+    if (genderCache[paKundeObj.vorname] !== undefined) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase.functions.invoke("detect-gender", {
+          body: { firstName: paKundeObj.vorname },
+        });
+        const g = (data?.gender as "male" | "female" | "unknown") || "unknown";
+        if (!cancelled) setGenderCache((prev) => ({ ...prev, [paKundeObj.vorname]: g }));
+      } catch {
+        if (!cancelled) setGenderCache((prev) => ({ ...prev, [paKundeObj.vorname]: "unknown" }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [paKundeObj?.vorname]);
+
+  useEffect(() => {
+    if (paKundeObj?.fahrzeug_id && fahrzeuge.find((f) => f.id === paKundeObj.fahrzeug_id)) {
+      setPaFahrzeug(paKundeObj.fahrzeug_id);
+    }
+  }, [paKundeObj?.fahrzeug_id, fahrzeuge]);
+
+  const paBrandingObj = brandings.find((b) => b.id === paBranding);
+  const paVerkaeuferObj = verkaeufer.find((v) => v.id === paVerkaeufer);
+  const paFahrzeugObj = fahrzeuge.find((f) => f.id === paFahrzeug);
+  const paGender = paKundeObj ? genderCache[paKundeObj.vorname] || "unknown" : "unknown";
+  const paAnrede = paKundeObj ? buildAnrede(paGender, paKundeObj.nachname) : "";
+  const paHtml =
+    paBrandingObj && paVerkaeuferObj && paFahrzeugObj && paKundeObj
+      ? generatePersoenlichesAngebotEmail(paBrandingObj, paVerkaeuferObj, paFahrzeugObj, paAnrede)
+      : "";
+  const paBetreff = paFahrzeugObj ? `Ihr persönliches Angebot – ${paFahrzeugObj.fahrzeugname}` : "";
+
   const handleCopy = async (text: string, label = "Inhalt") => {
     try {
       await navigator.clipboard.writeText(text);
