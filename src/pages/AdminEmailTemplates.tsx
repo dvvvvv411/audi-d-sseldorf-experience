@@ -224,6 +224,12 @@ const AdminEmailTemplates = () => {
   const [svcFahrzeug, setSvcFahrzeug] = useState<string>("");
   const [genderCache, setGenderCache] = useState<Record<string, "male" | "female" | "unknown">>({});
 
+  // Persönliches Angebot
+  const [paKunde, setPaKunde] = useState<string>("");
+  const [paVerkaeufer, setPaVerkaeufer] = useState<string>("");
+  const [paBranding, setPaBranding] = useState<string>("");
+  const [paFahrzeug, setPaFahrzeug] = useState<string>("");
+
   useEffect(() => {
     const load = async () => {
       const [b, f, v, a] = await Promise.all([
