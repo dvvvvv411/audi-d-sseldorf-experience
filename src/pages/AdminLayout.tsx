@@ -3,10 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare, Mail, FileText, Receipt, MessageCircle, CarFront, Send, Inbox } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const RESTRICTED_EMAIL = "caller@caller.de";
+const RESTRICTED_USER_ID = "0bc8bcc6-3555-4888-80b5-8a74df8a6873";
 
 const RESTRICTED_ALLOWED_PATHS = [
-  "/admin",
   "/admin/fahrzeugbestand",
   "/admin/anfragen",
   "/admin/sms",
@@ -15,9 +14,6 @@ const RESTRICTED_ALLOWED_PATHS = [
 
 const isAllowedForRestricted = (path: string) =>
   RESTRICTED_ALLOWED_PATHS.some((p) => p === path || path.startsWith(p + "/"));
-
-const normalizeEmail = (e: string | null | undefined) =>
-  (e ?? "").trim().toLowerCase();
 
 const AudiRingsSmall = () => (
   <svg viewBox="0 0 200 50" className="w-20 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
