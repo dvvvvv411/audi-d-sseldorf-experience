@@ -1,16 +1,30 @@
-## Priorisierte Status oben in /admin/anfragen
+## Servicenachweis: JPG/PNG zusätzlich zu PDF erlauben
 
-In `AdminAnfragen.tsx` wird die Sortierung der gefilterten Anfragen so angepasst, dass Anfragen mit den folgenden Status **immer ganz oben** stehen:
+In `src/pages/AdminFahrzeugDetail.tsx` wird der Servicenachweis-Bereich so erweitert, dass auch Bilder (JPG, JPEG, PNG, WEBP) hochgeladen, angezeigt und vorgeschaut werden können.
 
-1. "Möchte Daten"
-2. "Möchte Angebot"
-3. "Möchte Rechnung"
+### Änderungen
 
-### Logik
-- Vor dem Pagination-Slice wird `filtered` zusätzlich sortiert.
-- Eine Prioritäts-Map vergibt den drei Status feste Indexe (0, 1, 2). Alle anderen Status erhalten einen niedrigeren Rang (z. B. 99).
-- Sortierung primär nach Priorität (aufsteigend), sekundär nach `created_at` (absteigend, wie bisher) — damit innerhalb jeder Gruppe weiterhin die neueste Anfrage oben steht.
-- Funktioniert nahtlos mit Pagination, Suche und Hidden-Filter.
+**1. Upload-Validierung (`handlePdfUpload`)**
+- Statt nur `application/pdf` werden auch `image/jpeg`, `image/jpg`, `image/png`, `image/webp` akzeptiert.
+- Fehlertext angepasst: "ist kein gültiges Format (PDF, JPG, PNG)".
+- Toast-Erfolgsmeldung von "PDF hochgeladen" auf "Datei hochgeladen" geändert.
+
+**2. File-Input**
+- `accept="application/pdf,image/jpeg,image/png,image/webp"`.
+- Button-Label von "PDF hochladen" auf "Datei hochladen".
+
+**3. Anzeige der Servicenachweise**
+- Helper `isImage(url)` anhand der Datei-Endung (`.jpg`, `.jpeg`, `.png`, `.webp`).
+- Bei Bildern: kleines Thumbnail (10x10) anstelle des roten PDF-Icons. Icon-Farbschema bleibt für PDFs unverändert.
+
+**4. Viewer-Dialog**
+- Bei Bildern wird `<img>` (objekt-fit contain, dunkler Hintergrund) statt `<iframe>` gerendert.
+- State `pdfViewer` wird beibehalten (kein Rename nötig), Dialog-Titel angepasst auf "Servicenachweis".
+
+**5. Entfernen**
+- `removePdf` bleibt funktional gleich, Toast-Text auf "Datei entfernt".
+
+Keine Änderungen am Storage-Bucket nötig — `fahrzeuge` ist bereits public und akzeptiert beliebige MIME-Typen.
 
 ### Geänderte Datei
-- `src/pages/AdminAnfragen.tsx` — Sortierungs-Schritt zwischen Filter und Pagination
+- `src/pages/AdminFahrzeugDetail.tsx`

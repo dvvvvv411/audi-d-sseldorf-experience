@@ -108,15 +108,18 @@ export default function AdminFahrzeugDetail() {
   const servicenachweise = fahrzeug.servicenachweis_urls || [];
   const beschreibungSections = parseBeschreibung(fahrzeug.beschreibung);
 
+  const isImageUrl = (url: string) => /\.(jpe?g|png|webp)(\?|$)/i.test(url);
+
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0 || !id) return;
     setUploadingPdf(true);
 
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
     const newUrls: string[] = [];
     for (const file of Array.from(files)) {
-      if (file.type !== "application/pdf") {
-        toast.error(`${file.name} ist keine PDF-Datei`);
+      if (!allowedTypes.includes(file.type)) {
+        toast.error(`${file.name} ist kein gültiges Format (PDF, JPG, PNG)`);
         continue;
       }
       const path = `servicenachweise/${id}/${crypto.randomUUID()}_${file.name}`;
@@ -138,7 +141,7 @@ export default function AdminFahrzeugDetail() {
       if (error) {
         toast.error("Fehler beim Speichern");
       } else {
-        toast.success("PDF hochgeladen");
+        toast.success("Datei hochgeladen");
         loadFahrzeug();
       }
     }
@@ -156,15 +159,14 @@ export default function AdminFahrzeugDetail() {
     if (error) {
       toast.error("Fehler beim Entfernen");
     } else {
-      toast.success("PDF entfernt");
+      toast.success("Datei entfernt");
       loadFahrzeug();
     }
   };
 
   const getPdfFilename = (url: string) => {
     const parts = url.split("/");
-    const last = parts[parts.length - 1];
-    // Remove UUID prefix if present
+    const last = parts[parts.length - 1].split("?")[0];
     const uuidPattern = /^[a-f0-9-]{36}_/;
     return decodeURIComponent(last.replace(uuidPattern, ""));
   };
