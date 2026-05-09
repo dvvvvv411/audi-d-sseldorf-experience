@@ -1,17 +1,24 @@
-## Plan
+Verstanden: Es geht nicht um Rollen. `caller@caller.de` bleibt Admin. Die Einschränkung muss ausschließlich an der eingeloggten E-Mail hängen.
 
-1. **Rolle wieder korrigieren**
-   - `caller@caller.de` in `user_roles` wieder auf `admin` setzen.
-   - Kein separates `caller`-Rollenverhalten mehr als Grundlage für diese Einschränkung nutzen.
+Plan:
+1. Rollenlogik aus der Sidebar-Restriktion entfernen
+   - `AdminLayout` soll nicht mehr auf `role` oder `user_roles` warten, um die Sidebar für diesen Fall zu filtern.
+   - Die Restriktion wird direkt aus `supabase.auth.getSession()` / `session.user.email` abgeleitet.
+   - Vergleich robust: `email.trim().toLowerCase() === "caller@caller.de"`.
 
-2. **Account-spezifische Einschränkung einführen**
-   - `useUserRole` so erweitern, dass zusätzlich zur Rolle auch die eingeloggte E-Mail geladen wird.
-   - Eine klare Hilfslogik verwenden: eingeschränkt ist nur `caller@caller.de`, unabhängig davon, dass seine Rolle `admin` ist.
-   - Während Rolle/E-Mail laden, weiterhin den neutralen Audi-Ladescreen anzeigen, damit nichts kurz sichtbar wird.
+2. Sofortiger, flackerfreier Sidebar-Zustand
+   - Beim Laden von `/admin` wird zuerst die Auth-Session gelesen.
+   - Solange die E-Mail nicht bestimmt ist, wird keine Sidebar gerendert.
+   - Sobald die E-Mail `caller@caller.de` ist, wird direkt nur die reduzierte Navigation gerendert.
 
-3. **Sidebar/Route-Zugriff nur für diesen Account beschränken**
-   - `AdminLayout` nicht mehr mit `role !== "admin"` einschränken.
-   - Stattdessen nur bei `email === "caller@caller.de"` folgende Reiter ausblenden/umleiten:
+3. Explizite Sidebar-Allowlist für `caller@caller.de`
+   - Sichtbar bleiben nur:
+     - Dashboard
+     - Fahrzeugbestand
+     - Anfragen
+     - SMS Verlauf
+     - Email Verlauf
+   - Ausgeblendet werden exakt:
      - Verkäufer
      - Brandings
      - Email Templates
@@ -19,14 +26,10 @@
      - Angebote
      - Telegram
      - Inzahlungnahme
-   - Erlaubt bleiben für `caller@caller.de`: Dashboard, Fahrzeugbestand, Anfragen, SMS Verlauf, Email Verlauf.
 
-4. **Buttons in Anfragen verstecken**
-   - In `AdminAnfragen` die Buttons `Angebot erstellen` und `Exposé erstellen` nicht mehr an `role === "admin"` hängen.
-   - Stattdessen nur für `caller@caller.de` ausblenden.
-   - Zusätzlich dieselben Buttons in `AdminAnfrageDetail` ausblenden, weil sie dort ebenfalls existieren.
+4. Direkte URL-Sperre nur für `caller@caller.de`
+   - Wenn `caller@caller.de` einen gesperrten Pfad direkt öffnet, sofort Redirect nach `/admin`.
+   - Andere Admin-Nutzer bleiben komplett unverändert und sehen weiterhin alles.
 
-5. **Validierung**
-   - Datenbank prüfen, dass `caller@caller.de` wieder `admin` ist.
-   - Code-Suche prüfen, dass keine `caller`-Rollenlogik mehr die Admin-Rechte allgemein kappt.
-   - Sicherstellen, dass eingeschränkte Pfade direkt aufgerufen sofort nach `/admin` redirecten und vorher keine gesperrte UI rendern.
+5. Buttons bleiben wie aktuell funktionierend
+   - Die bereits funktionierende Ausblendung von „Angebot erstellen“ und „Exposé erstellen“ bleibt ebenfalls an `caller@caller.de` gekoppelt, nicht an Rollen.
