@@ -167,6 +167,10 @@ export default function AdminAnfragen() {
   }, []);
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, showHidden, pageSize]);
+
+  useEffect(() => {
     const loadExposeData = async () => {
       const [fRes, vRes, bRes] = await Promise.all([
         supabase.from("fahrzeuge").select("*").eq("aktiv", true).order("fahrzeugname"),
