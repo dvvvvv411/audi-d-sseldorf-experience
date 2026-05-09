@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
@@ -25,6 +27,8 @@ type Branding = {
   absendername: string | null;
   sevenio_absendername: string | null;
   sevenio_api_key: string | null;
+  meta_pixel_aktiv: boolean | null;
+  meta_pixel_code: string | null;
 };
 
 const emptyForm = {
@@ -32,6 +36,8 @@ const emptyForm = {
   amtsgericht: "", handelsregister: "", geschaeftsfuehrer: "", ust_id: "",
   resend_api_key: "", email_absender: "", absendername: "", sevenio_absendername: "",
   sevenio_api_key: "",
+  meta_pixel_aktiv: false,
+  meta_pixel_code: "",
 };
 
 const AdminBrandings = () => {
@@ -71,12 +77,14 @@ const AdminBrandings = () => {
       absendername: b.absendername ?? "",
       sevenio_absendername: b.sevenio_absendername ?? "",
       sevenio_api_key: b.sevenio_api_key ?? "",
+      meta_pixel_aktiv: b.meta_pixel_aktiv ?? false,
+      meta_pixel_code: b.meta_pixel_code ?? "",
     });
     setEditId(b.id);
     setDialogOpen(true);
   };
 
-  const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
+  const set = (key: string, value: string | boolean) => setForm((f) => ({ ...f, [key]: value }));
 
   const handleSave = async () => {
     if (!form.name || !form.strasse || !form.plz || !form.stadt || !form.email || !form.amtsgericht || !form.handelsregister || !form.geschaeftsfuehrer || !form.ust_id) {
@@ -104,6 +112,8 @@ const AdminBrandings = () => {
       absendername: form.absendername.trim() || null,
       sevenio_absendername: form.sevenio_absendername.trim() || null,
       sevenio_api_key: form.sevenio_api_key.trim() || null,
+      meta_pixel_aktiv: !!form.meta_pixel_aktiv,
+      meta_pixel_code: form.meta_pixel_aktiv ? (form.meta_pixel_code.trim() || null) : null,
     };
 
     let error;
@@ -277,6 +287,31 @@ const AdminBrandings = () => {
                   />
                 </div>
               </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs text-gray-400 uppercase tracking-wide">Optional — Meta Pixel</p>
+                <div className="flex items-center gap-2">
+                  <Label className="text-gray-700 text-sm">Aktivieren</Label>
+                  <Switch
+                    checked={!!form.meta_pixel_aktiv}
+                    onCheckedChange={(v) => set("meta_pixel_aktiv", v)}
+                  />
+                </div>
+              </div>
+              {form.meta_pixel_aktiv && (
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Meta Pixel Code (kompletter Snippet)</Label>
+                  <Textarea
+                    value={form.meta_pixel_code}
+                    onChange={(e) => set("meta_pixel_code", e.target.value)}
+                    className="bg-gray-50 border-gray-200 font-mono text-xs min-h-[200px]"
+                    placeholder={"<!-- Meta Pixel Code -->\n<script>...</script>\n<noscript>...</noscript>"}
+                  />
+                  <p className="text-xs text-gray-400">Wird auf den Verkäufer-Seiten dieses Brandings ausgespielt.</p>
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>

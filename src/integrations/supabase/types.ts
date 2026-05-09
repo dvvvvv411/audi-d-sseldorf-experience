@@ -147,6 +147,8 @@ export type Database = {
           geschaeftsfuehrer: string
           handelsregister: string
           id: string
+          meta_pixel_aktiv: boolean
+          meta_pixel_code: string | null
           name: string
           plz: string
           resend_api_key: string | null
@@ -165,6 +167,8 @@ export type Database = {
           geschaeftsfuehrer: string
           handelsregister: string
           id?: string
+          meta_pixel_aktiv?: boolean
+          meta_pixel_code?: string | null
           name: string
           plz: string
           resend_api_key?: string | null
@@ -183,6 +187,8 @@ export type Database = {
           geschaeftsfuehrer?: string
           handelsregister?: string
           id?: string
+          meta_pixel_aktiv?: boolean
+          meta_pixel_code?: string | null
           name?: string
           plz?: string
           resend_api_key?: string | null
