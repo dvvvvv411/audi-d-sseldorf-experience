@@ -113,6 +113,11 @@ const AdminLayout = () => {
     );
   };
 
+  // URL-Guard: caller darf nur erlaubte Pfade
+  if (role === "caller" && !isAllowedForCaller(location.pathname)) {
+    return <Navigate to="/admin" replace />;
+  }
+
   return (
     <div className="min-h-screen flex bg-gray-50 admin-theme">
       {/* Sidebar */}
