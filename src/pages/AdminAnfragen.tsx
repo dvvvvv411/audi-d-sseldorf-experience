@@ -16,6 +16,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { generateExposePdf, type ExposeFahrzeug, type ExposeVerkaeufer, type ExposeBranding } from "@/lib/expose-pdf";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Anfrage {
   id: string;
@@ -110,6 +111,8 @@ async function logAktivitaet(aktion: string, details?: string | null, anfrageId?
 export default function AdminAnfragen() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const role = useUserRole();
+  const isAdmin = role !== "caller";
   const [anfragen, setAnfragen] = useState<Anfrage[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAnfrageId, setSelectedAnfrageId] = useState<string | null>(null);
@@ -582,43 +585,47 @@ export default function AdminAnfragen() {
                           </TooltipTrigger>
                           <TooltipContent>Email senden</TooltipContent>
                         </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                             <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-                              onClick={() => {
-                                const params = new URLSearchParams({
-                                  fahrzeug: a.fahrzeug_id,
-                                  verkaeufer: a.verkaeufer_id,
-                                  branding: a.branding_name,
-                                  name: `${a.vorname} ${a.nachname}`,
-                                });
-                                if (a.strasse) params.set("strasse", a.strasse);
-                                if (a.plz && a.stadt) params.set("plzstadt", `${a.plz} ${a.stadt}`);
-                                else if (a.stadt) params.set("plzstadt", a.stadt);
-                                navigate(`/admin/angebote?${params.toString()}`);
-                              }}
-                            >
-                              <Receipt className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Angebot erstellen</TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-                              onClick={() => openExposeDialog(a)}
-                            >
-                              <FileText className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Exposé erstellen</TooltipContent>
-                        </Tooltip>
+                        {isAdmin && (
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                 <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                                  onClick={() => {
+                                    const params = new URLSearchParams({
+                                      fahrzeug: a.fahrzeug_id,
+                                      verkaeufer: a.verkaeufer_id,
+                                      branding: a.branding_name,
+                                      name: `${a.vorname} ${a.nachname}`,
+                                    });
+                                    if (a.strasse) params.set("strasse", a.strasse);
+                                    if (a.plz && a.stadt) params.set("plzstadt", `${a.plz} ${a.stadt}`);
+                                    else if (a.stadt) params.set("plzstadt", a.stadt);
+                                    navigate(`/admin/angebote?${params.toString()}`);
+                                  }}
+                                >
+                                  <Receipt className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Angebot erstellen</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                                  onClick={() => openExposeDialog(a)}
+                                >
+                                  <FileText className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Exposé erstellen</TooltipContent>
+                            </Tooltip>
+                          </>
+                        )}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button

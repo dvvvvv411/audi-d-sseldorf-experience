@@ -1,7 +1,19 @@
-import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import { useNavigate, useLocation, Outlet, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare, Mail, FileText, Receipt, MessageCircle, CarFront, Send, Inbox } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useUserRole } from "@/hooks/useUserRole";
+
+const CALLER_ALLOWED_PATHS = new Set([
+  "/admin",
+  "/admin/fahrzeugbestand",
+  "/admin/anfragen",
+  "/admin/sms",
+  "/admin/email",
+]);
+
+const isAllowedForCaller = (path: string) =>
+  Array.from(CALLER_ALLOWED_PATHS).some((p) => p === path || path.startsWith(p + "/"));
 
 const AudiRingsSmall = () => (
   <svg viewBox="0 0 200 50" className="w-20 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,6 +48,10 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
   const [userEmail, setUserEmail] = useState("");
+  const role = useUserRole();
+
+  const visibleMainNav = role === "caller" ? mainNav.filter((i) => isAllowedForCaller(i.path)) : mainNav;
+  const visibleVerwaltungNav = role === "caller" ? verwaltungNav.filter((i) => isAllowedForCaller(i.path)) : verwaltungNav;
 
   useEffect(() => {
     document.documentElement.classList.add('admin-theme');
@@ -97,6 +113,11 @@ const AdminLayout = () => {
     );
   };
 
+  // URL-Guard: caller darf nur erlaubte Pfade
+  if (role === "caller" && !isAllowedForCaller(location.pathname)) {
+    return <Navigate to="/admin" replace />;
+  }
+
   return (
     <div className="min-h-screen flex bg-gray-50 admin-theme">
       {/* Sidebar */}
@@ -117,23 +138,25 @@ const AdminLayout = () => {
         <nav className="flex-1 px-3 space-y-6 overflow-y-auto">
           {/* Main */}
           <div className="space-y-1">
-            {mainNav.map((item) => (
+            {visibleMainNav.map((item) => (
               <NavButton key={item.path} item={item} />
             ))}
           </div>
 
           {/* Separator + Verwaltung Group */}
-          <div>
-            <div className="flex items-center gap-2 px-3 mb-2">
-              <span className="text-[10px] text-slate-500 tracking-[0.15em] uppercase font-semibold">Verwaltung</span>
-              <div className="flex-1 h-px bg-slate-700/50" />
+          {visibleVerwaltungNav.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 px-3 mb-2">
+                <span className="text-[10px] text-slate-500 tracking-[0.15em] uppercase font-semibold">Verwaltung</span>
+                <div className="flex-1 h-px bg-slate-700/50" />
+              </div>
+              <div className="space-y-1">
+                {visibleVerwaltungNav.map((item) => (
+                  <NavButton key={item.path} item={item} />
+                ))}
+              </div>
             </div>
-            <div className="space-y-1">
-              {verwaltungNav.map((item) => (
-                <NavButton key={item.path} item={item} />
-              ))}
-            </div>
-          </div>
+          )}
         </nav>
 
         {/* User Section */}
