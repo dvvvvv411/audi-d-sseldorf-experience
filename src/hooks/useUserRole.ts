@@ -3,27 +3,22 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "admin" | "caller" | null;
 
-const STORAGE_KEY = "audi.userRole";
+export interface UserRoleState {
+  role: AppRole;
+  loading: boolean;
+}
 
-const readCached = (): AppRole => {
-  try {
-    const v = localStorage.getItem(STORAGE_KEY);
-    if (v === "admin" || v === "caller") return v;
-  } catch { /* noop */ }
-  return null;
-};
-
-export const useUserRole = (): AppRole => {
-  const [role, setRole] = useState<AppRole>(() => readCached());
+export const useUserRole = (): UserRoleState => {
+  const [state, setState] = useState<UserRoleState>({ role: null, loading: true });
 
   useEffect(() => {
     let active = true;
 
     const refresh = async () => {
+      if (active) setState((s) => ({ role: s.role, loading: true }));
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        if (active) setRole(null);
-        try { localStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+        if (active) setState({ role: null, loading: false });
         return;
       }
       const { data } = await supabase
@@ -32,19 +27,14 @@ export const useUserRole = (): AppRole => {
         .eq("user_id", session.user.id)
         .maybeSingle();
       const next = (data?.role as AppRole) ?? null;
-      if (active) setRole(next);
-      try {
-        if (next) localStorage.setItem(STORAGE_KEY, next);
-        else localStorage.removeItem(STORAGE_KEY);
-      } catch { /* noop */ }
+      if (active) setState({ role: next, loading: false });
     };
 
     refresh();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
-        setRole(null);
-        try { localStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+        if (active) setState({ role: null, loading: false });
       } else {
         refresh();
       }
@@ -53,12 +43,10 @@ export const useUserRole = (): AppRole => {
     return () => { active = false; subscription.unsubscribe(); };
   }, []);
 
-  return role;
+  return state;
 };
 
-export const cacheUserRole = (role: AppRole) => {
-  try {
-    if (role) localStorage.setItem(STORAGE_KEY, role);
-    else localStorage.removeItem(STORAGE_KEY);
-  } catch { /* noop */ }
+// Beibehalten für Auth.tsx Kompatibilität (no-op-fähig)
+export const cacheUserRole = (_role: AppRole) => {
+  // bewusst leer – wir lesen DB-first im Hook
 };
