@@ -188,7 +188,18 @@ export default function Gebrauchtwagen() {
     }).select("id").single();
     setSubmitting(false);
     if (error) {
-      toast({ title: "Fehler", description: "Anfrage konnte nicht gesendet werden.", variant: "destructive" });
+      console.error("[Anfrage Insert Fehler]", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        full: error,
+      });
+      toast({
+        title: "Fehler",
+        description: `Anfrage konnte nicht gesendet werden: ${error.message}${error.code ? ` (Code: ${error.code})` : ""}`,
+        variant: "destructive",
+      });
     } else {
       toast({ title: "Anfrage gesendet", description: "Wir melden uns bei Ihnen." });
       resetAnfrageForm();
