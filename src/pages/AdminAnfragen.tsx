@@ -147,7 +147,7 @@ export default function AdminAnfragen() {
         supabase.from("anfragen").select("*").order("created_at", { ascending: false }),
         supabase.from("mailbox_clicks").select("*").order("clicked_at", { ascending: false }),
         supabase.from("anfrage_notizen").select("anfrage_id"),
-        supabase.from("aktivitaets_log" as any).select("*").order("created_at", { ascending: false }).limit(50),
+        supabase.from("aktivitaets_log" as any).select("*").not("aktion", "ilike", "SMS%").order("created_at", { ascending: false }).limit(50),
       ]);
       if (anfrRes.data) setAnfragen(anfrRes.data);
       if (notizenRes.data) {

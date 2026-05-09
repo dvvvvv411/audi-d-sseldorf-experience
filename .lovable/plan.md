@@ -1,23 +1,14 @@
-## Problem
-Beim Absenden einer Fahrzeuganfrage (öffentliche Verkäuferseite, anon User) schlägt der Versand fehl. Ursache:
+## Ziel
+Im Aktivitätsprotokoll auf `/admin/anfragen` sollen keine SMS-Einträge mehr angezeigt werden (z.B. "SMS gesendet" / "SMS fehlgeschlagen").
 
-- `send-anfrage-sms` ist in `supabase/config.toml` korrekt mit `verify_jwt = false` konfiguriert.
-- `send-anfrage-email` **fehlt** in `config.toml` und läuft daher mit JWT-Pflicht — anon Calls werden abgelehnt.
-- `kfz-callback` ist ebenfalls nicht eingetragen, wird aber direkt nach dem Anfrage-Insert vom anon Client aufgerufen.
+## Änderung
+**Datei:** `src/pages/AdminAnfragen.tsx` (Query um Zeile 150)
 
-RLS auf `anfragen` ist bereits korrekt (`Anon can insert anfragen`). Die internen Inserts in `sms_verlauf`, `email_verlauf` und `aktivitaets_log` laufen über Service Role Key in den Edge Functions und sind von RLS unberührt.
+- Beim Laden des Aktivitätsprotokolls die Supabase-Query so anpassen, dass Einträge mit `aktion ILIKE 'SMS%'` ausgeschlossen werden (`.not("aktion", "ilike", "SMS%")`).
+- Limit von 50 bleibt bestehen.
 
-## Fix
-`supabase/config.toml` ergänzen:
+## Nicht angefasst
+- Edge Function `send-anfrage-sms` loggt weiterhin in `aktivitaets_log` (für Audit-Zwecke / SMS-Verlauf-Seite). Nur die Anzeige im Anfragen-Aktivitätsprotokoll wird gefiltert.
+- Keine DB-Migration, keine Änderung anderer Seiten (Dashboard etc.).
 
-```toml
-[functions.send-anfrage-email]
-verify_jwt = false
-
-[functions.kfz-callback]
-verify_jwt = false
-```
-
-Damit können anon Besucher Anfragen abschicken und die nachgelagerten Email-/SMS-/Callback-Funktionen aufrufen.
-
-Keine weiteren Code-Änderungen nötig — die Funktionen lesen alle nötigen Daten serverseitig über den Service Role Key und enthalten keine eigenen Auth-Checks, was für diese öffentlichen Endpunkte gewollt ist.
+Sag Bescheid, wenn die SMS-Einträge stattdessen komplett nicht mehr geloggt werden sollen — dann passe ich die Edge Function an.
