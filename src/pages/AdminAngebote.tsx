@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText, Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import jsPDF from "jspdf";
+import { generateAngebotPdf } from "@/lib/angebot-pdf";
 
 interface Fahrzeug {
   id: string;
