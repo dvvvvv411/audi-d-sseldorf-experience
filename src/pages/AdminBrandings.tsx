@@ -112,6 +112,8 @@ const AdminBrandings = () => {
       absendername: form.absendername.trim() || null,
       sevenio_absendername: form.sevenio_absendername.trim() || null,
       sevenio_api_key: form.sevenio_api_key.trim() || null,
+      meta_pixel_aktiv: !!form.meta_pixel_aktiv,
+      meta_pixel_code: form.meta_pixel_aktiv ? (form.meta_pixel_code.trim() || null) : null,
     };
 
     let error;
