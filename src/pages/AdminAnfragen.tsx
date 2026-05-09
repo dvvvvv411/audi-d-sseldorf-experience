@@ -16,6 +16,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { generateExposePdf, type ExposeFahrzeug, type ExposeVerkaeufer, type ExposeBranding } from "@/lib/expose-pdf";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Anfrage {
   id: string;
