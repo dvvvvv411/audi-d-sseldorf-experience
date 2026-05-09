@@ -152,6 +152,11 @@ export default function Gebrauchtwagen() {
       if (ogDesc) ogDesc.setAttribute("content", desc);
     }
   }, [fahrzeug, verkaeufer]);
+
+  useMetaPixel(
+    (verkaeufer[0]?.branding as any)?.meta_pixel_code,
+    (verkaeufer[0]?.branding as any)?.meta_pixel_aktiv
+  );
   // Anfrage Dialog
   const [anfrageOpen, setAnfrageOpen] = useState(false);
   const [anfrageForm, setAnfrageForm] = useState({ vorname: "", nachname: "", email: "", telefon: "", nachricht: "" });
