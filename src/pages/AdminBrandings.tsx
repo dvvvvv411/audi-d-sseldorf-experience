@@ -288,6 +288,31 @@ const AdminBrandings = () => {
                 </div>
               </div>
             </div>
+
+            <div className="border-t border-gray-100 pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs text-gray-400 uppercase tracking-wide">Optional — Meta Pixel</p>
+                <div className="flex items-center gap-2">
+                  <Label className="text-gray-700 text-sm">Aktivieren</Label>
+                  <Switch
+                    checked={!!form.meta_pixel_aktiv}
+                    onCheckedChange={(v) => set("meta_pixel_aktiv", v)}
+                  />
+                </div>
+              </div>
+              {form.meta_pixel_aktiv && (
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Meta Pixel Code (kompletter Snippet)</Label>
+                  <Textarea
+                    value={form.meta_pixel_code}
+                    onChange={(e) => set("meta_pixel_code", e.target.value)}
+                    className="bg-gray-50 border-gray-200 font-mono text-xs min-h-[200px]"
+                    placeholder={"<!-- Meta Pixel Code -->\n<script>...</script>\n<noscript>...</noscript>"}
+                  />
+                  <p className="text-xs text-gray-400">Wird auf den Verkäufer-Seiten dieses Brandings ausgespielt.</p>
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Abbrechen</Button>
