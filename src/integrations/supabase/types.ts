@@ -151,6 +151,7 @@ export type Database = {
           plz: string
           resend_api_key: string | null
           sevenio_absendername: string | null
+          sevenio_api_key: string | null
           stadt: string
           strasse: string
           ust_id: string
@@ -168,6 +169,7 @@ export type Database = {
           plz: string
           resend_api_key?: string | null
           sevenio_absendername?: string | null
+          sevenio_api_key?: string | null
           stadt: string
           strasse: string
           ust_id: string
@@ -185,6 +187,7 @@ export type Database = {
           plz?: string
           resend_api_key?: string | null
           sevenio_absendername?: string | null
+          sevenio_api_key?: string | null
           stadt?: string
           strasse?: string
           ust_id?: string
@@ -317,6 +320,45 @@ export type Database = {
           anfrage_id?: string
           clicked_at?: string
           id?: string
+        }
+        Relationships: []
+      }
+      sms_verlauf: {
+        Row: {
+          absender: string | null
+          anfrage_id: string | null
+          branding_id: string | null
+          created_at: string
+          empfaenger: string
+          fehler: string | null
+          id: string
+          seven_response: Json | null
+          status: string
+          text: string
+        }
+        Insert: {
+          absender?: string | null
+          anfrage_id?: string | null
+          branding_id?: string | null
+          created_at?: string
+          empfaenger: string
+          fehler?: string | null
+          id?: string
+          seven_response?: Json | null
+          status: string
+          text: string
+        }
+        Update: {
+          absender?: string | null
+          anfrage_id?: string | null
+          branding_id?: string | null
+          created_at?: string
+          empfaenger?: string
+          fehler?: string | null
+          id?: string
+          seven_response?: Json | null
+          status?: string
+          text?: string
         }
         Relationships: []
       }

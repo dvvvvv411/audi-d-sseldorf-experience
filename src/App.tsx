@@ -19,6 +19,7 @@ import AdminExposes from "./pages/AdminExposes.tsx";
 import AdminAngebote from "./pages/AdminAngebote.tsx";
 import AdminTelegram from "./pages/AdminTelegram.tsx";
 import AdminInzahlungnahme from "./pages/AdminInzahlungnahme.tsx";
+import AdminSmsVerlauf from "./pages/AdminSmsVerlauf.tsx";
 import Gebrauchtwagen from "./pages/Gebrauchtwagen.tsx";
 import Fahrzeugbestand from "./pages/Fahrzeugbestand.tsx";
 import Impressum from "./pages/rechtliches/Impressum.tsx";
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="angebote" element={<AdminAngebote />} />
             <Route path="telegram" element={<AdminTelegram />} />
             <Route path="inzahlungnahme" element={<AdminInzahlungnahme />} />
+            <Route path="sms" element={<AdminSmsVerlauf />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

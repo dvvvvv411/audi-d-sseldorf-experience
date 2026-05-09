@@ -24,12 +24,14 @@ type Branding = {
   email_absender: string | null;
   absendername: string | null;
   sevenio_absendername: string | null;
+  sevenio_api_key: string | null;
 };
 
 const emptyForm = {
   name: "", strasse: "", plz: "", stadt: "", email: "",
   amtsgericht: "", handelsregister: "", geschaeftsfuehrer: "", ust_id: "",
   resend_api_key: "", email_absender: "", absendername: "", sevenio_absendername: "",
+  sevenio_api_key: "",
 };
 
 const AdminBrandings = () => {
@@ -68,6 +70,7 @@ const AdminBrandings = () => {
       email_absender: b.email_absender ?? "",
       absendername: b.absendername ?? "",
       sevenio_absendername: b.sevenio_absendername ?? "",
+      sevenio_api_key: b.sevenio_api_key ?? "",
     });
     setEditId(b.id);
     setDialogOpen(true);
@@ -100,6 +103,7 @@ const AdminBrandings = () => {
       email_absender: form.email_absender.trim() || null,
       absendername: form.absendername.trim() || null,
       sevenio_absendername: form.sevenio_absendername.trim() || null,
+      sevenio_api_key: form.sevenio_api_key.trim() || null,
     };
 
     let error;
@@ -252,15 +256,26 @@ const AdminBrandings = () => {
 
             <div className="border-t border-gray-100 pt-4">
               <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Optional — SMS (Seven.io)</p>
-              <div className="space-y-1.5">
-                <Label className="text-gray-700 text-sm">Absendername (max. 11 Zeichen)</Label>
-                <Input
-                  value={form.sevenio_absendername}
-                  onChange={(e) => set("sevenio_absendername", e.target.value)}
-                  maxLength={11}
-                  className="bg-gray-50 border-gray-200"
-                  placeholder="AudiDUS"
-                />
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Absendername (max. 11 Zeichen)</Label>
+                  <Input
+                    value={form.sevenio_absendername}
+                    onChange={(e) => set("sevenio_absendername", e.target.value)}
+                    maxLength={11}
+                    className="bg-gray-50 border-gray-200"
+                    placeholder="AudiDUS"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Seven.io API-Key</Label>
+                  <Input
+                    value={form.sevenio_api_key}
+                    onChange={(e) => set("sevenio_api_key", e.target.value)}
+                    className="bg-gray-50 border-gray-200 font-mono text-xs"
+                    placeholder="z.B. SVKxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  />
+                </div>
               </div>
             </div>
           </div>
