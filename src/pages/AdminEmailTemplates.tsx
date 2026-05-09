@@ -120,7 +120,7 @@ const generateServiceberichtEmail = (
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;">
         <tr><td style="padding:0 0 20px;font-size:14px;line-height:1.7;color:#333;">
           ${anrede}<br/><br/>
-          vielen Dank für das angenehme und informative Telefonat sowie für Ihr Interesse an unserem Fahrzeug.<br/><br/>
+          vielen Dank für das freundliche Telefonat sowie für Ihr Interesse an unserem Fahrzeug.<br/><br/>
           Wie besprochen sende ich Ihnen anbei den vollständigen Servicebericht sowie das ausführliche Exposé zum <strong>${fahrzeug.fahrzeugname}</strong>. Im Servicebericht finden Sie sämtliche dokumentierten Wartungs- und Servicearbeiten, die das Fahrzeug während seiner bisherigen Laufzeit erhalten hat. Das Exposé bietet Ihnen darüber hinaus einen detaillierten Überblick über die technischen Daten, die Ausstattungsmerkmale sowie die Historie des Fahrzeugs.<br/><br/>
           Bitte nehmen Sie sich in Ruhe die Zeit, beide Dokumente zu prüfen. Sollten im Anschluss noch Fragen offenbleiben oder Sie weitere Informationen wünschen, stehe ich Ihnen jederzeit gerne per E-Mail oder telefonisch unter <strong>${verkaeufer.telefon}</strong> zur Verfügung.<br/><br/>
           Falls Sie Interesse an einer Probefahrt haben, lässt sich diese kurzfristig und unverbindlich vereinbaren – gerne stimme ich mit Ihnen einen passenden Termin ab, sodass Sie sich persönlich von der Qualität, der Verarbeitung und dem Fahrgefühl des Fahrzeugs überzeugen können. Eine Probefahrt ist aus meiner Sicht der beste Weg, um ein authentisches Gefühl für das Fahrzeug zu bekommen und alle offenen Fragen direkt vor Ort zu klären.<br/><br/>
