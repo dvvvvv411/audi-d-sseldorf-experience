@@ -52,9 +52,9 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { branding_id, anfrage_id, telefon, vorname, verkaeufer_name } = body ?? {};
+    const { branding_id, anfrage_id, telefon, vorname, verkaeufer_name, text_override } = body ?? {};
 
-    if (!branding_id || !vorname || !verkaeufer_name) {
+    if (!branding_id || (!text_override && (!vorname || !verkaeufer_name))) {
       return new Response(JSON.stringify({ error: "missing fields" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -91,7 +91,9 @@ Deno.serve(async (req) => {
     }
 
     const senderLabel = branding.sevenio_absendername || branding.name;
-    const text = `Hallo ${vorname}, Ihre Anfrage ist bei uns eingegangen.\n${verkaeufer_name} wird sich zeitnah persönlich bei Ihnen melden.\n${senderLabel}`;
+    const text = text_override
+      ? String(text_override)
+      : `Hallo ${vorname}, Ihre Anfrage ist bei uns eingegangen.\n${verkaeufer_name} wird sich zeitnah persönlich bei Ihnen melden.\n${senderLabel}`;
 
     // Build payload — `from` only if absendername is set and <= 11 chars
     const payload: Record<string, unknown> = { to, text };
