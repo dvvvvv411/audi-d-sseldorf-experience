@@ -48,9 +48,10 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [emailLoaded, setEmailLoaded] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
 
-  const isRestricted = emailLoaded && normalizeEmail(userEmail) === RESTRICTED_EMAIL;
+  const isRestricted = authLoaded && userId === RESTRICTED_USER_ID;
 
   const visibleMainNav = isRestricted ? mainNav.filter((i) => isAllowedForRestricted(i.path)) : mainNav;
   const visibleVerwaltungNav = isRestricted ? verwaltungNav.filter((i) => isAllowedForRestricted(i.path)) : verwaltungNav;
@@ -65,11 +66,13 @@ const AdminLayout = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!active) return;
       setUserEmail(session?.user?.email ?? null);
-      setEmailLoaded(true);
+      setUserId(session?.user?.id ?? null);
+      setAuthLoaded(true);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setUserEmail(session?.user?.email ?? null);
-      setEmailLoaded(true);
+      setUserId(session?.user?.id ?? null);
+      setAuthLoaded(true);
     });
     return () => { active = false; subscription.unsubscribe(); };
   }, []);
