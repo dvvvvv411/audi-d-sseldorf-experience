@@ -124,6 +124,8 @@ export default function AdminAnfragen() {
   const [logOpen, setLogOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showHidden, setShowHidden] = useState(false);
+  const [pageSize, setPageSize] = useState(25);
+  const [currentPage, setCurrentPage] = useState(1);
   const [exposeFahrzeuge, setExposeFahrzeuge] = useState<ExposeFahrzeug[]>([]);
   const [exposeVerkaeufer, setExposeVerkaeufer] = useState<ExposeVerkaeufer[]>([]);
   const [exposeBrandings, setExposeBrandings] = useState<ExposeBranding[]>([]);
