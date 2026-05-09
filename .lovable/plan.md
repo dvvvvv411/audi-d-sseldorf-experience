@@ -1,85 +1,70 @@
-## Änderungen an `/admin/email-templates`
+## Neues Email-Template: "Persönliches Angebot"
 
-### 1. Dropdowns automatisch vorausfüllen
-Branding, Fahrzeug und Verkäufer werden nach dem Laden automatisch auf den ersten Eintrag gesetzt. Vorschau wird gerendert, sobald alle nötigen Felder gefüllt sind – kein "Vorschau laden"-Klick mehr nötig.
+Eine vierte Sektion auf `/admin/email-templates`, aufgebaut analog zum "Servicebericht & Exposé"-Template.
 
-### 2. Neues Template: "Servicebericht & Exposé"
-Eine dritte Sektion mit folgenden Dropdowns (alle automatisch vorausgewählt):
-- **Kunde** (aus Tabelle `anfragen` – zeigt `vorname nachname – fahrzeug_name`)
+### Dropdowns (alle automatisch vorausgewählt)
+- **Kunde** (aus `anfragen`)
 - **Verkäufer**
 - **Branding**
-- **Fahrzeug** (wird automatisch aus der Anfrage des Kunden übernommen, kann aber überschrieben werden)
+- **Fahrzeug** (übernommen aus Anfrage, überschreibbar)
 
-Plus: Betreff (kopierbar) und HTML-Vorschau im iframe + "HTML kopieren"-Button.
-
-### 3. Anrede per KI (Lovable AI Gateway)
-Beim Auswählen des Kunden wird der Vorname an eine neue Edge Function `detect-gender` geschickt. Diese nutzt Lovable AI (`google/gemini-3-flash-preview`) mit Structured Output (`{ gender: "male" | "female" | "unknown" }`) und gibt das Geschlecht zurück.
-
-Daraus wird die Anrede gebildet:
+### Anrede per KI
+Nutzt die bestehende `detect-gender` Edge Function + den vorhandenen `genderCache`:
 - male → `Sehr geehrter Herr {Nachname},`
 - female → `Sehr geehrte Frau {Nachname},`
-- unknown → `Sehr geehrte/r Herr/Frau {Nachname},` (Fallback)
-
-Das Ergebnis wird im Frontend pro Kunde gecached (kein doppelter Call).
+- unknown → `Sehr geehrte/r Herr/Frau {Nachname},`
 
 ### Vorschau Betreff
 ```
-Servicebericht & Exposé – {Fahrzeugname}
+Ihr persönliches Angebot – {Fahrzeugname}
 ```
 
-### Vorschau Email-Inhalt (Beispiel: Kunde "Maria Schmidt", Verkäufer "Max Mustermann", Fahrzeug "Audi A6 Avant 45 TFSI")
+### Vorschau Email-Inhalt (Beispiel: "Maria Schmidt", "Audi A6 Avant 45 TFSI")
 
 ```
 Sehr geehrte Frau Schmidt,
 
-vielen Dank für das angenehme und informative Telefonat
-sowie für Ihr Interesse an unserem Fahrzeug.
+vielen Dank für Ihr Interesse an unserem Fahrzeug
+sowie für das angenehme Telefonat.
 
-Wie besprochen sende ich Ihnen anbei den vollständigen
-Servicebericht sowie das ausführliche Exposé zum
-Audi A6 Avant 45 TFSI. Im Servicebericht finden Sie
-sämtliche dokumentierten Wartungs- und Servicearbeiten,
-die das Fahrzeug während seiner Laufzeit erhalten hat.
-Das Exposé bietet Ihnen darüber hinaus einen detaillierten
-Überblick über die technischen Daten, die Ausstattung
-sowie die Historie des Fahrzeugs.
+Wie bereits telefonisch besprochen, sende ich Ihnen
+hiermit Ihr persönliches Angebot zum Audi A6 Avant 45 TFSI.
+Alle relevanten Eckdaten, Konditionen und Ausstattungs-
+merkmale haben wir in dem beigefügten Dokument für Sie
+übersichtlich zusammengestellt.
 
-Bitte nehmen Sie sich in Ruhe die Zeit, beide Dokumente
-zu prüfen. Sollten im Anschluss Fragen offenbleiben oder
-Sie weitere Informationen wünschen, stehe ich Ihnen
+Wichtig ist uns: Sämtliche Fahrzeuge aus unserem Bestand
+werden grundsätzlich mit einer umfassenden Gebrauchtwagen-
+garantie übergeben. Diese deckt zentrale Bauteile des
+Fahrzeugs ab – darunter Motor, Getriebe, Antrieb, Elektronik
+sowie zahlreiche weitere sicherheits- und komfortrelevante
+Komponenten. So können Sie Ihr neues Fahrzeug von Anfang
+an mit einem sicheren Gefühl genießen, ohne sich Sorgen
+um unerwartete Reparaturkosten machen zu müssen.
+
+Sollten Sie Fragen zum Angebot oder zur Garantie haben
+oder weitere Informationen wünschen, stehe ich Ihnen
 jederzeit gerne per E-Mail oder telefonisch unter
-+49 123 4567890 zur Verfügung.
+{Telefon Verkäufer} zur Verfügung. Selbstverständlich
+können wir auch jederzeit einen Termin für eine
+Probefahrt vereinbaren.
 
-Falls Sie Interesse an einer Probefahrt haben, lässt
-sich diese kurzfristig und unverbindlich vereinbaren –
-gerne stimme ich mit Ihnen einen passenden Termin ab,
-sodass Sie sich persönlich von der Qualität und dem
-Fahrgefühl des Fahrzeugs überzeugen können.
-
-Ich freue mich darauf, von Ihnen zu hören.
+Ich freue mich auf Ihre Rückmeldung.
 
 Mit freundlichen Grüßen
 
-────────────────────────────────────────
-Max Mustermann
-Verkaufsberater | Audi Tiemeyer
-+49 123 4567890 · max@tiemeyer.de
-
-[Audi-Ringe]  Audi Tiemeyer
-────────────────────────────────────────
-Audi Tiemeyer · Musterstraße 1, 12345 Stadt
-Amtsgericht … · HRB … · Geschäftsführer: …
-USt-IdNr.: DE…
+{Signatur Verkäufer + Audi-Ringe + Branding-Footer}
 ```
 
 ### Technische Details
-- **Edge Function** `detect-gender`: nimmt `{ firstName }` entgegen, ruft Lovable AI mit Structured Output auf, gibt `{ gender }` zurück. Nutzt `LOVABLE_API_KEY` (bereits vorhanden).
-- **Frontend**: Lädt Kunden aus `anfragen` (alle, sortiert `created_at desc`). Bei Kundenauswahl → ruft `detect-gender` → setzt Anrede → rendert Vorschau.
-- **Signatur** identisch zur Marketing-Email (Verkäufer + Audi-Ringe + Branding-Footer).
+- Neue Funktion `generatePersoenlichesAngebotEmail(branding, verkaeufer, fahrzeug, anrede)` in `AdminEmailTemplates.tsx`.
+- Neue States: `paKunde`, `paVerkaeufer`, `paBranding`, `paFahrzeug`. Auto-Vorauswahl im bestehenden `load()`-`useEffect`.
+- Auto-Übernahme des Fahrzeugs aus der Kundenanfrage analog zur Servicebericht-Sektion.
+- Wiederverwendung von `genderCache` und `buildAnrede` (kein zusätzlicher KI-Call nötig, wenn Kunde bereits im Cache).
+- Signatur-Block + Footer identisch zu den anderen Templates.
+- Betreff (kopierbar) + HTML-Vorschau im iframe + "HTML kopieren"-Button.
 
-### Geänderte / neue Dateien
-- `src/pages/AdminEmailTemplates.tsx` (neue Sektion + Auto-Vorauswahl)
-- `supabase/functions/detect-gender/index.ts` (neu)
-- `supabase/config.toml` (Edge Function registrieren)
+### Geänderte Dateien
+- `src/pages/AdminEmailTemplates.tsx`
 
-Bitte bestätige – danach baue ich es ein.
+Bitte bestätigen – danach baue ich es ein.
