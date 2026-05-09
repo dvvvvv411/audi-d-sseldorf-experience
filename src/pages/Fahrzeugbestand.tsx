@@ -96,7 +96,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
 }
 
 export default function Fahrzeugbestand() {
-  usePageMeta("Fahrzeugbestand · Audi Düsseldorf", "Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi bei Audi Düsseldorf. Große Auswahl an Neu- und Gebrauchtwagen.");
+  // page meta set dynamically below once branding is loaded
   useRedirectTracking();
   const { sellerSlug } = useParams<{ sellerSlug?: string }>();
   const [fahrzeuge, setFahrzeuge] = useState<Fahrzeug[]>([]);
@@ -104,6 +104,14 @@ export default function Fahrzeugbestand() {
   const [verkaeufer, setVerkaeufer] = useState<Verkaeufer[]>([]);
   const [vfMap, setVfMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+
+  const cityLabel = branding?.stadt ? `Audi ${branding.stadt}` : "Audi";
+  usePageMeta(
+    `Fahrzeugbestand · ${cityLabel}`,
+    branding?.stadt
+      ? `Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi bei ${cityLabel}. Große Auswahl an Neu- und Gebrauchtwagen.`
+      : `Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi. Große Auswahl an Neu- und Gebrauchtwagen.`
+  );
 
   useEffect(() => {
     const load = async () => {

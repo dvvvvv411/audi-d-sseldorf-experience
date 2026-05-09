@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function Rechtliches() {
-  usePageMeta("Rechtliches · Audi Düsseldorf", "Rechtliche Informationen von Audi Düsseldorf.");
+  usePageMeta("Rechtliches · Audi", "Rechtliche Informationen von Audi.");
   const navigate = useNavigate();
 
   return (

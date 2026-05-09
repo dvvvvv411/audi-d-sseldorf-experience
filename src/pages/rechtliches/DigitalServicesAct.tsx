@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function DigitalServicesAct() {
-  usePageMeta("Digital Services Act · Audi Düsseldorf", "Informationen zum Digital Services Act bei Audi Düsseldorf.");
+  usePageMeta("Digital Services Act · Audi", "Informationen zum Digital Services Act bei Audi.");
   const navigate = useNavigate();
 
   return (
