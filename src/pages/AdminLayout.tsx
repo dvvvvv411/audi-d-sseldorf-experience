@@ -127,8 +127,8 @@ const AdminLayout = () => {
     );
   };
 
-  // Solange die E-Mail nicht geladen ist: kein Admin-UI rendern (verhindert Flackern)
-  if (!emailLoaded) {
+  // Solange die Auth nicht geladen ist: kein Admin-UI rendern (verhindert Flackern)
+  if (!authLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 admin-theme">
         <div className="text-gray-400 animate-pulse">
@@ -138,9 +138,9 @@ const AdminLayout = () => {
     );
   }
 
-  // URL-Guard: eingeschränkter Account darf nur erlaubte Pfade
+  // URL-Guard: eingeschränkter Account darf nur erlaubte Pfade, Start = /admin/anfragen
   if (isRestricted && !isAllowedForRestricted(location.pathname)) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/admin/anfragen" replace />;
   }
 
   return (
