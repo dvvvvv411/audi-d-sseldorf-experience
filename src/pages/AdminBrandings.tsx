@@ -256,15 +256,26 @@ const AdminBrandings = () => {
 
             <div className="border-t border-gray-100 pt-4">
               <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Optional — SMS (Seven.io)</p>
-              <div className="space-y-1.5">
-                <Label className="text-gray-700 text-sm">Absendername (max. 11 Zeichen)</Label>
-                <Input
-                  value={form.sevenio_absendername}
-                  onChange={(e) => set("sevenio_absendername", e.target.value)}
-                  maxLength={11}
-                  className="bg-gray-50 border-gray-200"
-                  placeholder="AudiDUS"
-                />
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Absendername (max. 11 Zeichen)</Label>
+                  <Input
+                    value={form.sevenio_absendername}
+                    onChange={(e) => set("sevenio_absendername", e.target.value)}
+                    maxLength={11}
+                    className="bg-gray-50 border-gray-200"
+                    placeholder="AudiDUS"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Seven.io API-Key</Label>
+                  <Input
+                    value={form.sevenio_api_key}
+                    onChange={(e) => set("sevenio_api_key", e.target.value)}
+                    className="bg-gray-50 border-gray-200 font-mono text-xs"
+                    placeholder="z.B. SVKxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  />
+                </div>
               </div>
             </div>
           </div>
