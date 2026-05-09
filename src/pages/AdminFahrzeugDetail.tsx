@@ -233,12 +233,12 @@ export default function AdminFahrzeugDetail() {
                   <Button variant="outline" size="sm" className="gap-1.5" asChild>
                     <span>
                       <Upload className="w-3.5 h-3.5" />
-                      {uploadingPdf ? "Laden…" : "PDF hochladen"}
+                      {uploadingPdf ? "Laden…" : "Datei hochladen"}
                     </span>
                   </Button>
                   <input
                     type="file"
-                    accept="application/pdf"
+                    accept="application/pdf,image/jpeg,image/png,image/webp"
                     multiple
                     onChange={handlePdfUpload}
                     className="hidden"
