@@ -149,6 +149,52 @@ const generateServiceberichtEmail = (
 </html>`;
 };
 
+const generatePersoenlichesAngebotEmail = (
+  branding: Branding,
+  verkaeufer: Verkaeufer,
+  fahrzeug: Fahrzeug,
+  anrede: string,
+) => {
+  const fullName = `${verkaeufer.vorname} ${verkaeufer.nachname}`;
+
+  return `<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#333;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
+    <tr><td style="padding:30px 20px 10px;">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;">
+        <tr><td style="padding:0 0 20px;font-size:14px;line-height:1.7;color:#333;">
+          ${anrede}<br/><br/>
+          vielen Dank für Ihr Interesse an unserem Fahrzeug sowie für das angenehme Telefonat.<br/><br/>
+          Wie bereits telefonisch besprochen, sende ich Ihnen hiermit Ihr persönliches Angebot zum <strong>${fahrzeug.fahrzeugname}</strong>. Alle relevanten Eckdaten, Konditionen und Ausstattungsmerkmale haben wir in dem beigefügten Dokument für Sie übersichtlich zusammengestellt.<br/><br/>
+          Wichtig ist uns: Sämtliche Fahrzeuge aus unserem Bestand werden grundsätzlich mit einer umfassenden Gebrauchtwagengarantie übergeben. Diese deckt zentrale Bauteile des Fahrzeugs ab – darunter Motor, Getriebe, Antrieb, Elektronik sowie zahlreiche weitere sicherheits- und komfortrelevante Komponenten. So können Sie Ihr neues Fahrzeug von Anfang an mit einem sicheren Gefühl genießen, ohne sich Sorgen um unerwartete Reparaturkosten machen zu müssen.<br/><br/>
+          Sollten Sie Fragen zum Angebot oder zur Garantie haben oder weitere Informationen wünschen, stehe ich Ihnen jederzeit gerne per E-Mail oder telefonisch unter <strong>${verkaeufer.telefon}</strong> zur Verfügung. Selbstverständlich können wir auch jederzeit einen Termin für eine Probefahrt vereinbaren.<br/><br/>
+          Ich freue mich auf Ihre Rückmeldung.<br/><br/>
+          Mit freundlichen Grüßen
+        </td></tr>
+        <tr><td style="padding:20px 0 0;border-top:1px solid #e0e0e0;">
+          <p style="margin:0;font-size:14px;font-weight:bold;color:#000;">${fullName}</p>
+          <p style="margin:2px 0 0;font-size:12px;color:#666;">Verkaufsberater | ${branding.name}</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#666;">${verkaeufer.telefon} · ${verkaeufer.email}</p>
+        </td></tr>
+        <tr><td style="padding:20px 0 0;">
+          <img src="https://www.tiemeyer.de/media/uploads/2025/06/Audi.svg" alt="Audi" width="80" style="display:block;" />
+        </td></tr>
+        <tr><td style="padding:15px 0 0;">
+          <p style="font-size:10px;color:#999;line-height:1.5;margin:0;">
+            ${branding.name} · ${branding.strasse}, ${branding.plz} ${branding.stadt}<br/>
+            ${branding.amtsgericht} · ${branding.handelsregister} · Geschäftsführer: ${branding.geschaeftsfuehrer}<br/>
+            USt-IdNr.: ${branding.ust_id}
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+};
+
 const buildAnrede = (gender: "male" | "female" | "unknown", nachname: string) => {
   if (gender === "male") return `Sehr geehrter Herr ${nachname},`;
   if (gender === "female") return `Sehr geehrte Frau ${nachname},`;
