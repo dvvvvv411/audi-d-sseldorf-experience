@@ -6,6 +6,7 @@ import { Link, useParams } from "react-router-dom";
 import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useRedirectTracking } from "@/hooks/useRedirectTracking";
+import { useMetaPixel } from "@/hooks/useMetaPixel";
 
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
