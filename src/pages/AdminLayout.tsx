@@ -48,10 +48,10 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
   const [userEmail, setUserEmail] = useState("");
-  const role = useUserRole();
+  const { role, loading: roleLoading } = useUserRole();
 
-  const visibleMainNav = role === "caller" ? mainNav.filter((i) => isAllowedForCaller(i.path)) : mainNav;
-  const visibleVerwaltungNav = role === "caller" ? verwaltungNav.filter((i) => isAllowedForCaller(i.path)) : verwaltungNav;
+  const visibleMainNav = role === "admin" ? mainNav : mainNav.filter((i) => isAllowedForCaller(i.path));
+  const visibleVerwaltungNav = role === "admin" ? verwaltungNav : verwaltungNav.filter((i) => isAllowedForCaller(i.path));
 
   useEffect(() => {
     document.documentElement.classList.add('admin-theme');
@@ -113,8 +113,19 @@ const AdminLayout = () => {
     );
   };
 
-  // URL-Guard: caller darf nur erlaubte Pfade
-  if (role === "caller" && !isAllowedForCaller(location.pathname)) {
+  // Solange die Rolle lädt: kein Admin-UI rendern (verhindert Flackern für caller)
+  if (roleLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 admin-theme">
+        <div className="text-gray-400 animate-pulse">
+          <AudiRingsSmall />
+        </div>
+      </div>
+    );
+  }
+
+  // URL-Guard: alles außer admin darf nur erlaubte Pfade
+  if (role !== "admin" && !isAllowedForCaller(location.pathname)) {
     return <Navigate to="/admin" replace />;
   }
 

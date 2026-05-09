@@ -1,42 +1,38 @@
-## Ziel
-`caller@caller.de` bekommt eine eigene Rolle `caller` mit eingeschränkter UI. Sichtbarkeit wird **flackerfrei** über einen synchronen localStorage-Cache gelöst.
+## Problem
 
-## 1. Datenbank — Migration
-- Enum `app_role` um Wert `'caller'` erweitern.
-- `UPDATE public.user_roles SET role='caller' WHERE user_id = (SELECT id FROM auth.users WHERE email='caller@caller.de')`.
-- `handle_new_user` bleibt unverändert (neue Signups bleiben `admin`).
+In `AdminLayout` filtern wir nur, wenn `role === "caller"`. Solange die Rolle noch nicht geladen ist (`null`), gilt der Admin-Default → alle Reiter sichtbar. caller@caller.de sieht deshalb beim ersten Paint (oder dauerhaft, falls localStorage-Cache fehlt/veraltet ist) die komplette Navigation. Auch der URL-Guard greift nicht, solange `role === null`.
 
-## 2. Neuer Hook `src/hooks/useUserRole.ts`
-- Liest beim Mount **synchron** aus `localStorage["audi.userRole"]` → kein Flackern.
-- Lädt parallel im Hintergrund die echte Rolle aus `public.user_roles` und aktualisiert State + Cache, falls abweichend.
-- Bei `SIGNED_OUT` Cache leeren.
+## Lösung
 
-## 3. Login-Flow `src/pages/Auth.tsx`
-- Nach erfolgreichem `signInWithPassword`: Rolle einmal aus `user_roles` laden und in localStorage schreiben **bevor** auf `/admin` navigiert wird.
-- Garantiert: beim ersten Render im Admin-Bereich ist der korrekte Wert da.
+Rolle wird zur Pflicht-Voraussetzung für das Rendern des Admin-Bereichs. Vor dem ersten zuverlässigen Wert wird **nichts** angezeigt (Loading-State), und die DB ist die einzige Wahrheit – kein Vertrauen mehr auf localStorage als Quelle.
 
-## 4. Sichtbare Reiter pro Rolle (`AdminLayout.tsx`)
-Allowed-Pfade:
-- `admin`: alle (wie bisher)
-- `caller`: nur `/admin`, `/admin/fahrzeugbestand`, `/admin/anfragen`, `/admin/sms`, `/admin/email`
+### 1. `src/hooks/useUserRole.ts` – neuer Rückgabetyp
+- Rückgabe: `{ role: "admin" | "caller" | null, loading: boolean }`.
+- `loading` ist `true`, bis die Antwort von `user_roles` (oder „keine Session") da ist.
+- `localStorage` nur noch als optionaler Beschleuniger entfernt – wir setzen initial `loading: true`. Das vermeidet jede Stale-Cache-Situation.
+- Bei `onAuthStateChange` → `loading: true` setzen und neu laden.
 
-`mainNav` und `verwaltungNav` werden vor dem Render mit dem Hook-Wert gefiltert.
+### 2. `src/pages/AdminLayout.tsx`
+- `const { role, loading } = useUserRole();`
+- Wenn `loading` → Vollflächiger neutraler Loading-Screen (pulsierendes Audi-Logo, gleicher Stil wie bestehende Loading-States) **anstelle** von Sidebar+Outlet. So sieht caller niemals kurz die Admin-Navigation.
+- Nav-Filter: Default ist **restriktiv**. Nur `role === "admin"` sieht alle Items; alles andere (inkl. `caller`) sieht nur die Caller-Whitelist.
+- URL-Guard greift nach Loading: wenn `role !== "admin"` und Pfad nicht in Whitelist → `<Navigate to="/admin" replace />`.
 
-## 5. URL-Guard
-Kleines Hilfsmittel in `AdminLayout.tsx` (oder neuer Wrapper): Wenn `role === 'caller'` und aktueller Pfad nicht in der Allow-List → `<Navigate to="/admin" replace />`. Verhindert direkten URL-Zugriff auf verbotene Reiter.
+### 3. `src/pages/AdminAnfragen.tsx`
+- `isAdmin = role === "admin"` (statt `role !== "caller"`). Buttons „Angebot erstellen" / „Exposé erstellen" nur sichtbar wenn `isAdmin === true`. Während `loading` werden sie nicht gerendert.
 
-## 6. `AdminAnfragen.tsx`
-- Buttons **"Angebot erstellen"** und **"Exposé erstellen"** nur wenn `role === 'admin'` rendern.
-- Email senden, Status ändern, Notizen, Hide, Detail-Link: bleiben sichtbar.
+### 4. `src/pages/Auth.tsx`
+- `cacheUserRole`-Aufruf kann bleiben (schadet nicht), ist aber nicht mehr maßgeblich, da der Hook DB-first arbeitet.
 
-## Geänderte/neue Dateien
-- Migration (Enum + Rolle aktualisieren)
-- **Neu:** `src/hooks/useUserRole.ts`
-- **Edit:** `src/pages/AdminLayout.tsx`, `src/pages/AdminAnfragen.tsx`, `src/pages/Auth.tsx`
+## Erwartetes Ergebnis
 
-## Reihenfolge
-1. Migration
-2. `useUserRole` Hook
-3. `Auth.tsx` Rolle cachen
-4. Sidebar filtern + URL-Guard in `AdminLayout`
-5. Buttons in `AdminAnfragen` ausblenden
+- caller@caller.de sieht ab Login **niemals** Verkäufer, Brandings, Email Templates, Exposés, Angebote, Telegram, Inzahlungnahme – auch nicht für einen Frame.
+- Auch direktes Aufrufen einer URL (`/admin/brandings`) leitet sofort auf `/admin` um.
+- „Angebot erstellen" / „Exposé erstellen" in `/admin/anfragen` bleiben für caller verborgen.
+- Admin-Nutzer sehen während des kurzen Ladens den Loading-Screen statt einer halben Sidebar – konsistent.
+
+## Geänderte Dateien
+
+- `src/hooks/useUserRole.ts` (Refactor: Loading-State, DB-first)
+- `src/pages/AdminLayout.tsx` (Loading-Gate, restriktiver Default, URL-Guard)
+- `src/pages/AdminAnfragen.tsx` (Button-Sichtbarkeit auf `role === "admin"` umstellen)
