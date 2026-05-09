@@ -27,6 +27,8 @@ type Branding = {
   absendername: string | null;
   sevenio_absendername: string | null;
   sevenio_api_key: string | null;
+  meta_pixel_aktiv: boolean | null;
+  meta_pixel_code: string | null;
 };
 
 const emptyForm = {
@@ -34,6 +36,8 @@ const emptyForm = {
   amtsgericht: "", handelsregister: "", geschaeftsfuehrer: "", ust_id: "",
   resend_api_key: "", email_absender: "", absendername: "", sevenio_absendername: "",
   sevenio_api_key: "",
+  meta_pixel_aktiv: false,
+  meta_pixel_code: "",
 };
 
 const AdminBrandings = () => {
