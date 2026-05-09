@@ -105,6 +105,16 @@ Deno.serve(async (req) => {
 
     const resendData = await resendRes.json();
 
+    const attachmentsMeta = Array.isArray(attachments)
+      ? (attachments as Attachment[]).map((a) => {
+          let size = 0;
+          try {
+            size = Math.floor((a.content_base64.length * 3) / 4);
+          } catch { /* noop */ }
+          return { filename: a.filename, size };
+        })
+      : [];
+
     if (!resendRes.ok) {
       console.error("Resend error:", resendData);
       await supabase.from("aktivitaets_log").insert({
@@ -112,6 +122,19 @@ Deno.serve(async (req) => {
         aktion: "Email fehlgeschlagen",
         details: `An ${to} via ${verkaeufer.email} — ${JSON.stringify(resendData).slice(0, 400)}`,
         user_email: "system",
+      });
+      await supabase.from("email_verlauf").insert({
+        anfrage_id: anfrage_id ?? null,
+        branding_id,
+        verkaeufer_id,
+        empfaenger: to,
+        absender: fromHeader,
+        betreff: subject,
+        template: template ?? null,
+        status: "fehlgeschlagen",
+        fehler: JSON.stringify(resendData).slice(0, 1000),
+        attachments: attachmentsMeta,
+        html,
       });
       return new Response(
         JSON.stringify({ error: "Email sending failed", details: resendData }),
@@ -124,6 +147,20 @@ Deno.serve(async (req) => {
       aktion: "Email gesendet",
       details: `${subject} — an ${to} von ${verkaeufer.email}`,
       user_email: "system",
+    });
+
+    await supabase.from("email_verlauf").insert({
+      anfrage_id: anfrage_id ?? null,
+      branding_id,
+      verkaeufer_id,
+      empfaenger: to,
+      absender: fromHeader,
+      betreff: subject,
+      template: template ?? null,
+      status: "gesendet",
+      resend_id: resendData?.id ?? null,
+      attachments: attachmentsMeta,
+      html,
     });
 
     return new Response(JSON.stringify({ success: true, id: resendData.id }), {
