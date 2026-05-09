@@ -138,23 +138,25 @@ const AdminLayout = () => {
         <nav className="flex-1 px-3 space-y-6 overflow-y-auto">
           {/* Main */}
           <div className="space-y-1">
-            {mainNav.map((item) => (
+            {visibleMainNav.map((item) => (
               <NavButton key={item.path} item={item} />
             ))}
           </div>
 
           {/* Separator + Verwaltung Group */}
-          <div>
-            <div className="flex items-center gap-2 px-3 mb-2">
-              <span className="text-[10px] text-slate-500 tracking-[0.15em] uppercase font-semibold">Verwaltung</span>
-              <div className="flex-1 h-px bg-slate-700/50" />
+          {visibleVerwaltungNav.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 px-3 mb-2">
+                <span className="text-[10px] text-slate-500 tracking-[0.15em] uppercase font-semibold">Verwaltung</span>
+                <div className="flex-1 h-px bg-slate-700/50" />
+              </div>
+              <div className="space-y-1">
+                {visibleVerwaltungNav.map((item) => (
+                  <NavButton key={item.path} item={item} />
+                ))}
+              </div>
             </div>
-            <div className="space-y-1">
-              {verwaltungNav.map((item) => (
-                <NavButton key={item.path} item={item} />
-              ))}
-            </div>
-          </div>
+          )}
         </nav>
 
         {/* User Section */}
