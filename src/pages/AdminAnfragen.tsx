@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp, Receipt, Search, FileText, Download, Loader2 } from "lucide-react";
+import { Eye, EyeOff, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp, Receipt, Search, FileText, Download, Loader2, Send } from "lucide-react";
+import EmailSendDialog from "@/components/EmailSendDialog";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -135,6 +136,7 @@ export default function AdminAnfragen() {
   const [exposeSelectedBrandingId, setExposeSelectedBrandingId] = useState("");
   const [exposeGenerating, setExposeGenerating] = useState(false);
   const [exposePdfBlob, setExposePdfBlob] = useState<Blob | null>(null);
+  const [emailDialogAnfrage, setEmailDialogAnfrage] = useState<Anfrage | null>(null);
 
   useEffect(() => {
     const load = async () => {
