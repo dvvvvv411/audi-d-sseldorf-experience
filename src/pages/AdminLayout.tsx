@@ -48,11 +48,10 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
   const [userEmail, setUserEmail] = useState("");
+  const role = useUserRole();
 
-  useEffect(() => {
-    document.documentElement.classList.add('admin-theme');
-    return () => document.documentElement.classList.remove('admin-theme');
-  }, []);
+  const visibleMainNav = role === "caller" ? mainNav.filter((i) => isAllowedForCaller(i.path)) : mainNav;
+  const visibleVerwaltungNav = role === "caller" ? verwaltungNav.filter((i) => isAllowedForCaller(i.path)) : verwaltungNav;
 
   useEffect(() => {
     const fetchCount = async () => {
