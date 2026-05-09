@@ -1,12 +1,23 @@
-# Fix: Seitentitel nutzt Branding-Name statt Stadt-Feld
-
 ## Problem
-`Fahrzeugbestand.tsx` baut Titel aus `branding.stadt` → ergibt "Audi Ingolstadt", weil im Branding "Audi Zentrum Berlin" das `stadt`-Feld z.B. den Sitz/eine andere Adresse enthält. Korrekt wäre der Anzeigename des Brandings ("Audi Zentrum Berlin").
+Beim Absenden einer Fahrzeuganfrage (öffentliche Verkäuferseite, anon User) schlägt der Versand fehl. Ursache:
 
-## Änderung
-`src/pages/Fahrzeugbestand.tsx`:
-- `cityLabel` ersetzen durch `brandLabel = branding?.name || "Audi"`.
-- Title: `Fahrzeugbestand · {brandLabel}`
-- Description: `Unser aktueller Fahrzeugbestand bei {brandLabel}. Große Auswahl an Neu- und Gebrauchtwagen.` (Fallback ohne Name analog).
+- `send-anfrage-sms` ist in `supabase/config.toml` korrekt mit `verify_jwt = false` konfiguriert.
+- `send-anfrage-email` **fehlt** in `config.toml` und läuft daher mit JWT-Pflicht — anon Calls werden abgelehnt.
+- `kfz-callback` ist ebenfalls nicht eingetragen, wird aber direkt nach dem Anfrage-Insert vom anon Client aufgerufen.
 
-Nichts anderes anfassen.
+RLS auf `anfragen` ist bereits korrekt (`Anon can insert anfragen`). Die internen Inserts in `sms_verlauf`, `email_verlauf` und `aktivitaets_log` laufen über Service Role Key in den Edge Functions und sind von RLS unberührt.
+
+## Fix
+`supabase/config.toml` ergänzen:
+
+```toml
+[functions.send-anfrage-email]
+verify_jwt = false
+
+[functions.kfz-callback]
+verify_jwt = false
+```
+
+Damit können anon Besucher Anfragen abschicken und die nachgelagerten Email-/SMS-/Callback-Funktionen aufrufen.
+
+Keine weiteren Code-Änderungen nötig — die Funktionen lesen alle nötigen Daten serverseitig über den Service Role Key und enthalten keine eigenen Auth-Checks, was für diese öffentlichen Endpunkte gewollt ist.
