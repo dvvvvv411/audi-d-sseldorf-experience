@@ -197,8 +197,11 @@ export default function EmailSendDialog({ anfrage, onClose, onSent }: Props) {
 
         // Anrede via detect-gender
         try {
+          const skipTitles = new Set(["dr.","dr","prof.","prof","herr","frau","mr.","mr","mrs.","mrs","ms."]);
+          const tokens = (anfrage.vorname ?? "").trim().split(/\s+/).filter(t => !skipTitles.has(t.toLowerCase()));
+          const firstName = tokens[0] || (anfrage.vorname ?? "").trim();
           const { data: g } = await supabase.functions.invoke("detect-gender", {
-            body: { vorname: anfrage.vorname },
+            body: { firstName },
           });
           setAnrede(buildAnrede((g as any)?.gender, anfrage.nachname));
         } catch {
