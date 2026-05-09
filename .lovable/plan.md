@@ -1,14 +1,36 @@
 ## Ziel
-Im Aktivitätsprotokoll auf `/admin/anfragen` sollen keine SMS-Einträge mehr angezeigt werden (z.B. "SMS gesendet" / "SMS fehlgeschlagen").
+Pro Branding kann ein Meta Pixel hinterlegt werden. Verkäufer-Seiten (Fahrzeugbestand & Fahrzeugdetail) feuern dann automatisch den Pixel des dem Verkäufer zugewiesenen Brandings.
 
-## Änderung
-**Datei:** `src/pages/AdminAnfragen.tsx` (Query um Zeile 150)
+## Änderungen
 
-- Beim Laden des Aktivitätsprotokolls die Supabase-Query so anpassen, dass Einträge mit `aktion ILIKE 'SMS%'` ausgeschlossen werden (`.not("aktion", "ilike", "SMS%")`).
-- Limit von 50 bleibt bestehen.
+### 1) Datenbank (Migration)
+Tabelle `brandings` erweitern:
+- `meta_pixel_aktiv boolean not null default false`
+- `meta_pixel_code text` (nullable) — speichert das vollständige Snippet inkl. `<script>` und `<noscript>`
 
-## Nicht angefasst
-- Edge Function `send-anfrage-sms` loggt weiterhin in `aktivitaets_log` (für Audit-Zwecke / SMS-Verlauf-Seite). Nur die Anzeige im Anfragen-Aktivitätsprotokoll wird gefiltert.
-- Keine DB-Migration, keine Änderung anderer Seiten (Dashboard etc.).
+### 2) Admin-UI — `src/pages/AdminBrandings.tsx`
+Im Branding-Dialog (Hinzufügen & Bearbeiten):
+- Neuer Bereich "Meta Pixel"
+- `Switch`-Toggle: "Meta Pixel aktivieren"
+- Wenn an → `Textarea` (groß, monospace) zum Einfügen des kompletten Meta-Pixel-Snippets
+- Werte werden im `payload` gespeichert (`meta_pixel_aktiv`, `meta_pixel_code`)
+- Beim Bearbeiten werden die Werte vorbefüllt
 
-Sag Bescheid, wenn die SMS-Einträge stattdessen komplett nicht mehr geloggt werden sollen — dann passe ich die Edge Function an.
+### 3) Pixel-Injection auf Verkäuferseiten
+Neuer Hook `src/hooks/useMetaPixel.ts`:
+- Akzeptiert `code: string | null` und `aktiv: boolean`
+- Parsed das Snippet via `DOMParser`, hängt enthaltene `<script>`- und `<noscript>`-Knoten an `document.head` (Scripts müssen neu erstellt werden, damit sie ausgeführt werden)
+- Cleanup beim Unmount/Wechsel: angefügte Knoten entfernen
+
+Einbinden in:
+- `src/pages/Fahrzeugbestand.tsx` — sobald Branding des Verkäufers geladen ist
+- `src/pages/Gebrauchtwagen.tsx` — sobald `verkaeufer[0].branding` vorliegt
+
+So nutzt z.B. Markus Stoll (Branding "Audi Zentrum Berlin") automatisch dessen Pixel.
+
+### 4) Nicht angefasst
+- Admin-Seiten (kein Tracking gewünscht)
+- Bestehende Brandings ohne Pixel bleiben unverändert (Default `aktiv = false`)
+
+## Hinweis
+Der eingefügte Code wird 1:1 ausgeführt. Da nur Admins Brandings bearbeiten können (RLS authenticated-only), ist das XSS-Risiko auf vertrauenswürdige Nutzer beschränkt.
