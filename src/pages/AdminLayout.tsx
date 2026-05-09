@@ -26,6 +26,7 @@ const verwaltungNav = [
   { label: "Angebote", icon: Receipt, path: "/admin/angebote" },
   { label: "Telegram", icon: MessageCircle, path: "/admin/telegram" },
   { label: "Inzahlungnahme", icon: CarFront, path: "/admin/inzahlungnahme" },
+  { label: "SMS Verlauf", icon: Send, path: "/admin/sms" },
 ];
 
 const AdminLayout = () => {
