@@ -54,6 +54,11 @@ const AdminLayout = () => {
   const visibleVerwaltungNav = role === "caller" ? verwaltungNav.filter((i) => isAllowedForCaller(i.path)) : verwaltungNav;
 
   useEffect(() => {
+    document.documentElement.classList.add('admin-theme');
+    return () => document.documentElement.classList.remove('admin-theme');
+  }, []);
+
+  useEffect(() => {
     const fetchCount = async () => {
       const { count } = await supabase
         .from("anfragen")
