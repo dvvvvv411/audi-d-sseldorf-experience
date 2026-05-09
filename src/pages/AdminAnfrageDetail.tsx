@@ -157,7 +157,9 @@ export default function AdminAnfrageDetail() {
     if (!anfrage || !id) return;
     const oldStatus = anfrage.status;
     setAnfrage({ ...anfrage, status: newStatus });
-    const { error } = await supabase.from("anfragen").update({ status: newStatus }).eq("id", id);
+    const updatePayload: { status: string; hidden?: boolean } = { status: newStatus };
+    if (newStatus === "Kein Interesse") updatePayload.hidden = true;
+    const { error } = await supabase.from("anfragen").update(updatePayload as any).eq("id", id);
     if (error) {
       setAnfrage({ ...anfrage, status: oldStatus });
       toast({ title: "Fehler", description: "Status konnte nicht geändert werden.", variant: "destructive" });

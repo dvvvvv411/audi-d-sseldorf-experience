@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Eye, EyeOff, StickyNote, Save, Mail, Settings, ChevronDown, ChevronUp, Receipt, Search, FileText, Download, Loader2 } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,6 +124,8 @@ export default function AdminAnfragen() {
   const [logOpen, setLogOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showHidden, setShowHidden] = useState(false);
+  const [pageSize, setPageSize] = useState(25);
+  const [currentPage, setCurrentPage] = useState(1);
   const [exposeFahrzeuge, setExposeFahrzeuge] = useState<ExposeFahrzeug[]>([]);
   const [exposeVerkaeufer, setExposeVerkaeufer] = useState<ExposeVerkaeufer[]>([]);
   const [exposeBrandings, setExposeBrandings] = useState<ExposeBranding[]>([]);
@@ -162,6 +165,10 @@ export default function AdminAnfragen() {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, showHidden, pageSize]);
 
   useEffect(() => {
     const loadExposeData = async () => {
@@ -394,7 +401,44 @@ export default function AdminAnfragen() {
           return fullName.includes(q) || a.email.toLowerCase().includes(q) || a.telefon.toLowerCase().includes(q) || a.fahrzeug_name.toLowerCase().includes(q);
         });
         if (filtered.length === 0) return <p className="text-gray-500">Keine Anfragen gefunden.</p>;
+        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        const safePage = Math.min(currentPage, totalPages);
+        const startIdx = (safePage - 1) * pageSize;
+        const endIdx = Math.min(startIdx + pageSize, filtered.length);
+        const pageItems = filtered.slice(startIdx, endIdx);
+
+        const getPageNumbers = (): (number | "ellipsis")[] => {
+          const pages: (number | "ellipsis")[] = [];
+          if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+            return pages;
+          }
+          pages.push(1);
+          if (safePage > 3) pages.push("ellipsis");
+          const from = Math.max(2, safePage - 1);
+          const to = Math.min(totalPages - 1, safePage + 1);
+          for (let i = from; i <= to; i++) pages.push(i);
+          if (safePage < totalPages - 2) pages.push("ellipsis");
+          pages.push(totalPages);
+          return pages;
+        };
+
         return (
+        <>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm text-gray-500">Zeige {startIdx + 1}–{endIdx} von {filtered.length}</p>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Pro Seite</span>
+            <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+              <SelectTrigger className="w-[80px] h-8 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {[25, 50, 75, 100].map((n) => (
+                  <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <Table>
             <TableHeader className="bg-gray-50">
@@ -413,7 +457,7 @@ export default function AdminAnfragen() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((a) => (
+              {pageItems.map((a) => (
                 <TableRow key={a.id} className="border-gray-100 cursor-pointer hover:bg-gray-50" onClick={() => navigate(`/admin/anfragen/${a.id}`)}>
                   <TableCell className="whitespace-nowrap text-gray-500 text-sm">{format(new Date(a.created_at), "dd.MM.yyyy HH:mm", { locale: de })}</TableCell>
                   <TableCell className="font-medium whitespace-nowrap text-gray-900">
@@ -435,11 +479,13 @@ export default function AdminAnfragen() {
                       value={displayStatus(a.status)}
                       onValueChange={async (val) => {
                         const oldStatus = displayStatus(a.status);
-                        const { error } = await supabase.from("anfragen").update({ status: val }).eq("id", a.id);
+                        const updatePayload: { status: string; hidden?: boolean } = { status: val };
+                        if (val === "Kein Interesse") updatePayload.hidden = true;
+                        const { error } = await supabase.from("anfragen").update(updatePayload as any).eq("id", a.id);
                         if (error) {
                           toast({ title: "Fehler", description: "Status konnte nicht aktualisiert werden.", variant: "destructive" });
                         } else {
-                          setAnfragen((prev) => prev.map((x) => x.id === a.id ? { ...x, status: val } : x));
+                          setAnfragen((prev) => prev.map((x) => x.id === a.id ? { ...x, status: val, hidden: val === "Kein Interesse" ? true : x.hidden } : x));
                           toast({ title: "Status aktualisiert", description: `Status auf "${val}" gesetzt.` });
                           const email = await getUserEmail();
                           const now = new Date().toISOString();
@@ -590,6 +636,42 @@ export default function AdminAnfragen() {
             </TableBody>
           </Table>
         </div>
+        {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); if (safePage > 1) setCurrentPage(safePage - 1); }}
+                  className={safePage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              {getPageNumbers().map((p, i) => (
+                <PaginationItem key={i}>
+                  {p === "ellipsis" ? (
+                    <PaginationEllipsis />
+                  ) : (
+                    <PaginationLink
+                      href="#"
+                      isActive={p === safePage}
+                      onClick={(e) => { e.preventDefault(); setCurrentPage(p); }}
+                    >
+                      {p}
+                    </PaginationLink>
+                  )}
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); if (safePage < totalPages) setCurrentPage(safePage + 1); }}
+                  className={safePage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
+        </>
         );
       })()}
 
