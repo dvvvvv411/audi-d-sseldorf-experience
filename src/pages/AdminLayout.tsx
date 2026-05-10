@@ -44,11 +44,13 @@ const verwaltungNav = [
 const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { branding } = useActiveBranding();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [neuCount, setNeuCount] = useState(0);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [authLoaded, setAuthLoaded] = useState(false);
+  const logoUrl = (branding as any)?.logo_pdf_url as string | undefined;
 
   const isRestricted = authLoaded && userId === RESTRICTED_USER_ID;
 
@@ -131,7 +133,7 @@ const AdminLayout = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 admin-theme">
         <div className="text-gray-400 animate-pulse">
-          <AudiRingsSmall />
+          <BrandLogo logoUrl={logoUrl} name={branding?.name} />
         </div>
       </div>
     );
@@ -152,8 +154,8 @@ const AdminLayout = () => {
       >
         {/* Logo */}
         <div className="p-5 pb-4">
-          <div className="text-white">
-            <AudiRingsSmall />
+          <div>
+            <BrandLogo logoUrl={logoUrl} name={branding?.name} />
           </div>
           <p className="text-[10px] text-slate-500 tracking-[0.2em] uppercase mt-2 font-medium">Verwaltung</p>
         </div>
