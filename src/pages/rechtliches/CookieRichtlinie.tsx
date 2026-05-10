@@ -125,43 +125,13 @@ export default function CookieRichtlinie() {
                 </thead>
                 <tbody>
                   {[
-                    ["ADRUM", "1st", "AppDynamics Real User Monitoring – anonymisiertes Monitoring um u.a. Ladezeiten und Ladefehler zu identifizieren", "Sitzungscookie"],
-                    ["ADRUM_BTa", "1st", "AppDynamics Real User Monitoring", "Persistent (1 Tag)"],
-                    ["ADRUM_BT1", "1st", "AppDynamics Real User Monitoring", "Persistent (1 Tag)"],
-                    ["LBCOOKIE", "1st", "Lastverteilung über den Load Balancer", "Sitzungscookie"],
-                    ["JSESSIONID", "1st", "Anonyme Session ID über den Server", "Sitzungscookie"],
-                    ["AUDI_ENSIGHTEN_PRIVACY_Do_Not_Track", "1st", "Speichert ob 'Do Not Track' aktiviert ist", "Persistent (1 Jahr)"],
-                    ["AUDI_ENSIGHTEN_PRIVACY_MODAL_VIEWED", "1st", "Speichert ob mit dem Consent Modal interagiert wurde", "Persistent (1 Jahr)"],
-                    ["AUDI_ENSIGHTEN_PRIVACY_Functional", "1st", "Einstellung zu Functional Cookies", "Persistent (1 Jahr)"],
-                    ["AUDI_ENSIGHTEN_PRIVACY_Performance", "1st", "Einstellung zu Performance Cookies", "Persistent (1 Jahr)"],
-                    ["AUDI_ENSIGHTEN_PRIVACY_Marketing", "1st", "Einstellung zu Marketing Cookies", "Persistent (1 Jahr)"],
-                    ["AUDI_ENSIGHTEN_PRIVACY_External_Content", "1st", "Einstellung zu externen Inhalten (z.B. Google Maps)", "Persistent (1 Jahr)"],
-                    ["AUDI_ENSIGHTEN_PRIVACY_MODAL_LOADED", "1st", "Speichert ob das Consent Modal dargestellt wurde", "Persistent (1 Jahr)"],
-                    ["JSESSIONID", "3rd", "Anonyme Session ID über den Server", "Sitzungscookie"],
-                    ["LBCOOKIE", "3rd", "Lastverteilung über den Load Balancer", "Sitzungscookie"],
-                    ["AKA_A2", "3rd", "Akamai – Adaptive Acceleration Feature", "Persistent (2 Jahre)"],
-                    ["i18nextLng", "1st", "Speicherung der Spracheinstellung", "Persistent"],
-                    ["anonymous_session_id", "1st", "Token zur Identifikation der anonymen Benutzersitzung", "Persistent"],
-                    ["anonymous_session_refresh_token", "1st", "Token zum Aktualisieren der anonymous_session_id", "Persistent"],
-                    ["oneshop.tenant.context", "1st", "Identifiziert den aktuellen Tenant/Anbieter", "Persistent"],
-                    ["oneshop.product.vin", "1st", "Speichert letzte gültige Fahrzeugidentifikationsnummer", "Persistent"],
-                    ["oneshop.products.activeFacets", "1st", "Zuletzt angewandte Filter auf der Produktlistenseite", "Sitzungscookie"],
-                    ["oneshop.product.isFromPlp", "1st", "Zeigt ob Nutzer von Produktlistenseite kam", "Sitzungscookie"],
-                    ["oneshop.product.recommendedConfiguration", "1st", "Spezielle Deeplink-Parameter", "Sitzungscookie"],
-                    ["wlfeRefreshSessionId", "1st", "Refresh-Token für e2e Leasing-Portal", "Persistent (5 Min.)"],
-                    ["wlfeRestoreTenant", "1st", "Tenant für e2e Leasing-Portal", "Persistent (5 Min.)"],
-                    ["wlfeDoLogin", "1st", "Login-Status für e2e Leasing-Portal", "Persistent (5 Min.)"],
-                    ["redirectUrl", "1st", "Speichert URL vor Anmeldung", "Sitzungscookie"],
-                    ["userToken", "1st", "Authentifizierungstoken des angemeldeten Benutzers", "Sitzungscookie"],
-                    ["_acq_visit", "1st", "Wiedererkennung des Besuchers (Audi Online Beratung)", "Permanent (6 Monate)"],
-                    ["_acq_id_contact_local", "1st", "Wiedererkennung des Besuchers (Auto message pop up)", "Permanent (6 Monate)"],
-                    ["psyma_participation", "1st", "Auswahlwahrscheinlichkeit und Vermeidung von Mehrfacheinladungen", "Persistent (30 Tage)"],
-                    ["mod_auth_openidc_session_live", "1st", "Session token des Token proxy", "22h"],
-                    ["Nonce", "1st", "Validates ID tokens", "Session"],
-                    ["access_token", "1st", "Access token zum Authentifizieren", "Persistent (5 Min.)"],
-                    ["referer", "1st", "Saves referrer from initial call", "Session"],
-                    ["myaudi-logout-redirect", "1st", "Saves redirect URL for later use", "0s"],
-                    ["mod_auth_openidc_state_", "1st", "OpenID Connect authentication handling", "Session"],
+                    ["session", "1st", "Anonyme Sitzungs-Kennung zur Aufrechterhaltung Ihrer Sitzung", "Sitzungscookie"],
+                    ["csrf_token", "1st", "Schutz vor Cross-Site-Request-Forgery-Angriffen", "Sitzungscookie"],
+                    ["consent", "1st", "Speichert Ihre Cookie-Einwilligung", "Persistent (1 Jahr)"],
+                    ["consent_categories", "1st", "Speichert die einzeln erlaubten Cookie-Kategorien", "Persistent (1 Jahr)"],
+                    ["i18n_lang", "1st", "Speicherung der Spracheinstellung", "Persistent (1 Jahr)"],
+                    ["sb-access-token", "1st", "Authentifizierungstoken für angemeldete Nutzer", "Persistent (1 Stunde)"],
+                    ["sb-refresh-token", "1st", "Token zum Erneuern der Anmeldung", "Persistent (30 Tage)"],
                   ].map(([name, party, purpose, type], i) => (
                     <tr key={i}>
                       <td className={tdClass + " font-mono text-xs"}>{name}</td>
@@ -176,126 +146,11 @@ export default function CookieRichtlinie() {
 
             {/* Analyse und Statistik */}
             <h3 className="font-semibold text-gray-800 mt-8 mb-2">(2) Analyse und Statistik</h3>
-            <div className="overflow-x-auto">
-              <table className={tableClass}>
-                <thead>
-                  <tr>
-                    <th className={thClass}>Name</th>
-                    <th className={thClass}>1st/3rd</th>
-                    <th className={thClass}>Zweck</th>
-                    <th className={thClass}>Art</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ["ac_hid", "1st", "Zufällige ID zur Wiedererkennung im Konfigurator", "unbefristet"],
-                    ["lvc_{market}", "1st", "Speichert zuletzt besuchte Fahrzeuge", "Persistent (7 Tage)"],
-                    ["notepad_{market}", "1st", "Favoriten/Merkzettel", "Persistent (30 Tage)"],
-                    ["vtp.results viewType", "1st", "Typ der Ergebnisliste (Grid/List View)", "Persistent (1 Jahr)"],
-                    ["vtp.mfccampaign.{market}", "1st", "Marketing-Kampagnen beim Börseneinsprung", "Persistent (7 Tage)"],
-                    ["cbs_{market}_[#]", "1st", "Gespeicherte Suche (Suchparameter)", "Persistent (1 Jahr)"],
-                    ["myaudi", "1st", "Token für den myAudi login", "Sitzungscookie"],
-                    ["vtp.aoz.{carId}", "1st", "Ausgewählte AOZ items/Pakete", "Persistent (1 Jahr)"],
-                    ["_tag_frontend_{account-id}_vid", "1st", "Wiedererkennung des Besuchers (Session Management)", "Permanent (6 Monate)"],
-                    ["_tgclose_{account_ID}_c", "1st", "Wiedererkennung des Besuchers (Auto message pop up)", "Permanent (6 Monate)"],
-                    ["adb_mcmid", "1st", "Adobe Marketing Cloud Visitor ID", "Sitzungscookie"],
-                    ["sendtoafriend", "1st", "Suchparameter für Send-to-a-friend", "Persistent (30 Tage)"],
-                    ["aam_uuid", "1st", "Informationen über Websitenutzung", "Persistent (1 Monat)"],
-                    ["s_gnr", "1st", "Neuer oder wiederkehrender Besucher", "Persistent (1 Monat)"],
-                    ["s_invisit", "1st", "Anzahl der Website-Besuche", "Persistent (30 Min.)"],
-                    ["s_lv", "1st", "Vergangene Zeit zwischen wiederholtem Besuch", "Persistent (3 Jahre)"],
-                    ["s_lv_s", "1st", "Besucher unterscheiden, statistische Daten", "Persistent (30 Min.)"],
-                    ["s_ppv", "1st", "Anteil der gesehenen Seite", "Sitzungscookie"],
-                    ["s_vnum", "1st", "Anzahl der Website-Besuche (Adobe Plugin)", "Persistent (1 Monat)"],
-                    ["A3deviceForRedirect", "1st", "User-Test Steuerung", "Persistent (7 Tage)"],
-                    ["dpm", "3rd", "Anonyme ID (Adobe Audience Manager)", "Persistent (180 Tage)"],
-                    ["id", "3rd", "Google DoubleClick/Floodlight – Aktionen nach Anzeigenklick", "Sitzungscookie"],
-                    ["Usabilla", "3rd", "Aggregation von User-Feedback", "–"],
-                    ["_ens_lc", "1st", "Besuchszahlen, Klickverhalten", "Persistent (30 Min.)"],
-                    ["_ens_perf", "1st", "Optimierung der Webseite", "Persistent (30 Min.)"],
-                    ["_ens_prev", "1st", "Besuchszahlen, Klickverhalten", "Sitzungscookie"],
-                    ["_ens_sid", "1st", "Optimierung der Webseite", "Persistent (30 Min.)"],
-                    ["_ens_vn", "1st", "Zuvor besuchte Webseite, Anzahl Besuche", "Persistent (1 Jahr)"],
-                    ["AMCV_*", "1st", "Wiedererkennung des Besuchers", "Persistent (2 Jahre)"],
-                    ["AMCVS_*", "1st", "Wiedererkennung des Besuchers", "Sitzungscookie"],
-                    ["s_cc", "1st", "Einstellungen des Nutzers (Sprache etc.)", "Sitzungscookie"],
-                    ["s_ecid", "3rd", "Wiedererkennung des Besuchers", "Persistent (2 Jahre)"],
-                    ["dcdata", "1st", "Optimierung der Webseite", "Persistent (24 Monate)"],
-                    ["s_sq", "1st", "Optimierung der Webseite", "Sitzungscookie"],
-                    ["s_fid", "1st", "Wiedererkennung des Besuchers", "Persistent (2 Jahre)"],
-                    ["s_vi", "1st", "Wiedererkennung des Besuchers", "Persistent (2 Jahre)"],
-                    ["demdex", "3rd", "Wiedererkennung des Besuchers", "Persistent (180 Tage)"],
-                    ["at_check", "1st", "Prüft ob Browser Cookies erlaubt", "Session"],
-                    ["mbox", "1st", "Eindeutige ID pro Browser und Session", "2 Jahre"],
-                    ["mboxEdgeCluster", "1st", "Adobe Target Edge Server Identifikation", "Session"],
-                  ].map(([name, party, purpose, type], i) => (
-                    <tr key={i}>
-                      <td className={tdClass + " font-mono text-xs"}>{name}</td>
-                      <td className={tdClass}>{party}</td>
-                      <td className={tdClass}>{purpose}</td>
-                      <td className={tdClass}>{type}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <p>Sofern aktiviert, setzen wir Webanalyse-Cookies ein, um zu verstehen, wie unsere Webseite genutzt wird (z. B. Anzahl der Besuche, durchschnittliche Verweildauer, aufgerufene Seiten). Die Erhebung erfolgt ausschließlich auf Grundlage Ihrer Einwilligung. Welche Anbieter im Einzelfall eingesetzt werden, entnehmen Sie dem Cookie-Banner.</p>
 
             {/* Marketing */}
             <h3 className="font-semibold text-gray-800 mt-8 mb-2">(3) Marketing</h3>
-            <div className="overflow-x-auto">
-              <table className={tableClass}>
-                <thead>
-                  <tr>
-                    <th className={thClass}>Name</th>
-                    <th className={thClass}>1st/3rd</th>
-                    <th className={thClass}>Zweck</th>
-                    <th className={thClass}>Art</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ["_ens_lc", "1st", "Besuchszahlen, Klickverhalten, Targeting, Nutzerprofilen", "Persistent (30 Min.)"],
-                    ["_ens_perf", "1st", "Optimierung, Targeting, Nutzerprofilen", "Persistent (30 Min.)"],
-                    ["_ens_prev", "1st", "Besuchszahlen, Targeting, Authentifizierungsstatus", "Sitzungscookie"],
-                    ["_ens_sid", "1st", "Optimierung, Targeting, Nutzerprofilen", "Persistent (30 Min.)"],
-                    ["_ens_vn", "1st", "Zuvor besuchte Webseite, Targeting", "Persistent (1 Jahr)"],
-                    ["AMCV_*", "1st", "Wiedererkennung, Targeting, Authentifizierungsstatus", "Persistent (2 Jahre)"],
-                    ["AMCVS_*", "1st", "Wiedererkennung, Targeting", "Sitzungscookie"],
-                    ["s_cc", "1st", "Einstellungen, Targeting", "Sitzungscookie"],
-                    ["s_ecid", "3rd", "Wiedererkennung, Targeting, Authentifizierungsstatus", "Persistent (2 Jahre)"],
-                    ["dcdata", "1st", "Optimierung, Targeting", "Persistent (24 Monate)"],
-                    ["s_sq", "1st", "Optimierung, Targeting", "Sitzungscookie"],
-                    ["s_fid", "1st", "Wiedererkennung, Targeting, Authentifizierungsstatus", "Persistent (2 Jahre)"],
-                    ["s_vi", "1st", "Wiedererkennung, Targeting, Authentifizierungsstatus", "Persistent (2 Jahre)"],
-                    ["demdex", "3rd", "Wiedererkennung, Targeting", "Persistent (180 Tage)"],
-                    ["IDE", "3rd", "Google Werbeanzeigen auf Drittanbieterseiten", "Persistent (13 Monate)"],
-                    ["_fbp", "3rd", "Meta – Besucherinteraktionen nach Anzeigenklick", "Persistent (<2 Jahre)"],
-                    ["smartSignals2UiD", "1st", "Eindeutige ID zur Wiedererkennung über Sitzungen", "Permanent"],
-                    ["smartSignals2UiD", "3rd", "Wiedererkennung über verschiedene Audi Domains", "Permanent"],
-                    ["AAT", "3rd", "Amazon – Wiedererkennung, Targeting", "Persistent (13 Monate)"],
-                    ["MUID", "3rd", "Microsoft (Bing) – Browser-GUID", "1 Jahr"],
-                    ["_uetmsclkid", "3rd", "Microsoft Klick-ID", "Session"],
-                    ["_uetsid", "3rd", "Bing – Sitzungs-ID", "1 Tag"],
-                    ["_uetvid", "3rd", "Bing – anonymisierte Besucher-ID", "13 Monate"],
-                    ["BizographicsOptOut", "3rd", "LinkedIn – Opt-out gezielte Werbung", "10 Jahre"],
-                    ["UserMatchHistory", "3rd", "LinkedIn Insight-Tag", "30 Tage"],
-                    ["U", "3rd", "LinkedIn – Browserkennung (außerhalb EU/EWR)", "~3 Monate"],
-                    ["li_sugr", "3rd", "LinkedIn – probabilistischer Identitätsabgleich", "~3 Monate"],
-                    ["bscookie", "3rd", "LinkedIn – Zwei-Faktor-Authentifizierung", "2 Jahre"],
-                    ["bcookie", "3rd", "LinkedIn – Browser-Identifikation", "2 Jahre"],
-                    ["li_fat_id", "3rd", "LinkedIn – Nutzer-ID bei Anzeigenklick", "30 Tage"],
-                    ["Google Floodlight", "3rd", "Google DoubleClick/Floodlight – Conversion Tracking", "Sitzungscookie (30-90 Tage)"],
-                  ].map(([name, party, purpose, type], i) => (
-                    <tr key={i}>
-                      <td className={tdClass + " font-mono text-xs"}>{name}</td>
-                      <td className={tdClass}>{party}</td>
-                      <td className={tdClass}>{purpose}</td>
-                      <td className={tdClass}>{type}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <p>Sofern aktiviert, setzen wir Marketing-Cookies ein, um Ihnen relevante Inhalte und Werbeanzeigen auszuspielen sowie die Effektivität von Kampagnen zu messen. Hierzu können auch Drittanbieter-Cookies (z. B. Meta Pixel, Google Ads) gesetzt werden. Die Erhebung erfolgt ausschließlich auf Grundlage Ihrer Einwilligung. Welche Anbieter im Einzelfall eingesetzt werden, entnehmen Sie dem Cookie-Banner.</p>
           </div>
 
           {/* 4. Services von Dritten */}
