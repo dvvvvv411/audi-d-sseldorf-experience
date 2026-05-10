@@ -160,7 +160,7 @@ export async function generateExposePdf(
   // ── HEADER ──
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.text("Audi AG", marginL, y);
+  doc.text(branding.name, marginL, y);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   y += 5;
@@ -177,11 +177,11 @@ export async function generateExposePdf(
   y += 4;
   doc.text(`eMail: ${verkaeufer.email}`, marginL, y);
 
-  const audiLogo = await loadAudiLogoAsBase64();
-  if (audiLogo) {
+  const brandLogo = await loadBrandLogoAsBase64(branding.logo_pdf_url);
+  if (brandLogo) {
     const logoH = 12;
     const logoW = logoH * (284 / 99);
-    doc.addImage(audiLogo, "PNG", pageW - marginR - logoW, 10, logoW, logoH);
+    doc.addImage(brandLogo, "PNG", pageW - marginR - logoW, 10, logoW, logoH);
   }
 
   y += 6;
