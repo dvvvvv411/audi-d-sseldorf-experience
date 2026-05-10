@@ -133,12 +133,13 @@ export default function Fahrzeugbestand() {
   const [vfMap, setVfMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
-  const brandLabel = branding?.name || "Audi";
+  const brandLabel = branding?.name || "Fahrzeugbestand";
+  const footerCompany = (branding as any)?.footer_unternehmensname || branding?.name || "";
   usePageMeta(
-    `Fahrzeugbestand · ${brandLabel}`,
+    branding?.name ? `Fahrzeugbestand · ${brandLabel}` : `Fahrzeugbestand`,
     branding?.name
       ? `Unser aktueller Fahrzeugbestand bei ${brandLabel}. Große Auswahl an Neu- und Gebrauchtwagen.`
-      : `Unser aktueller Fahrzeugbestand – finden Sie Ihren Audi. Große Auswahl an Neu- und Gebrauchtwagen.`
+      : `Unser aktueller Fahrzeugbestand. Große Auswahl an Neu- und Gebrauchtwagen.`
   );
   useMetaPixel((branding as any)?.meta_pixel_code, (branding as any)?.meta_pixel_aktiv);
 
@@ -353,7 +354,7 @@ export default function Fahrzeugbestand() {
       {/* Footer — identical to Gebrauchtwagen */}
       <footer className="bg-gray-50 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-10 space-y-6">
-          <p className="text-xs text-gray-500 font-medium">© 2026 AUDI AG. Alle Rechte vorbehalten</p>
+          <p className="text-xs text-gray-500 font-medium">© 2026 {footerCompany}. Alle Rechte vorbehalten</p>
           <p className="text-xs text-gray-400">
             <Link to="/rechtliches/impressum" className="hover:text-gray-600 transition-colors">Impressum</Link> · <Link to="/rechtliches" className="hover:text-gray-600 transition-colors">Rechtliches</Link> · <Link to="/rechtliches/datenschutzinformation" className="hover:text-gray-600 transition-colors">Datenschutzinformation</Link> · <Link to="/rechtliches/cookie-richtlinie" className="hover:text-gray-600 transition-colors">Cookie-Richtlinie</Link> · <Link to="/rechtliches/barrierefreiheit" className="hover:text-gray-600 transition-colors">Barrierefreiheit</Link> · <Link to="/rechtliches/digital-services-act" className="hover:text-gray-600 transition-colors">Digital Services Act</Link> · <Link to="/rechtliches/eu-data-act" className="hover:text-gray-600 transition-colors">EU Data Act</Link>
           </p>
@@ -362,7 +363,7 @@ export default function Fahrzeugbestand() {
           </p>
           <div className="space-y-4 text-[11px] text-gray-400 leading-relaxed">
             <p>
-              <sup>1</sup> Die Angaben zu Kraftstoffverbrauch, Stromverbrauch, CO₂-Emissionen und elektrischer Reichweite wurden nach dem gesetzlich vorgeschriebenen Messverfahren „Worldwide Harmonized Light Vehicles Test Procedure" (WLTP) gemäß Verordnung (EG) 715/2007 ermittelt. Zusatzausstattungen und Zubehör (Anbauteile, Reifenformat usw.) können relevante Fahrzeugparameter, wie z.&nbsp;B. Gewicht, Rollwiderstand und Aerodynamik verändern und neben Witterungs- und Verkehrsbedingungen sowie dem individuellen Fahrverhalten den Kraftstoffverbrauch, den Stromverbrauch, die CO₂-Emissionen, die elektrische Reichweite und die Fahrleistungswerte eines Fahrzeugs beeinflussen. Weitere Informationen zu WLTP finden Sie unter www.audi.de/wltp.
+              <sup>1</sup> Die Angaben zu Kraftstoffverbrauch, Stromverbrauch, CO₂-Emissionen und elektrischer Reichweite wurden nach dem gesetzlich vorgeschriebenen Messverfahren „Worldwide Harmonized Light Vehicles Test Procedure" (WLTP) gemäß Verordnung (EG) 715/2007 ermittelt. Zusatzausstattungen und Zubehör (Anbauteile, Reifenformat usw.) können relevante Fahrzeugparameter, wie z.&nbsp;B. Gewicht, Rollwiderstand und Aerodynamik verändern und neben Witterungs- und Verkehrsbedingungen sowie dem individuellen Fahrverhalten den Kraftstoffverbrauch, den Stromverbrauch, die CO₂-Emissionen, die elektrische Reichweite und die Fahrleistungswerte eines Fahrzeugs beeinflussen.
             </p>
             <p>
               <sup>2</sup> Gilt nur bei Bezahlung mit EC-Karte bzw. allen gängigen Kreditkarten (außer American Express). Nach 45 Minuten fällt zudem eine Standgebühr in Höhe von 0,10&nbsp;€ / Minute an.

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const NotFound = () => {
-  usePageMeta("Seite nicht gefunden · Audi", "Die angeforderte Seite wurde nicht gefunden.");
+  usePageMeta("Seite nicht gefunden", "Die angeforderte Seite wurde nicht gefunden.");
   const location = useLocation();
 
   useEffect(() => {
