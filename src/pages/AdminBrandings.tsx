@@ -363,6 +363,91 @@ const AdminBrandings = () => {
               </div>
             </div>
 
+            {/* Footer */}
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Footer</p>
+              <div className="space-y-1.5">
+                <Label className="text-gray-700 text-sm">Footer-Unternehmensname</Label>
+                <Input
+                  value={form.footer_unternehmensname}
+                  onChange={(e) => set("footer_unternehmensname", e.target.value)}
+                  className="bg-gray-50 border-gray-200"
+                  placeholder="z. B. AUDI AG"
+                />
+                <p className="text-xs text-gray-400">Wird im Footer (© ... Alle Rechte vorbehalten) und in den Rechtstexten verwendet.</p>
+              </div>
+            </div>
+
+            {/* Vorstand */}
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Vorstand</p>
+              <p className="text-xs text-gray-500 mb-2">
+                Vorsitzender wird automatisch aus dem oben hinterlegten <span className="font-medium">Geschäftsführer</span> übernommen.
+                Hier nur die weiteren Mitglieder eintragen.
+              </p>
+              <div className="space-y-2">
+                {(form.vorstand || []).map((mitglied, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input
+                      value={mitglied}
+                      onChange={(e) => {
+                        const next = [...form.vorstand];
+                        next[i] = e.target.value;
+                        set("vorstand", next);
+                      }}
+                      className="bg-gray-50 border-gray-200"
+                      placeholder="Name des Vorstandsmitglieds"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => set("vorstand", form.vorstand.filter((_, idx) => idx !== i))}
+                      className="text-gray-400 hover:text-red-600 h-9 w-9 p-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => set("vorstand", [...(form.vorstand || []), ""])}
+                  className="gap-2"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Mitglied hinzufügen
+                </Button>
+              </div>
+            </div>
+
+            {/* Domains & Weiterleitung */}
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Domains & Weiterleitung</p>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Originallink (Weiterleitungsziel)</Label>
+                  <Input
+                    value={form.originallink}
+                    onChange={(e) => set("originallink", e.target.value)}
+                    className="bg-gray-50 border-gray-200"
+                    placeholder="https://audi.de"
+                  />
+                  <p className="text-xs text-gray-400">Wenn Besucher auf der Wurzel-URL (/) landen, werden sie hierhin weitergeleitet.</p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Eigene Domain</Label>
+                  <Input
+                    value={form.eigene_domain}
+                    onChange={(e) => set("eigene_domain", e.target.value)}
+                    className="bg-gray-50 border-gray-200"
+                    placeholder="berlin-audi-zentrum.de"
+                  />
+                  <p className="text-xs text-gray-400">Hostname (ohne https://). Anhand dieser Domain wird das aktive Branding für die Landingpage und Rechtstexte erkannt.</p>
+                </div>
+              </div>
+            </div>
+
             <div className="border-t border-gray-100 pt-4">
               <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Optional — E-Mail (Resend)</p>
               <div className="space-y-3">
