@@ -23,6 +23,8 @@ export interface AngebotBranding {
   strasse: string;
   plz: string;
   stadt: string;
+  logo_pdf_url?: string | null;
+  marketing_image_url?: string | null;
 }
 
 export interface AngebotInteressent {
