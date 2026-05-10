@@ -60,7 +60,8 @@ const BrandLogo = ({
   return <AudiLogo fill={fallbackFill} width={width} height={height} />;
 };
 
-function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug: string }) {
+function FahrzeugCard({ fahrzeug, sellerSlug, logoUrl }: { fahrzeug: Fahrzeug; sellerSlug: string; logoUrl?: string | null }) {
+  const brandLogoUrlForCard = logoUrl;
   const specs = [
     { icon: Car, label: "Gebrauchtwagen" },
     { icon: Gauge, label: fahrzeug.km_stand ? `${formatKm(fahrzeug.km_stand)} km` : "–" },
