@@ -1,9 +1,16 @@
 import { useEffect } from "react";
+import { useActiveBranding } from "@/hooks/useActiveBranding";
 
 const Index = () => {
+  const { branding, loading } = useActiveBranding();
+
   useEffect(() => {
-    window.location.replace("https://audi.de");
-  }, []);
+    if (loading) return;
+    const target = branding?.originallink?.trim();
+    if (target) {
+      window.location.replace(target);
+    }
+  }, [branding, loading]);
 
   return null;
 };

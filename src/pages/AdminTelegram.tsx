@@ -63,7 +63,7 @@ const AdminTelegram = () => {
       const { error } = await supabase.functions.invoke("send-telegram-test", {
         body: {
           chat_id: chat.chat_id,
-          message: "✅ Testnachricht von deinem Audi Admin-Panel!\n\nDie Verbindung funktioniert.",
+          message: "✅ Testnachricht von deinem Admin-Panel!\n\nDie Verbindung funktioniert.",
         },
       });
       if (error) throw error;

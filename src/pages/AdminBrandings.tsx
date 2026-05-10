@@ -32,6 +32,10 @@ type Branding = {
   logo_pdf_url: string | null;
   marketing_image_url: string | null;
   email_logo_url: string | null;
+  footer_unternehmensname: string | null;
+  vorstand: string[] | null;
+  originallink: string | null;
+  eigene_domain: string | null;
 };
 
 const emptyForm = {
@@ -44,6 +48,10 @@ const emptyForm = {
   logo_pdf_url: "",
   marketing_image_url: "",
   email_logo_url: "",
+  footer_unternehmensname: "",
+  vorstand: [] as string[],
+  originallink: "",
+  eigene_domain: "",
 };
 
 const AdminBrandings = () => {
@@ -88,12 +96,16 @@ const AdminBrandings = () => {
       logo_pdf_url: b.logo_pdf_url ?? "",
       marketing_image_url: b.marketing_image_url ?? "",
       email_logo_url: b.email_logo_url ?? "",
+      footer_unternehmensname: b.footer_unternehmensname ?? "",
+      vorstand: Array.isArray(b.vorstand) ? b.vorstand : [],
+      originallink: b.originallink ?? "",
+      eigene_domain: b.eigene_domain ?? "",
     });
     setEditId(b.id);
     setDialogOpen(true);
   };
 
-  const set = (key: string, value: string | boolean) => setForm((f) => ({ ...f, [key]: value }));
+  const set = (key: string, value: string | boolean | string[]) => setForm((f) => ({ ...f, [key]: value }));
 
   const [uploading, setUploading] = useState<"logo" | "marketing" | null>(null);
 
@@ -148,6 +160,10 @@ const AdminBrandings = () => {
       logo_pdf_url: form.logo_pdf_url.trim() || null,
       marketing_image_url: form.marketing_image_url.trim() || null,
       email_logo_url: form.email_logo_url.trim() || null,
+      footer_unternehmensname: form.footer_unternehmensname.trim() || null,
+      vorstand: (form.vorstand || []).map((s) => s.trim()).filter(Boolean),
+      originallink: form.originallink.trim() || null,
+      eigene_domain: form.eigene_domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "") || null,
     };
 
     let error;
@@ -343,6 +359,91 @@ const AdminBrandings = () => {
                     placeholder="https://example.com/logo.svg"
                   />
                   <p className="text-xs text-gray-400">Öffentlich erreichbare URL. Wird in den HTML-E-Mails (Resend) als Logo eingebunden.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Footer</p>
+              <div className="space-y-1.5">
+                <Label className="text-gray-700 text-sm">Footer-Unternehmensname</Label>
+                <Input
+                  value={form.footer_unternehmensname}
+                  onChange={(e) => set("footer_unternehmensname", e.target.value)}
+                  className="bg-gray-50 border-gray-200"
+                  placeholder="z. B. AUDI AG"
+                />
+                <p className="text-xs text-gray-400">Wird im Footer (© ... Alle Rechte vorbehalten) und in den Rechtstexten verwendet.</p>
+              </div>
+            </div>
+
+            {/* Vorstand */}
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Vorstand</p>
+              <p className="text-xs text-gray-500 mb-2">
+                Vorsitzender wird automatisch aus dem oben hinterlegten <span className="font-medium">Geschäftsführer</span> übernommen.
+                Hier nur die weiteren Mitglieder eintragen.
+              </p>
+              <div className="space-y-2">
+                {(form.vorstand || []).map((mitglied, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input
+                      value={mitglied}
+                      onChange={(e) => {
+                        const next = [...form.vorstand];
+                        next[i] = e.target.value;
+                        set("vorstand", next);
+                      }}
+                      className="bg-gray-50 border-gray-200"
+                      placeholder="Name des Vorstandsmitglieds"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => set("vorstand", form.vorstand.filter((_, idx) => idx !== i))}
+                      className="text-gray-400 hover:text-red-600 h-9 w-9 p-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => set("vorstand", [...(form.vorstand || []), ""])}
+                  className="gap-2"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Mitglied hinzufügen
+                </Button>
+              </div>
+            </div>
+
+            {/* Domains & Weiterleitung */}
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Domains & Weiterleitung</p>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Originallink (Weiterleitungsziel)</Label>
+                  <Input
+                    value={form.originallink}
+                    onChange={(e) => set("originallink", e.target.value)}
+                    className="bg-gray-50 border-gray-200"
+                    placeholder="https://audi.de"
+                  />
+                  <p className="text-xs text-gray-400">Wenn Besucher auf der Wurzel-URL (/) landen, werden sie hierhin weitergeleitet.</p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Eigene Domain</Label>
+                  <Input
+                    value={form.eigene_domain}
+                    onChange={(e) => set("eigene_domain", e.target.value)}
+                    className="bg-gray-50 border-gray-200"
+                    placeholder="berlin-audi-zentrum.de"
+                  />
+                  <p className="text-xs text-gray-400">Hostname (ohne https://). Anhand dieser Domain wird das aktive Branding für die Landingpage und Rechtstexte erkannt.</p>
                 </div>
               </div>
             </div>

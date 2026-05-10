@@ -1,103 +1,85 @@
-# Schritt 1: Statische Assets / Logos pro Branding
+# Phase 2 — Audi-Hardcoding entfernen (Texte, Rechtstexte, Redirect)
 
-Ziel: Logos und das Marketing-Bild aus `public/images/` raus, hinein ins `brandings`-Schema, sodass jedes Branding (Audi, später VW, Skoda, …) eigene Assets mitbringt.
-
-## Datenbank
+## 1. Branding-Schema erweitern
 
 Neue Spalten in `brandings`:
-- `logo_pdf_url text` – Logo für PDFs **und** Fahrzeugbestand-Seite (Header, Loader, Empty-State)
-- `marketing_image_url text` – „Gebrauchtwagen :plus"-Werbebild auf Seite 1 des Angebots-PDF
-- `email_logo_url text` – externe Logo-URL für E-Mail-HTML
+- `footer_unternehmensname` (text) — z. B. "AUDI AG"
+- `vorstand` (jsonb, default `[]`) — Array von Strings, erste Person = Vorsitzender (wird allerdings aus `geschaeftsfuehrer` gespiegelt, siehe unten)
+- `originallink` (text) — z. B. `https://audi.de`
+- `eigene_domain` (text) — z. B. `berlin-audi-zentrum.de`
 
-Alle drei sind nullable (kein Default), damit alte Brandings nicht brechen.
+Seed des bestehenden „Audi Zentrum Berlin"-Brandings:
+- `footer_unternehmensname = "AUDI AG"`
+- `vorstand = ["Dieter Dehoorne","Rouven Mohr","Jürgen Rittersberger","Javier Ros Hernández","Marco Schubert","Gerd Walker"]` (Vorsitzender kommt aus `geschaeftsfuehrer`)
+- `originallink = "https://audi.de"`
+- `eigene_domain = "berlin-audi-zentrum.de"`
 
-## Storage
+## 2. AdminBrandings.tsx — neue UI-Sektionen
 
-Neuer Bucket `branding-assets` (public). RLS:
-- public SELECT
-- authenticated INSERT/UPDATE/DELETE
+- **Footer**: Eingabefeld „Footer-Unternehmensname"
+- **Vorstand**: dynamische Liste (Add/Remove-Button, beliebig viele Einträge). Hinweis-Label: „Vorsitzender = Geschäftsführer (oben)". Liste enthält nur die weiteren Mitglieder.
+- **Domains & Weiterleitung**:
+  - Eingabefeld „Originallink (Weiterleitungsziel)"
+  - Eingabefeld „Eigene Domain"
 
-## Admin-Brandings-Dialog
+## 3. `index.html` & SEO generisch
 
-In `src/pages/AdminBrandings.tsx` neue Sektion **„Logos & Bilder"**:
-- Datei-Upload „Logo (PDFs & Fahrzeugbestand-Seite)" → SVG/PNG → speichert in Bucket, schreibt public URL in `logo_pdf_url`
-- Datei-Upload „Marketing-Bild Angebots-PDF" (JPG/PNG) → `marketing_image_url`
-- Text-Input „E-Mail-Logo URL" → `email_logo_url` (kein Upload, weil Mails externe URL brauchen)
-- Vorschau der aktuellen Bilder, Button zum Entfernen
+- `<title>` → „Fahrzeugbestand"
+- Meta-Description und OG-Tags markenneutral, z. B. „Aktuelle Fahrzeuge unseres Hauses. Premium-Beratung und Service."
+- `Fahrzeugbestand.tsx` setzt via `usePageMeta` weiterhin den brand-spezifischen Titel/Description erst beim Mount der Seite.
+- `NotFound.tsx` und Rechts-Seiten: Titel-Suffix `· Audi` → `· {branding.footer_unternehmensname}` bzw. generisch entfernen wenn kein Branding-Kontext.
 
-## Bestehendes Audi-Branding seeden
+## 4. `Fahrzeugbestand.tsx` — Texte
 
-Beim Migrationsschritt:
-1. `/public/images/Audi.svg` und `/public/images/audi_gwplus.jpg` in den neuen Bucket hochladen (Script via `code--exec` mit Supabase Service-Role-Key, oder per SQL `storage.objects` direkt – sauberer ist ein kleines Upload-Script).
-2. UPDATE auf das vorhandene „Audi Zentrum Berlin"-Branding mit:
-   - `logo_pdf_url` → public URL des hochgeladenen `Audi.svg`
-   - `marketing_image_url` → public URL des hochgeladenen `audi_gwplus.jpg`
-   - `email_logo_url` → `https://www.tiemeyer.de/media/uploads/2025/06/Audi.svg` (bestehender Wert)
+- Z. 402: Kommentar `{/* Audi Header */}` entfernen
+- Z. 682 Garantie-Bullet: `"3 Jahre {brandFirstWord} Gebrauchtwagengarantie"` — `brandFirstWord = branding.name.split(" ")[0]`
+- Z. 783 Footer: `© 2026 {branding.footer_unternehmensname}. Alle Rechte vorbehalten.`
+- WLTP-Satz „Weitere Informationen zu WLTP finden Sie unter www.audi.de/wltp." entfernen
+- Meta-Description generisch ohne Markenname
 
-## Code-Anpassungen
+## 5. Rechtstexte dynamisch
 
-### PDF-Generatoren – Branding wird durchgereicht
-- `src/lib/expose-pdf.ts`: `loadAudiLogoAsBase64` ersetzen durch `loadBrandLogo(url)`. Funktionssignatur erhält bereits `branding`-Objekt → `branding.logo_pdf_url` verwenden, Fallback auf altes `/images/Audi.svg`. Header-Text `"Audi AG"` → `branding.name`.
-- `src/lib/angebot-pdf.ts`: gleiches für Logo, dazu `loadImageAsBase64("/images/audi_gwplus.jpg")` → `branding.marketing_image_url`. Header-Text `"Audi AG"` → `branding.name`. Falls `marketing_image_url` leer ist, Bildbereich überspringen.
-- `src/pages/AdminInzahlungnahme.tsx`: Selber Umbau, `branding.logo_pdf_url` nutzen, Header `branding.name`. (Bankzeile „Audi AG Bank" lassen wir vorerst, gehört zu Schritt 6/Rechtstexte.)
+Alle Seiten in `src/pages/rechtliches/*` bekommen Branding-Kontext. Da Rechts-URLs derzeit global (`/rechtliches/...`) sind und kein Seller-Slug enthalten, brauchen wir eine Quelle. **Vorschlag:** Standardmäßig das erste/aktive Branding aus `brandings` laden (per `useEffect` + Supabase-Fetch). Wenn nur ein Branding existiert → das. Mehrere → wir verwenden den `referrer`/`document.referrer`-Kontext nicht zuverlässig; daher reicht bis Multi-Brand-Routing eine Auswahl per Domain-Match (`window.location.hostname` gegen `brandings.eigene_domain`), Fallback erstes Branding.
 
-### Fahrzeugbestand-Seite
-- `src/pages/Fahrzeugbestand.tsx`: Inline-`AudiLogo`-SVG-Komponente entfernen. Stattdessen `<img src={branding?.logo_pdf_url} alt={branding?.name} />` an drei Stellen (Header weiß-invertiert über CSS-Filter `brightness-0 invert`, Loader grau über `opacity` + Filter, Empty-State). Höhe entsprechend der bisherigen `width/height`.
+Pro Seite:
+- **Impressum**: Adresse, Kontakt, Amtsgericht/HR/USt-IdNr, Geschäftsführer als Vorsitzender, Vorstandsliste aus `branding.vorstand`. Hardcoded „AUDI AG" → `branding.footer_unternehmensname`.
+- **Barrierefreiheit, Cookie-Richtlinie, Datenschutz, DSA, EU Data Act, Rechtliches**: Alle „AUDI AG" → `footer_unternehmensname`. Alle „Audi" als Markennennung im Fließtext → erstes Wort des Branding-`name` (z. B. „Volkswagen"). Spezielle Audi-URLs (`audi.de`, `myAudi`, `dsa@audi.de`, Cookie-Namen `AUDI_ENSIGHTEN_*`) bleiben **nicht** dynamisch ersetzbar — werden zu generischen Platzhaltern entfernt oder durch `branding.email` / generischen Hinweis ersetzt. Cookie-Namen-Sektion wird allgemein formuliert („marken­spezifische Tracking-Cookies").
 
-### E-Mail-Templates
-- `src/components/EmailSendDialog.tsx`: zwei `<img src="https://www.tiemeyer.de/...">` → `${branding.email_logo_url}`. Branding-Type um `email_logo_url` erweitern.
-- `src/pages/AdminEmailTemplates.tsx`: drei `<img src="https://www.tiemeyer.de/...">` → `${branding.email_logo_url}`. Da `branding` schon vom Typ `Tables<"brandings">` ist, reicht der Tausch der URL.
-- `supabase/functions/send-anfrage-email/index.ts`: Inline-Base64-Logo lassen wir bei diesem Schritt unangetastet – Edge-Function bekommt im Schritt 5 (E-Mails) eine eigene Anpassung; sonst müssen wir hier zusätzlich URL-Fetching einbauen, was das Scope sprengt. (Wenn du willst, ziehen wir es mit rein – sag kurz Bescheid.)
+## 6. Edge-Function `send-anfrage-email`
 
-### Auth-Seite
-- `src/pages/Auth.tsx`: Inline-`AudiRings`-Komponente und Text `Audi AG` ersetzen durch generischen Header, z. B. „Fahrzeug-Verkaufsplattform" mit einem neutralen Auto-Icon (lucide `Car`). Keine Markenreferenz mehr.
+- Base64-Audi-Ringe-PNG aus dem HTML-Body entfernen
+- Stattdessen `<img src="${branding.email_logo_url}">` (Branding wird in der Funktion bereits geladen — `email_logo_url` zur Selektion ergänzen)
 
-### Nicht angefasst (per User-Wunsch)
-- Admin-Layout / `AdminRingsSmall` – bleibt Audi.
-- `Gebrauchtwagen.tsx` Texte (Garantie, WLTP, Footer) – Schritt 7.
-- Rechtstexte – Schritt 6.
-- `index.html` Meta-Tags – Schritt 2.
+## 7. Landing-Redirect dynamisch (`Index.tsx`)
 
-## Technische Details
+Neue Logik auf `/`:
+1. `hostname = window.location.hostname`
+2. Supabase-Query: `brandings.select('originallink').eq('eigene_domain', hostname).maybeSingle()`
+3. Treffer → `window.location.replace(branding.originallink)`
+4. Kein Treffer (z. B. lovable.app Preview) → Fallback `https://audi.de` bleibt, oder simple Fallback-Page mit Hinweis. Konkret: Fallback = erstes Branding oder hardcoded `https://audi.de` als Notfall.
 
-### Migration (Schema)
-```sql
-ALTER TABLE public.brandings
-  ADD COLUMN logo_pdf_url text,
-  ADD COLUMN marketing_image_url text,
-  ADD COLUMN email_logo_url text;
+`vite.config.ts` `allowedHosts`/CORS bleiben in dieser Phase unverändert (oder optional erweitert) — wird in einer späteren Phase generisch gemacht.
 
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('branding-assets', 'branding-assets', true)
-ON CONFLICT (id) DO NOTHING;
+## 8. AdminLayout / AdminTelegram / AdminEmailTemplates (kleine Texte)
 
-CREATE POLICY "Public can read branding-assets"
-  ON storage.objects FOR SELECT TO anon, authenticated
-  USING (bucket_id = 'branding-assets');
+- `AdminTelegram.tsx`: Testnachricht-Text → „✅ Testnachricht von deinem Admin-Panel!"
+- `AdminLayout.tsx`: `AudiRingsSmall` SVG → ersetzt durch generisches Icon (z. B. `Building2` oder `branding.logo_pdf_url` falls global verfügbar — bleibt ansonsten neutral)
+- `AdminEmailTemplates.tsx`: AUDI-AG-Adresse im Footer → `branding.footer_unternehmensname` + Adressfelder; inline Audi-Rings-SVG → `branding.email_logo_url`
+- `AdminInzahlungnahme.tsx`: PDF-Text „Audi AG Bank" → generisch „Hausbank" oder neues Branding-Feld (falls gewünscht — **nicht in dieser Phase**, behalten als Notiz)
 
-CREATE POLICY "Auth can insert branding-assets"
-  ON storage.objects FOR INSERT TO authenticated
-  WITH CHECK (bucket_id = 'branding-assets');
+## Technische Hinweise
 
-CREATE POLICY "Auth can update branding-assets"
-  ON storage.objects FOR UPDATE TO authenticated
-  USING (bucket_id = 'branding-assets');
+- Migration: `ALTER TABLE brandings ADD COLUMN ...` für 4 neue Spalten; anschließend UPDATE für Audi-Zentrum-Berlin-Datensatz.
+- Für Rechtstexte erstellen wir einen kleinen Hook `useActiveBranding()` (lädt per Domain-Match oder erstes Branding) — wiederverwendbar.
+- Markenname-Helper: `getBrandShort(branding) = branding.name.split(" ")[0]`.
 
-CREATE POLICY "Auth can delete branding-assets"
-  ON storage.objects FOR DELETE TO authenticated
-  USING (bucket_id = 'branding-assets');
-```
+## Reihenfolge der Umsetzung
 
-### Asset-Seeding
-- Per Node-Script in `code--exec`: SVG/JPG aus `public/images/` lesen, mit Service-Role-Key in den Bucket uploaden, dann `UPDATE brandings` mit den drei URLs für „Audi Zentrum Berlin".
-
-### Komponenten-Props
-- `Fahrzeugbestand.tsx` lädt `branding` schon → einfach durchreichen.
-- `EmailSendDialog`: Props-Interface des Branding-Objekts um `email_logo_url: string | null` erweitern. Aufrufer (`AdminAnfrageDetail`) muss diese Spalte mit selektieren.
-
-## Akzeptanzkriterien
-- Audi Zentrum Berlin: Exposé-PDF, Angebots-PDF, Inzahlungnahme-PDF und Fahrzeugbestand-Seite zeigen das Audi-Logo aus dem Storage-Bucket (nicht mehr aus `/public/images`).
-- Angebots-PDF Seite 1 zeigt das GW+-Bild aus dem Storage-Bucket.
-- E-Mails (Vorschau & Versand-Dialog) zeigen das Audi-Logo aus `email_logo_url`.
-- Auth-Seite zeigt kein Audi-Logo mehr, sondern einen neutralen Header.
-- Im Branding-Dialog kann ich für ein neues Branding alle drei Assets festlegen.
+1. Migration (Spalten + Seed)
+2. AdminBrandings UI (neue Sektionen Footer, Vorstand, Domains)
+3. `useActiveBranding` Hook
+4. Fahrzeugbestand Texte + index.html + SEO
+5. Rechtstexte (7 Dateien)
+6. Edge-Function E-Mail-Logo
+7. Index.tsx Redirect-Logik
+8. Kleine Admin-Texte (Telegram, Layout, EmailTemplates)
