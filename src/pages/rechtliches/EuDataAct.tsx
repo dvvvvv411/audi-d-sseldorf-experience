@@ -86,22 +86,14 @@ export default function EuDataAct() {
 
           <p className="font-semibold mt-4">Inhaber der Daten:</p>
           <div>
-            <p>AUDI AG</p>
-            <p>Auto-Union-Str. 1</p>
-            <p>85057 Ingolstadt</p>
+            <p>{(branding as any)?.footer_unternehmensname || branding?.name}</p>
+            {branding?.strasse && <p>{branding.strasse}</p>}
+            {(branding?.plz || branding?.stadt) && <p>{branding?.plz} {branding?.stadt}</p>}
             <p>Deutschland</p>
-            <p>impressum@audi.de</p>
+            {branding?.email && <p>{branding.email}</p>}
           </div>
 
-          <p className="font-semibold mt-4">EU-Datengesetz Dienstleister, handelnd im Auftrag des Dateninhabers:</p>
-          <div>
-            <p>Volkswagen Group Info Services AG</p>
-            <p>Berliner Ring 2, 38440 Wolfsburg</p>
-            <p>E-Mail: gis-support@cariad.technology</p>
-            <p>Tel.: +49 151 44649988</p>
-          </div>
-
-          <p className="mt-4">Für jegliche Art von Kommunikation im Zusammenhang mit dem EU-Datengesetz wenden Sie sich bitte an den Dienstleister Volkswagen Group Info Services AG.</p>
+          <p className="mt-4">Für Anfragen im Zusammenhang mit dem EU-Datengesetz wenden Sie sich bitte an die oben genannten Kontaktdaten.</p>
         </div>
       </div>
     </div>
