@@ -1,50 +1,45 @@
-## Plan: Rechtstexte markenneutral machen
+## Plan: Branding-Wizard als eigene Seite
 
-Ziel: Alle verbleibenden Audi-Hardcodes in den Rechtstexten entfernen und durch markenneutrale, dynamische Inhalte ersetzen. Admin-Placeholders und der `AudiLogo`-Fallback bleiben unverändert.
+Statt Dialog wird das Hinzufügen/Bearbeiten eines Brandings auf einer eigenen Route mit Multi-Step Wizard umgesetzt.
 
-### Betroffene Dateien
+### Neue Routen (in `src/App.tsx`)
+- `/admin/brandings/neu` → Wizard im Create-Modus
+- `/admin/brandings/:id/bearbeiten` → Wizard im Edit-Modus (lädt Daten via id)
 
-1. **`src/pages/rechtliches/Barrierefreiheit.tsx`**
-   - Markenneutral umschreiben: „Audi Fahrzeuge/Partner/Konfigurator" → „unsere Fahrzeuge/Vertragspartner/Fahrzeug-Konfigurator"
-   - URLs `www.audi.de`, `audi.de/de/stories/audi-experiences/` → entfernen bzw. durch `branding.eigene_domain` ersetzen
-   - „myAudi Account"-Absatz: komplett entfernen (zu Audi-spezifisch, gibt es bei VW/Skoda nicht 1:1)
-   - „dsa@audi.de" → `branding.email`
-   - „AUDI AG" → `branding.footer_unternehmensname`
+Beide unter `AdminLayout` und durch `ProtectedRoute` geschützt.
 
-2. **`src/pages/rechtliches/CookieRichtlinie.tsx`**
-   - Adressen „AUDI AG, Auto-Union-Straße 1, …" → `branding.footer_unternehmensname` + `branding.strasse/plz/stadt`
-   - „datenschutz@audi.de" → `branding.email`
-   - „Audi Online Beratung" Sektion (Z. 312–313) → entfernen oder generisch („Online Beratung")
-   - Cookie-Tabelle mit `AUDI_ENSIGHTEN_*`, `myaudi`, `_acq_visit` etc.: → durch eine generische Standard-Cookie-Tabelle ersetzen (Session-Cookie, CSRF, Consent, Analytics-Platzhalter). Die `AUDI_ENSIGHTEN_*`-Einträge sind echte Audi-Tracker und passen für andere Marken nicht.
-   - „AUDI Gesellschaft" → „unser Unternehmen"
+### Neue Datei: `src/pages/AdminBrandingWizard.tsx`
+Eine Komponente, die per `useParams` zwischen Create und Edit unterscheidet. Übernimmt Formular-State, Validierung pro Step, Upload-Logik und finalen Save aus dem bisherigen Dialog.
 
-3. **`src/pages/rechtliches/Datenschutzinformation.tsx`**
-   - H1 „Datenschutzinformation audi.de" → „Datenschutzinformation"
-   - Komplette Datei durchgehen und Audi-spezifische Inhalte (myAudi, Konfigurator, Audi Connect, Audi Online Beratung, audi.de-URLs) markenneutral umschreiben oder entfernen
-   - Adressblöcke und Kontakt-E-Mails dynamisch aus `branding`
+#### Steps (5)
+1. **Stammdaten** — Unternehmensname, Straße, PLZ, Stadt, E-Mail (alle Pflicht)
+2. **Rechtliches** — Amtsgericht, Handelsregister, Geschäftsführer, USt-IdNr., Footer-Unternehmensname, Vorstandsmitglieder
+3. **Logos & Bilder** — Logo (PDF/Bestand), Marketing-Bild, externes E-Mail-Logo
+4. **Domains & Integrationen** — Originallink, eigene Domain, Resend (API-Key, Absender, Absendername), Seven.io (Absendername, API-Key)
+5. **Meta Pixel & Abschluss** — Pixel-Toggle + Code, Zusammenfassung der wichtigsten Felder, „Speichern"-Button
 
-4. **`src/pages/rechtliches/DigitalServicesAct.tsx`**
-   - „dsa@audi.de" → `branding.email`
-   - „Uns, der AUDI AG („Audi", „wir")" → dynamisch aus `branding.footer_unternehmensname` (Klammer-Kürzel mit `getBrandShort`)
-   - Alle weiteren „AUDI AG"/"Audi" werden bereits vom `useDynamicLegalReplacements`-Hook ersetzt — bleibt so.
+#### UI-Verhalten
+- Header mit Titel („Branding hinzufügen" / „Branding bearbeiten") und „Zurück zur Übersicht"-Link.
+- Step-Indikator oben (nummerierte Kreise mit Verbindungslinien, aktueller/abgeschlossener/offener Status).
+- Footer mit „Zurück" / „Weiter" bzw. „Speichern" auf letztem Step.
+- Pflichtfeld-Validierung pro Step vor „Weiter"; Sprung zu beliebigem bereits besuchtem Step durch Klick auf Indikator erlaubt.
+- Im Edit-Modus: bei Mount Branding via `supabase.from('brandings').select().eq('id', id).single()` laden; Loader-State.
+- Nach erfolgreichem Save: Toast + Navigate zurück nach `/admin/brandings`.
 
-5. **`src/pages/rechtliches/EuDataAct.tsx`**
-   - Analog DSA: hardcodierte E-Mails und „AUDI AG"-Klammern auflösen, Rest übernimmt der Replacement-Hook.
+### Anpassung: `src/pages/AdminBrandings.tsx`
+- Dialog inkl. komplettem Formular-Markup, `dialogOpen`, `form`, `editId`, `uploading`, `handleSave`, `uploadFile`, `set` etc. **entfernen**.
+- `openCreate` → `navigate('/admin/brandings/neu')`.
+- `openEdit(b)` → `navigate(\`/admin/brandings/${b.id}/bearbeiten\`)`.
+- Liste, Lade-State und Delete bleiben unverändert.
 
-6. **`src/pages/rechtliches/Rechtliches.tsx`**
-   - Audi-Karriere-Hinweis (Absatz „Zusätzlicher Hinweis zu den Karriere Seiten") → entfernen, da nicht mehr relevant.
+### Technische Details
+- Wiederverwendung des `branding-assets` Storage-Buckets und der bestehenden Upload-Funktion (1:1 in den Wizard übernommen).
+- Step-State: `const [step, setStep] = useState(0)` plus `visitedSteps: Set<number>` für klickbare Indikator-Schritte.
+- Validierung: kleine `validateStep(n): string | null` Funktion, die bei Fehler einen Toast mit der Pflichtfeld-Meldung zeigt.
+- Styling konsistent zum Admin-Theme (weiße Cards, `bg-gray-50` Inputs, schwarzer Primary-Button), keine neuen Tokens nötig.
+- Keine Schema-Änderungen, keine Anpassungen an anderen Seiten oder Hooks.
 
-7. **`src/hooks/useDynamicLegalReplacements.ts`**
-   - Fallback-Werte `"AUDI AG"` und `"Audi"` → durch leere Strings ersetzen, sodass nichts „Audi" stehen bleibt, wenn Branding fehlt.
-
-### Was nicht angefasst wird
-
-- `AudiLogo`-Fallback in `Fahrzeugbestand.tsx` (bleibt wie gewünscht).
-- Placeholders in `AdminBrandings.tsx` (Admin Panel bleibt unverändert).
-- `public/images/Audi.svg` und `audi_gwplus.jpg` (ungenutzt, aber nicht stören).
-
-### Vorgehen
-
-Da ein Großteil der Rechtstexte in JSX-Strings steht, schreibe ich die betroffenen Absätze direkt um (statt nur den Replacement-Hook zu erweitern). So wird das Ergebnis unabhängig vom Hook lesbar und auch in Suchmaschinen-Crawls/SSR korrekt. Der `useDynamicLegalReplacements`-Hook bleibt für die generischen Replacements (z. B. dynamische Firmierung) zusätzlich aktiv.
-
-Nach Implementierung: kurzer `grep -ri "audi"` über `src/pages/rechtliches` zur Verifikation, dass nichts übrig bleibt außer ggf. neutralen Variablennamen.
+### Nicht im Scope
+- Auto-Save / Draft-Persistenz zwischen Steps.
+- Änderungen an Datenmodell oder bestehenden Brandings.
+- Refactor der Listen-Ansicht.
