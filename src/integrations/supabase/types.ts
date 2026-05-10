@@ -142,9 +142,11 @@ export type Database = {
           absendername: string | null
           amtsgericht: string
           created_at: string
+          eigene_domain: string | null
           email: string
           email_absender: string | null
           email_logo_url: string | null
+          footer_unternehmensname: string | null
           geschaeftsfuehrer: string
           handelsregister: string
           id: string
@@ -153,6 +155,7 @@ export type Database = {
           meta_pixel_aktiv: boolean
           meta_pixel_code: string | null
           name: string
+          originallink: string | null
           plz: string
           resend_api_key: string | null
           sevenio_absendername: string | null
@@ -160,14 +163,17 @@ export type Database = {
           stadt: string
           strasse: string
           ust_id: string
+          vorstand: Json
         }
         Insert: {
           absendername?: string | null
           amtsgericht: string
           created_at?: string
+          eigene_domain?: string | null
           email: string
           email_absender?: string | null
           email_logo_url?: string | null
+          footer_unternehmensname?: string | null
           geschaeftsfuehrer: string
           handelsregister: string
           id?: string
@@ -176,6 +182,7 @@ export type Database = {
           meta_pixel_aktiv?: boolean
           meta_pixel_code?: string | null
           name: string
+          originallink?: string | null
           plz: string
           resend_api_key?: string | null
           sevenio_absendername?: string | null
@@ -183,14 +190,17 @@ export type Database = {
           stadt: string
           strasse: string
           ust_id: string
+          vorstand?: Json
         }
         Update: {
           absendername?: string | null
           amtsgericht?: string
           created_at?: string
+          eigene_domain?: string | null
           email?: string
           email_absender?: string | null
           email_logo_url?: string | null
+          footer_unternehmensname?: string | null
           geschaeftsfuehrer?: string
           handelsregister?: string
           id?: string
@@ -199,6 +209,7 @@ export type Database = {
           meta_pixel_aktiv?: boolean
           meta_pixel_code?: string | null
           name?: string
+          originallink?: string | null
           plz?: string
           resend_api_key?: string | null
           sevenio_absendername?: string | null
@@ -206,6 +217,7 @@ export type Database = {
           stadt?: string
           strasse?: string
           ust_id?: string
+          vorstand?: Json
         }
         Relationships: []
       }
