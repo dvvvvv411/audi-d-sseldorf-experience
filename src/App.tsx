@@ -10,6 +10,7 @@ import AdminLayout from "./pages/AdminLayout.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import AdminVerkaeufer from "./pages/AdminVerkaeufer.tsx";
 import AdminBrandings from "./pages/AdminBrandings.tsx";
+import AdminBrandingWizard from "./pages/AdminBrandingWizard.tsx";
 import AdminFahrzeugbestand from "./pages/AdminFahrzeugbestand.tsx";
 import AdminFahrzeugDetail from "./pages/AdminFahrzeugDetail.tsx";
 import AdminAnfragen from "./pages/AdminAnfragen.tsx";
@@ -60,6 +61,8 @@ const App = () => (
             <Route index element={<AdminDashboard />} />
             <Route path="verkaeufer" element={<AdminVerkaeufer />} />
             <Route path="brandings" element={<AdminBrandings />} />
+            <Route path="brandings/neu" element={<AdminBrandingWizard />} />
+            <Route path="brandings/:id/bearbeiten" element={<AdminBrandingWizard />} />
             <Route path="fahrzeugbestand" element={<AdminFahrzeugbestand />} />
             <Route path="fahrzeugbestand/:id" element={<AdminFahrzeugDetail />} />
             <Route path="anfragen" element={<AdminAnfragen />} />
