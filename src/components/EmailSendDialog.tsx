@@ -68,7 +68,7 @@ const filenameFromUrl = (url: string, fallback: string) => {
 };
 
 const generateServiceberichtHtml = (
-  branding: { name: string; strasse: string; plz: string; stadt: string; amtsgericht: string; handelsregister: string; geschaeftsfuehrer: string; ust_id: string },
+  branding: { name: string; strasse: string; plz: string; stadt: string; amtsgericht: string; handelsregister: string; geschaeftsfuehrer: string; ust_id: string; email_logo_url?: string | null },
   verkaeufer: { vorname: string; nachname: string; email: string; telefon: string },
   fahrzeug: { fahrzeugname: string },
   anrede: string,
