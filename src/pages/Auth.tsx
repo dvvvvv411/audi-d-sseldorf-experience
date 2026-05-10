@@ -7,16 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
-
-const AudiRings = () => (
-  <svg viewBox="0 0 200 50" className="w-36 md:w-44 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="40" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-    <circle cx="73" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-    <circle cx="106" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-    <circle cx="139" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-  </svg>
-);
+import { Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
