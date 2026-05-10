@@ -1,21 +1,33 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { useRef } from "react";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useActiveBranding } from "@/hooks/useActiveBranding";
+import { useDynamicLegalReplacements } from "@/hooks/useDynamicLegalReplacements";
 
 export default function DigitalServicesAct() {
-  usePageMeta("Digital Services Act · Audi", "Informationen zum Digital Services Act bei Audi.");
+  const { branding } = useActiveBranding();
+  const company = (branding as any)?.footer_unternehmensname || branding?.name || "";
+  usePageMeta(company ? `Digital Services Act · ${company}` : "Digital Services Act", "Informationen zum Digital Services Act.");
   const navigate = useNavigate();
+  const contentRef = useRef<HTMLDivElement>(null);
+  useDynamicLegalReplacements(contentRef);
+  const logoUrl = (branding as any)?.logo_pdf_url as string | undefined;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" ref={contentRef}>
       <div className="max-w-4xl mx-auto px-4 py-12">
         <Link to="/gebrauchtwagen" className="inline-block mb-4 hover:opacity-70 transition-opacity">
-          <svg width="80" height="28" viewBox="0 0 188 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="40" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
-            <circle cx="80" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
-            <circle cx="120" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
-            <circle cx="160" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
-          </svg>
+          {logoUrl ? (
+            <img src={logoUrl} alt="" className="h-7 w-auto" />
+          ) : (
+            <svg width="80" height="28" viewBox="0 0 188 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+              <circle cx="80" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+              <circle cx="120" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+              <circle cx="160" cy="40" r="28" stroke="black" strokeWidth="5" fill="none"/>
+            </svg>
+          )}
         </Link>
 
         <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors mb-8">

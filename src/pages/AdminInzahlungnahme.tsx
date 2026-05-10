@@ -284,7 +284,7 @@ async function generateInzahlungnahmePdf(
     doc.setFont("helvetica", "bold");
     doc.text("Bankverbindung", colX[2], fY);
     doc.setFont("helvetica", "normal");
-    doc.text("Audi AG Bank", colX[2], fY + fLineH);
+    doc.text("Hausbank", colX[2], fY + fLineH);
     doc.text("IBAN: DE72 3702", colX[2], fY + fLineH * 2.5);
     doc.text("0500 0001 0379 00", colX[2], fY + fLineH * 3.5);
     doc.text("BIC: AUIDE71XXX", colX[2], fY + fLineH * 4.5);

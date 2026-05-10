@@ -24,12 +24,7 @@ const generateAnfrageEmail = (branding: Branding, fahrzeug: Fahrzeug) => {
     <tr><td align="center" style="padding:30px 10px;">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #e0e0e0;">
         <tr><td style="background:#000000;padding:30px 40px;text-align:center;">
-          <svg viewBox="0 0 200 50" width="160" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="40" cy="25" r="20" stroke="#ffffff" stroke-width="3"/>
-            <circle cx="73" cy="25" r="20" stroke="#ffffff" stroke-width="3"/>
-            <circle cx="106" cy="25" r="20" stroke="#ffffff" stroke-width="3"/>
-            <circle cx="139" cy="25" r="20" stroke="#ffffff" stroke-width="3"/>
-          </svg>
+          ${branding.email_logo_url ? `<img src="${branding.email_logo_url}" alt="" width="160" style="display:block;margin:0 auto;filter:brightness(0) invert(1);" />` : `<span style="color:#fff;font-size:18px;font-weight:bold;letter-spacing:2px;">${branding.name}</span>`}
         </td></tr>
         <tr><td style="padding:40px;">
           <h1 style="font-size:22px;font-weight:bold;color:#000;margin:0 0 20px;">Vielen Dank für Ihre Anfrage</h1>
@@ -52,8 +47,8 @@ const generateAnfrageEmail = (branding: Branding, fahrzeug: Fahrzeug) => {
           <p style="font-size:14px;line-height:1.6;margin:0;">Mit freundlichen Grüßen<br/><strong>${branding.name}</strong></p>
         </td></tr>
         <tr><td style="padding:0 40px;"><hr style="border:none;border-top:1px solid #e0e0e0;margin:0;"/></td></tr>
-        <tr><td style="padding:20px 40px 10px;text-align:left;"><p style="font-size:12px;color:#999;margin:0;letter-spacing:0.5px;">Audi Vertriebssystem — Ein Service der AUDI AG</p></td></tr>
-        <tr><td style="padding:10px 40px 30px;"><p style="font-size:11px;color:#999;line-height:1.5;margin:0;text-align:left;">AUDI AG<br/>Auto-Union-Straße 1, 85057 Ingolstadt<br/>www.audi.de<br/><br/>AG Ingolstadt · HRB 1<br/>Vorstand: Gernot Döllner (Vorsitzender)<br/>USt-IdNr.: DE 811 115 368</p></td></tr>
+        <tr><td style="padding:20px 40px 10px;text-align:left;"><p style="font-size:12px;color:#999;margin:0;letter-spacing:0.5px;">Vertriebssystem — Ein Service der ${(branding as any).footer_unternehmensname || branding.name}</p></td></tr>
+        <tr><td style="padding:10px 40px 30px;"><p style="font-size:11px;color:#999;line-height:1.5;margin:0;text-align:left;">${(branding as any).footer_unternehmensname || branding.name}<br/>${branding.strasse}, ${branding.plz} ${branding.stadt}<br/><br/>${branding.amtsgericht} · ${branding.handelsregister}<br/>Vorstand: ${branding.geschaeftsfuehrer}<br/>USt-IdNr.: ${branding.ust_id}</p></td></tr>
       </table>
     </td></tr>
   </table>
