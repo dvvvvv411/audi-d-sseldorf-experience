@@ -279,6 +279,75 @@ const AdminBrandings = () => {
             </div>
 
             <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Logos & Bilder</p>
+              <div className="space-y-4">
+                {/* Logo PDF + Fahrzeugbestand */}
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Logo für PDFs & Fahrzeugbestand</Label>
+                  <div className="flex items-center gap-3">
+                    {form.logo_pdf_url ? (
+                      <div className="flex items-center gap-2 rounded border border-gray-200 bg-gray-50 p-2">
+                        <img src={form.logo_pdf_url} alt="" className="h-8 w-auto object-contain" />
+                        <Button type="button" variant="ghost" size="sm" onClick={() => set("logo_pdf_url", "")} className="h-6 w-6 p-0 text-gray-400 hover:text-red-600">
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    ) : null}
+                    <label className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded border border-gray-200 bg-gray-50 hover:bg-gray-100 cursor-pointer">
+                      {uploading === "logo" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      <span>{form.logo_pdf_url ? "Ersetzen" : "Hochladen"}</span>
+                      <input
+                        type="file"
+                        accept="image/svg+xml,image/png,image/jpeg"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile("logo", f); e.target.value = ""; }}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-xs text-gray-400">SVG bevorzugt. Wird im Header der Fahrzeugbestand-Seite, im Loader sowie als Logo in PDFs (Exposé, Angebot, Inzahlungnahme) genutzt.</p>
+                </div>
+
+                {/* Marketing Image */}
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Marketing-Bild (Angebots-PDF)</Label>
+                  <div className="flex items-center gap-3">
+                    {form.marketing_image_url ? (
+                      <div className="flex items-center gap-2 rounded border border-gray-200 bg-gray-50 p-2">
+                        <img src={form.marketing_image_url} alt="" className="h-12 w-auto object-contain" />
+                        <Button type="button" variant="ghost" size="sm" onClick={() => set("marketing_image_url", "")} className="h-6 w-6 p-0 text-gray-400 hover:text-red-600">
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    ) : null}
+                    <label className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded border border-gray-200 bg-gray-50 hover:bg-gray-100 cursor-pointer">
+                      {uploading === "marketing" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      <span>{form.marketing_image_url ? "Ersetzen" : "Hochladen"}</span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile("marketing", f); e.target.value = ""; }}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-xs text-gray-400">JPG/PNG. Wird im Angebots-PDF unter dem Fahrzeug eingebunden (z. B. „Gebrauchtwagen :plus").</p>
+                </div>
+
+                {/* Email Logo URL */}
+                <div className="space-y-1.5">
+                  <Label className="text-gray-700 text-sm">Externes Logo für E-Mails (URL)</Label>
+                  <Input
+                    value={form.email_logo_url}
+                    onChange={(e) => set("email_logo_url", e.target.value)}
+                    className="bg-gray-50 border-gray-200"
+                    placeholder="https://example.com/logo.svg"
+                  />
+                  <p className="text-xs text-gray-400">Öffentlich erreichbare URL. Wird in den HTML-E-Mails (Resend) als Logo eingebunden.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-4">
               <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Optional — E-Mail (Resend)</p>
               <div className="space-y-3">
                 <div className="space-y-1.5">
