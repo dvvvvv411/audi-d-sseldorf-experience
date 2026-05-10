@@ -85,6 +85,9 @@ const AdminBrandings = () => {
       sevenio_api_key: b.sevenio_api_key ?? "",
       meta_pixel_aktiv: b.meta_pixel_aktiv ?? false,
       meta_pixel_code: b.meta_pixel_code ?? "",
+      logo_pdf_url: b.logo_pdf_url ?? "",
+      marketing_image_url: b.marketing_image_url ?? "",
+      email_logo_url: b.email_logo_url ?? "",
     });
     setEditId(b.id);
     setDialogOpen(true);
