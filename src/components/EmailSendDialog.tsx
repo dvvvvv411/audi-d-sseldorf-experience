@@ -95,7 +95,7 @@ const generateServiceberichtHtml = (
           <p style="margin:4px 0 0;font-size:12px;color:#666;">${verkaeufer.telefon} · ${verkaeufer.email}</p>
         </td></tr>
         <tr><td style="padding:20px 0 0;">
-          <img src="https://www.tiemeyer.de/media/uploads/2025/06/Audi.svg" alt="Audi" width="80" style="display:block;" />
+          ${branding.email_logo_url ? `<img src="${branding.email_logo_url}" alt="" width="80" style="display:block;" />` : ""}
         </td></tr>
         <tr><td style="padding:15px 0 0;">
           <p style="font-size:10px;color:#999;line-height:1.5;margin:0;">
@@ -138,7 +138,7 @@ const generateAngebotHtml = (
           <p style="margin:4px 0 0;font-size:12px;color:#666;">${verkaeufer.telefon} · ${verkaeufer.email}</p>
         </td></tr>
         <tr><td style="padding:20px 0 0;">
-          <img src="https://www.tiemeyer.de/media/uploads/2025/06/Audi.svg" alt="Audi" width="80" style="display:block;" />
+          ${branding.email_logo_url ? `<img src="${branding.email_logo_url}" alt="" width="80" style="display:block;" />` : ""}
         </td></tr>
         <tr><td style="padding:15px 0 0;">
           <p style="font-size:10px;color:#999;line-height:1.5;margin:0;">
