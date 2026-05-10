@@ -22,6 +22,7 @@ interface Branding {
   plz: string;
   stadt: string;
   email: string;
+  logo_pdf_url?: string | null;
 }
 
 async function loadAudiLogoAsBase64(): Promise<string | null> {
