@@ -96,12 +96,16 @@ const AdminBrandings = () => {
       logo_pdf_url: b.logo_pdf_url ?? "",
       marketing_image_url: b.marketing_image_url ?? "",
       email_logo_url: b.email_logo_url ?? "",
+      footer_unternehmensname: b.footer_unternehmensname ?? "",
+      vorstand: Array.isArray(b.vorstand) ? b.vorstand : [],
+      originallink: b.originallink ?? "",
+      eigene_domain: b.eigene_domain ?? "",
     });
     setEditId(b.id);
     setDialogOpen(true);
   };
 
-  const set = (key: string, value: string | boolean) => setForm((f) => ({ ...f, [key]: value }));
+  const set = (key: string, value: string | boolean | string[]) => setForm((f) => ({ ...f, [key]: value }));
 
   const [uploading, setUploading] = useState<"logo" | "marketing" | null>(null);
 
@@ -156,6 +160,10 @@ const AdminBrandings = () => {
       logo_pdf_url: form.logo_pdf_url.trim() || null,
       marketing_image_url: form.marketing_image_url.trim() || null,
       email_logo_url: form.email_logo_url.trim() || null,
+      footer_unternehmensname: form.footer_unternehmensname.trim() || null,
+      vorstand: (form.vorstand || []).map((s) => s.trim()).filter(Boolean),
+      originallink: form.originallink.trim() || null,
+      eigene_domain: form.eigene_domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "") || null,
     };
 
     let error;
