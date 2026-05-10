@@ -144,9 +144,12 @@ export type Database = {
           created_at: string
           email: string
           email_absender: string | null
+          email_logo_url: string | null
           geschaeftsfuehrer: string
           handelsregister: string
           id: string
+          logo_pdf_url: string | null
+          marketing_image_url: string | null
           meta_pixel_aktiv: boolean
           meta_pixel_code: string | null
           name: string
@@ -164,9 +167,12 @@ export type Database = {
           created_at?: string
           email: string
           email_absender?: string | null
+          email_logo_url?: string | null
           geschaeftsfuehrer: string
           handelsregister: string
           id?: string
+          logo_pdf_url?: string | null
+          marketing_image_url?: string | null
           meta_pixel_aktiv?: boolean
           meta_pixel_code?: string | null
           name: string
@@ -184,9 +190,12 @@ export type Database = {
           created_at?: string
           email?: string
           email_absender?: string | null
+          email_logo_url?: string | null
           geschaeftsfuehrer?: string
           handelsregister?: string
           id?: string
+          logo_pdf_url?: string | null
+          marketing_image_url?: string | null
           meta_pixel_aktiv?: boolean
           meta_pixel_code?: string | null
           name?: string
