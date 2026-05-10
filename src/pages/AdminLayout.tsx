@@ -2,6 +2,7 @@ import { useNavigate, useLocation, Outlet, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, LogOut, Menu, Users, Building2, Car, MessageSquare, Mail, FileText, Receipt, MessageCircle, CarFront, Send, Inbox } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useActiveBranding } from "@/hooks/useActiveBranding";
 
 const RESTRICTED_USER_ID = "0bc8bcc6-3555-4888-80b5-8a74df8a6873";
 
@@ -15,14 +16,12 @@ const RESTRICTED_ALLOWED_PATHS = [
 const isAllowedForRestricted = (path: string) =>
   RESTRICTED_ALLOWED_PATHS.some((p) => p === path || path.startsWith(p + "/"));
 
-const AudiRingsSmall = () => (
-  <svg viewBox="0 0 200 50" className="w-20 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="40" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-    <circle cx="73" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-    <circle cx="106" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-    <circle cx="139" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-  </svg>
-);
+const BrandLogo = ({ logoUrl, name }: { logoUrl?: string | null; name?: string | null }) => {
+  if (logoUrl) {
+    return <img src={logoUrl} alt="" className="h-7 w-auto brightness-0 invert" />;
+  }
+  return <span className="text-white text-base font-semibold tracking-wide">{name || "Admin"}</span>;
+};
 
 const mainNav = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
