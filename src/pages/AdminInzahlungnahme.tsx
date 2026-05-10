@@ -96,21 +96,21 @@ async function generateInzahlungnahmePdf(
     doc.line(marginL, yPos, pageW - marginR, yPos);
   };
 
-  const audiLogo = await loadAudiLogoAsBase64();
+  const brandLogo = await loadBrandLogoAsBase64(branding.logo_pdf_url);
 
   let y = 15;
 
-  // ── Header: Audi Logo top right ──
-  if (audiLogo) {
+  // ── Header: Brand Logo top right ──
+  if (brandLogo) {
     const logoH = 12;
     const logoW = logoH * (284 / 99);
-    doc.addImage(audiLogo, "PNG", pageW - marginR - logoW, 12, logoW, logoH);
+    doc.addImage(brandLogo, "PNG", pageW - marginR - logoW, 12, logoW, logoH);
   }
 
   // Branding address
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  doc.text("Audi AG", marginL, y);
+  doc.text(branding.name, marginL, y);
   y += 4;
   doc.text(branding.strasse, marginL, y);
   y += 4;
