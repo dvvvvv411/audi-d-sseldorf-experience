@@ -131,22 +131,22 @@ export async function generateAngebotPdf(
     doc.line(marginL, yPos, pageW - marginR, yPos);
   };
 
-  const [audiLogo, gwPlusImg] = await Promise.all([
-    loadAudiLogoAsBase64(),
-    loadImageAsBase64("/images/audi_gwplus.jpg"),
+  const [brandLogo, gwPlusImg] = await Promise.all([
+    loadBrandLogoAsBase64(branding.logo_pdf_url),
+    branding.marketing_image_url ? loadImageAsBase64(branding.marketing_image_url) : Promise.resolve(null),
   ]);
 
   // SEITE 1 – Deckblatt
   let y = 15;
-  if (audiLogo) {
+  if (brandLogo) {
     const logoH = 12;
     const logoW = logoH * (284 / 99);
-    doc.addImage(audiLogo, "PNG", pageW - marginR - logoW, 12, logoW, logoH);
+    doc.addImage(brandLogo, "PNG", pageW - marginR - logoW, 12, logoW, logoH);
   }
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  doc.text("Audi AG", marginL, y); y += 4;
+  doc.text(branding.name, marginL, y); y += 4;
   doc.text(branding.strasse, marginL, y); y += 4;
   doc.text(`${branding.plz} ${branding.stadt}`, marginL, y); y += 8;
 
