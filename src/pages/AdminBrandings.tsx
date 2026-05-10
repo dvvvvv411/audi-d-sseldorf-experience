@@ -123,6 +123,9 @@ const AdminBrandings = () => {
       sevenio_api_key: form.sevenio_api_key.trim() || null,
       meta_pixel_aktiv: !!form.meta_pixel_aktiv,
       meta_pixel_code: form.meta_pixel_aktiv ? (form.meta_pixel_code.trim() || null) : null,
+      logo_pdf_url: form.logo_pdf_url.trim() || null,
+      marketing_image_url: form.marketing_image_url.trim() || null,
+      email_logo_url: form.email_logo_url.trim() || null,
     };
 
     let error;
