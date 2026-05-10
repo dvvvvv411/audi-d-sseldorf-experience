@@ -157,29 +157,15 @@ export default function CookieRichtlinie() {
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-3">4. Services von Dritten</h2>
 
-            <h3 className="font-semibold text-gray-800 mt-6 mb-2">a. Ensighten Privacy Manager</h3>
-            <p>Wir nutzen den Ensighten Privacy Manager, der uns dabei hilft, die auf der Webseite benutzten Cookies zu verwalten. Der Ensighten Privacy Manager verwendet Cookies, um Information darüber zu speichern, ob und wenn ja, für welche Kategorien von Cookies die Benutzer ihre Einwilligung erteilt haben.</p>
-            <p className="mt-2">In diesem Zusammenhang werden folgende Daten verarbeitet: IP-Adresse, User Agent, URL, Referrer URL, Zeitstempel, Liste der Server Calls, Datenschutzrechtlich relevante Cookies, Datenschutzrechtlich relevante Ereignisse.</p>
-            <p className="mt-2">Die Rechtsgrundlage für eine solche Verarbeitung personenbezogener Daten ist unser berechtigtes Interesse gemäß Art. 6 Abs. 1 lit. f) DSGVO.</p>
-            <p className="mt-2">Der Ensighten Privacy Manager wird bereitgestellt von unserem Dienstleister Tagman Ltd., 2 Riding House Street, London W1W 7FA, Vereinigtes Königreich, der als unser Auftragsverarbeiter eingesetzt wird.</p>
-            <p className="mt-2">Die vom Ensighten Privacy Manager gespeicherten Daten werden gelöscht, wenn die Daten für unsere oben genannten Zwecke nicht mehr gebraucht werden. Das ist nach drei Jahren der Fall.</p>
+            <h3 className="font-semibold text-gray-800 mt-6 mb-2">a. Consent Management</h3>
+            <p>Wir nutzen ein Consent-Management-Tool, das uns dabei hilft, die auf der Webseite eingesetzten Cookies zu verwalten. Es speichert Informationen darüber, ob und für welche Kategorien von Cookies die Nutzer ihre Einwilligung erteilt haben.</p>
+            <p className="mt-2">Die Rechtsgrundlage für eine solche Verarbeitung ist unser berechtigtes Interesse gemäß Art. 6 Abs. 1 lit. f) DSGVO sowie ggf. Ihre Einwilligung nach Art. 6 Abs. 1 lit. a) DSGVO.</p>
 
-            <h3 className="font-semibold text-gray-800 mt-6 mb-2">b. Audi Online Beratung</h3>
-            <p>Wir nutzen die Audi Online Beratung, um Ihnen eine optimale Beratung im Rahmen Ihres Besuches auf unseren Webseiten sowie den Webseiten unserer Audi Partner anbieten zu können. Die Audi Online Beratung verwendet Cookies, um Nutzer wiederzuerkennen.</p>
-            <p className="mt-2">In diesem Zusammenhang werden folgende Daten verarbeitet: Eindeutige Nutzer-ID, Status ob der Nutzer die automatische Pop Up Message schon geschlossen hat oder nicht.</p>
-            <p className="mt-2">Die Rechtsgrundlage ist Ihre Einwilligung gemäß Art. 6 Abs. 1 lit. a) DSGVO. Die Daten werden nach 30 Minuten gelöscht.</p>
+            <h3 className="font-semibold text-gray-800 mt-6 mb-2">b. Webanalyse</h3>
+            <p>Sofern aktiviert, setzen wir Webanalyse-Werkzeuge (z. B. Google Analytics, Matomo o. Ä.) ein, um Interaktionen auf unserer Webseite anonymisiert auszuwerten und unser Angebot zu verbessern. Die Rechtsgrundlage ist Ihre Einwilligung gemäß Art. 6 Abs. 1 lit. a) DSGVO.</p>
 
-            <h3 className="font-semibold text-gray-800 mt-6 mb-2">c. Adobe Analytics</h3>
-            <p>Wir nutzen das Analysetool Adobe Analytics auf unserer Webseite. Adobe Analytics wird von Adobe Systems Software Ireland Limited, 4-6 Riverwalk, Citywest Business Campus, Dublin 24, Irland, bereitgestellt. Adobe Analytics nutzt Cookies, um Interaktionen von Nutzern der Webseite aufzuzeichnen und systematisch auszuwerten.</p>
-            <p className="mt-2">In diesem Zusammenhang werden folgende Daten gesammelt: IP-Adresse des Nutzers (anonymisiert), eindeutige Nutzer-ID, eindeutige Login ID, Klickverhalten, aufgerufene Unterseiten, Browser Typ, URL, Bildschirmauflösung, Zeitstempel.</p>
-            <p className="mt-2">Die IP-Adresse wird vor der Speicherung anonymisiert. Die Rechtsgrundlage ist Ihre Einwilligung gemäß Art. 6 Abs. 1 lit. a) DSGVO. Die Daten werden nach 24 Monaten gelöscht.</p>
-
-            <h3 className="font-semibold text-gray-800 mt-6 mb-2">d. Adobe Target</h3>
-            <p>Wir nutzen das Test- und Personalisierungstool Adobe Target, um Ihr Nutzererlebnis zu verbessern und für Sie relevantere Inhalte auf dieser Webseite anzuzeigen. Adobe Target wird von Adobe Systems Software Ireland Limited bereitgestellt.</p>
-            <p className="mt-2">Die Rechtsgrundlage ist Ihre Einwilligung gemäß Art. 6 Abs. 1 lit. a) DSGVO. Die Daten werden nach 90 Tagen ohne Webseiteninteraktion gelöscht.</p>
-
-            <h3 className="font-semibold text-gray-800 mt-6 mb-2">e. User Tracking und nutzungsbasierte Online-Werbung</h3>
-            <p>Informationen hierzu finden Sie in unserem Datenschutzhinweis unter 2.8</p>
+            <h3 className="font-semibold text-gray-800 mt-6 mb-2">c. Marketing &amp; Retargeting</h3>
+            <p>Sofern aktiviert, setzen wir Marketing- und Retargeting-Tools (z. B. Meta Pixel, Google Ads) ein, um Ihnen relevante Inhalte und Werbeanzeigen auszuspielen. Die Rechtsgrundlage ist Ihre Einwilligung gemäß Art. 6 Abs. 1 lit. a) DSGVO.</p>
           </div>
 
           <div>
@@ -194,12 +180,11 @@ export default function CookieRichtlinie() {
 
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-3">Kontaktieren Sie uns</h2>
-            <p>Unser Datenschutzbeauftragter ist Ihre Kontaktperson für alle datenschutzrechtlichen Angelegenheiten und ist verfügbar, um Sie bei der Ausübung Ihrer Rechte zu unterstützen. Bitte richten Sie Ihre Einsendungen an:</p>
-            <p className="mt-2">AUDI AG Datenschutzbeauftragter, Auto-Union-Straße 1, 85045 Ingolstadt, Deutschland</p>
-            <p className="mt-1">datenschutz@audi.de</p>
+            <p>Bei datenschutzrechtlichen Angelegenheiten richten Sie Ihre Anfrage bitte an:</p>
+            <p className="mt-2">{(branding as any)?.footer_unternehmensname || branding?.name}{branding?.strasse ? `, ${branding.strasse}, ${branding.plz ?? ""} ${branding.stadt ?? ""}` : ""}</p>
+            {branding?.email && <p className="mt-1">{branding.email}</p>}
           </div>
 
-          <p className="mt-8 text-xs text-gray-400">Cookie Richtlinie datierend 01/2023</p>
           <p className="text-xs text-gray-400">*First-Party Cookies: First-Party Cookies werden von Browsern nicht domainübergreifend zugänglich gemacht.</p>
         </div>
       </div>
