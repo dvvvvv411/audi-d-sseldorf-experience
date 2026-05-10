@@ -51,23 +51,37 @@ export function generateAngebotNr(): string {
   return `${yy}${mm}${dd}${rand}`;
 }
 
-async function loadAudiLogoAsBase64(): Promise<string | null> {
+async function loadBrandLogoAsBase64(url: string | null | undefined): Promise<string | null> {
+  if (!url) return null;
   try {
-    const response = await fetch("/images/Audi.svg");
-    const svgText = await response.text();
-    const img = new Image();
+    const response = await fetch(url);
+    const contentType = response.headers.get("content-type") || "";
+    const isSvg = contentType.includes("svg") || url.toLowerCase().endsWith(".svg");
+    if (isSvg) {
+      const svgText = await response.text();
+      const img = new Image();
+      return new Promise((resolve) => {
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const w = img.naturalWidth || 800;
+          const h = img.naturalHeight || Math.round(w * (99 / 284));
+          canvas.width = w * 2;
+          canvas.height = h * 2;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/png"));
+        };
+        img.onerror = () => resolve(null);
+        const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+        img.src = URL.createObjectURL(blob);
+      });
+    }
+    const blob = await response.blob();
     return new Promise((resolve) => {
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = 800;
-        canvas.height = Math.round(800 * (99 / 284));
-        const ctx = canvas.getContext("2d")!;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/png"));
-      };
-      img.onerror = () => resolve(null);
-      const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
-      img.src = URL.createObjectURL(blob);
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
     });
   } catch {
     return null;
