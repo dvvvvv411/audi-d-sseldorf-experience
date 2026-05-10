@@ -95,6 +95,28 @@ const AdminBrandings = () => {
 
   const set = (key: string, value: string | boolean) => setForm((f) => ({ ...f, [key]: value }));
 
+  const [uploading, setUploading] = useState<"logo" | "marketing" | null>(null);
+
+  const uploadFile = async (kind: "logo" | "marketing", file: File) => {
+    setUploading(kind);
+    const ext = file.name.split(".").pop() || "bin";
+    const path = `${kind}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("branding-assets").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type || undefined,
+    });
+    if (error) {
+      toast.error("Upload fehlgeschlagen: " + error.message);
+      setUploading(null);
+      return;
+    }
+    const { data } = supabase.storage.from("branding-assets").getPublicUrl(path);
+    if (kind === "logo") set("logo_pdf_url", data.publicUrl);
+    else set("marketing_image_url", data.publicUrl);
+    setUploading(null);
+  };
+
   const handleSave = async () => {
     if (!form.name || !form.strasse || !form.plz || !form.stadt || !form.email || !form.amtsgericht || !form.handelsregister || !form.geschaeftsfuehrer || !form.ust_id) {
       toast.error("Bitte alle Pflichtfelder ausfüllen");
