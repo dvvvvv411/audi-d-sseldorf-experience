@@ -233,7 +233,7 @@ export default function Fahrzeugbestand() {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
         <div className="animate-pulse opacity-40">
-          <AudiLogo fill="#999" width={80} height={28} />
+          <BrandLogo logoUrl={branding?.logo_pdf_url} fallbackFill="#999" width={80} height={28} className="grayscale opacity-60" />
         </div>
         <p className="text-xs text-gray-400">Wird geladen...</p>
       </div>
