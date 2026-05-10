@@ -34,6 +34,32 @@ const AudiLogo = ({ fill = "black", width = 100, height = 35 }: { fill?: string;
   </svg>
 );
 
+const BrandLogo = ({
+  logoUrl,
+  fallbackFill = "black",
+  width = 100,
+  height = 35,
+  className,
+}: {
+  logoUrl?: string | null;
+  fallbackFill?: string;
+  width?: number;
+  height?: number;
+  className?: string;
+}) => {
+  if (logoUrl) {
+    return (
+      <img
+        src={logoUrl}
+        alt=""
+        style={{ width, height, objectFit: "contain" }}
+        className={className}
+      />
+    );
+  }
+  return <AudiLogo fill={fallbackFill} width={width} height={height} />;
+};
+
 function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug: string }) {
   const specs = [
     { icon: Car, label: "Gebrauchtwagen" },
