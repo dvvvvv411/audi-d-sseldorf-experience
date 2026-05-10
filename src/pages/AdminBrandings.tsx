@@ -9,7 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil, Loader2, Building2 } from "lucide-react";
+import { Plus, Trash2, Pencil, Loader2, Building2, Upload, X } from "lucide-react";
 
 type Branding = {
   id: string;
@@ -29,6 +29,9 @@ type Branding = {
   sevenio_api_key: string | null;
   meta_pixel_aktiv: boolean | null;
   meta_pixel_code: string | null;
+  logo_pdf_url: string | null;
+  marketing_image_url: string | null;
+  email_logo_url: string | null;
 };
 
 const emptyForm = {
@@ -38,6 +41,9 @@ const emptyForm = {
   sevenio_api_key: "",
   meta_pixel_aktiv: false,
   meta_pixel_code: "",
+  logo_pdf_url: "",
+  marketing_image_url: "",
+  email_logo_url: "",
 };
 
 const AdminBrandings = () => {
