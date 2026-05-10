@@ -251,7 +251,7 @@ export default function Fahrzeugbestand() {
               className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
               aria-label="Nach oben scrollen"
             >
-              <AudiLogo />
+              <BrandLogo logoUrl={branding?.logo_pdf_url} width={100} height={35} />
             </button>
             {branding?.name && (
               <>
