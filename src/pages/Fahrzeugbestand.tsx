@@ -34,7 +34,34 @@ const AudiLogo = ({ fill = "black", width = 100, height = 35 }: { fill?: string;
   </svg>
 );
 
-function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug: string }) {
+const BrandLogo = ({
+  logoUrl,
+  fallbackFill = "black",
+  width = 100,
+  height = 35,
+  className,
+}: {
+  logoUrl?: string | null;
+  fallbackFill?: string;
+  width?: number;
+  height?: number;
+  className?: string;
+}) => {
+  if (logoUrl) {
+    return (
+      <img
+        src={logoUrl}
+        alt=""
+        style={{ width, height, objectFit: "contain" }}
+        className={className}
+      />
+    );
+  }
+  return <AudiLogo fill={fallbackFill} width={width} height={height} />;
+};
+
+function FahrzeugCard({ fahrzeug, sellerSlug, logoUrl }: { fahrzeug: Fahrzeug; sellerSlug: string; logoUrl?: string | null }) {
+  const brandLogoUrlForCard = logoUrl;
   const specs = [
     { icon: Car, label: "Gebrauchtwagen" },
     { icon: Gauge, label: fahrzeug.km_stand ? `${formatKm(fahrzeug.km_stand)} km` : "–" },
@@ -60,7 +87,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
         )}
         {/* Branding bar */}
         <div className="absolute bottom-0 left-0 right-0 bg-black/80 px-3 py-1.5 flex items-center gap-2">
-          <AudiLogo fill="white" width={48} height={17} />
+          <BrandLogo logoUrl={brandLogoUrlForCard} fallbackFill="white" width={48} height={17} className="brightness-0 invert" />
           <span className="text-white text-[10px] tracking-wider uppercase">Gebrauchtwagen</span>
         </div>
       </div>
@@ -206,7 +233,7 @@ export default function Fahrzeugbestand() {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
         <div className="animate-pulse opacity-40">
-          <AudiLogo fill="#999" width={80} height={28} />
+          <BrandLogo logoUrl={branding?.logo_pdf_url} fallbackFill="#999" width={80} height={28} className="grayscale opacity-60" />
         </div>
         <p className="text-xs text-gray-400">Wird geladen...</p>
       </div>
@@ -224,7 +251,7 @@ export default function Fahrzeugbestand() {
               className="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
               aria-label="Nach oben scrollen"
             >
-              <AudiLogo />
+              <BrandLogo logoUrl={branding?.logo_pdf_url} width={100} height={35} />
             </button>
             {branding?.name && (
               <>
@@ -316,7 +343,7 @@ export default function Fahrzeugbestand() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {fahrzeuge.map((f, index) => (
               <div key={f.id} className="opacity-0 animate-fade-in" style={{ animationDelay: `${index * 80}ms` }}>
-                <FahrzeugCard fahrzeug={f} sellerSlug={vfMap[f.id] || "markus_heber"} />
+                <FahrzeugCard fahrzeug={f} sellerSlug={vfMap[f.id] || "markus_heber"} logoUrl={branding?.logo_pdf_url} />
               </div>
             ))}
           </div>

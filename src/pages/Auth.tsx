@@ -7,16 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
-
-const AudiRings = () => (
-  <svg viewBox="0 0 200 50" className="w-36 md:w-44 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="40" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-    <circle cx="73" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-    <circle cx="106" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-    <circle cx="139" cy="25" r="20" stroke="currentColor" strokeWidth="3" />
-  </svg>
-);
+import { Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -90,12 +81,12 @@ const Auth = () => {
         <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-white/[0.03] to-transparent" />
 
         <div className="relative z-10 flex flex-col items-center text-center gap-6">
-          <AudiRings />
+          <ShieldCheck className="w-16 h-16 text-white/80" strokeWidth={1.2} />
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight">
-            Audi <span className="font-semibold">AG</span>
+            Verwaltungs<span className="font-semibold">portal</span>
           </h1>
           <p className="text-white/50 text-sm md:text-base tracking-[0.25em] uppercase font-light">
-            Verwaltungsportal
+            Fahrzeug-Vertriebssystem
           </p>
           <div className="mt-4 w-16 h-px bg-white/20" />
           <p className="text-white/30 text-xs max-w-xs leading-relaxed hidden lg:block">
