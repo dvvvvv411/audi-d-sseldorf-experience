@@ -60,7 +60,7 @@ function FahrzeugCard({ fahrzeug, sellerSlug }: { fahrzeug: Fahrzeug; sellerSlug
         )}
         {/* Branding bar */}
         <div className="absolute bottom-0 left-0 right-0 bg-black/80 px-3 py-1.5 flex items-center gap-2">
-          <AudiLogo fill="white" width={48} height={17} />
+          <BrandLogo logoUrl={brandLogoUrlForCard} fallbackFill="white" width={48} height={17} className="brightness-0 invert" />
           <span className="text-white text-[10px] tracking-wider uppercase">Gebrauchtwagen</span>
         </div>
       </div>
