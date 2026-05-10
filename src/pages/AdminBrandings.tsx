@@ -32,6 +32,10 @@ type Branding = {
   logo_pdf_url: string | null;
   marketing_image_url: string | null;
   email_logo_url: string | null;
+  footer_unternehmensname: string | null;
+  vorstand: string[] | null;
+  originallink: string | null;
+  eigene_domain: string | null;
 };
 
 const emptyForm = {
@@ -44,6 +48,10 @@ const emptyForm = {
   logo_pdf_url: "",
   marketing_image_url: "",
   email_logo_url: "",
+  footer_unternehmensname: "",
+  vorstand: [] as string[],
+  originallink: "",
+  eigene_domain: "",
 };
 
 const AdminBrandings = () => {
