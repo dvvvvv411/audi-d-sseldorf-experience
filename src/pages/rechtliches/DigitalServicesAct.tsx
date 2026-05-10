@@ -42,7 +42,7 @@ export default function DigitalServicesAct() {
 
           <p>Angaben zur Verordnung (EU) 2022/2065 des Europäischen Parlaments und des Rates vom 19. Oktober 2022 über einen Binnenmarkt für digitale Dienste und zur Änderung der Richtlinie 2000/31/EG (Digital Services Act).</p>
 
-          <p>Uns, der AUDI AG („Audi", „wir"), ist ein sicheres, faires und vertrauenswürdiges Online-Umfeld sehr wichtig. Wir möchten daher Nutzer/innen unserer Vermittlungsdienste im Sinne von Art. 3 lit. g) DSA wie folgt informieren:</p>
+          <p>Uns ist ein sicheres, faires und vertrauenswürdiges Online-Umfeld sehr wichtig. Wir möchten daher Nutzer/innen unserer Vermittlungsdienste im Sinne von Art. 3 lit. g) DSA wie folgt informieren:</p>
 
           <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-3">1. Was ist der DSA?</h2>
           <p>Der DSA ist ein neues Gesetz der EU, das für mehr Sicherheit und Fairness im digitalen Umfeld sorgen soll.</p>
