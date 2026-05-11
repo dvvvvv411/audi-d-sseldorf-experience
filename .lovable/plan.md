@@ -1,45 +1,21 @@
-## Plan: Branding-Wizard als eigene Seite
+## Fix: Logo in Anfrage-Bestätigungsmail weiß einfärben
 
-Statt Dialog wird das Hinzufügen/Bearbeiten eines Brandings auf einer eigenen Route mit Multi-Step Wizard umgesetzt.
+**Problem:** In `supabase/functions/send-anfrage-email/index.ts` (Zeile 23–25) wird das Logo aus `branding.email_logo_url` in einer schwarzen Header-Leiste (`background:#000000`) eingefügt. Da das hinterlegte Logo selbst schwarz ist, ist es unsichtbar (black on black).
 
-### Neue Routen (in `src/App.tsx`)
-- `/admin/brandings/neu` → Wizard im Create-Modus
-- `/admin/brandings/:id/bearbeiten` → Wizard im Edit-Modus (lädt Daten via id)
+**Lösung:**
+Inline-CSS-Filter am `<img>`-Tag ergänzen, der jedes Logo (auch schwarzes) zu weiß umrechnet:
 
-Beide unter `AdminLayout` und durch `ProtectedRoute` geschützt.
+```html
+style="max-height:50px;max-width:200px;height:auto;display:inline-block;
+       filter:brightness(0) invert(1);-webkit-filter:brightness(0) invert(1);"
+```
 
-### Neue Datei: `src/pages/AdminBrandingWizard.tsx`
-Eine Komponente, die per `useParams` zwischen Create und Edit unterscheidet. Übernimmt Formular-State, Validierung pro Step, Upload-Logik und finalen Save aus dem bisherigen Dialog.
+`brightness(0)` macht alle Pixel schwarz, `invert(1)` kehrt sie zu weiß — funktioniert unabhängig von der Originalfarbe (auch bei farbigen Logos).
 
-#### Steps (5)
-1. **Stammdaten** — Unternehmensname, Straße, PLZ, Stadt, E-Mail (alle Pflicht)
-2. **Rechtliches** — Amtsgericht, Handelsregister, Geschäftsführer, USt-IdNr., Footer-Unternehmensname, Vorstandsmitglieder
-3. **Logos & Bilder** — Logo (PDF/Bestand), Marketing-Bild, externes E-Mail-Logo
-4. **Domains & Integrationen** — Originallink, eigene Domain, Resend (API-Key, Absender, Absendername), Seven.io (Absendername, API-Key)
-5. **Meta Pixel & Abschluss** — Pixel-Toggle + Code, Zusammenfassung der wichtigsten Felder, „Speichern"-Button
+**Kompatibilität:** CSS-Filter werden in Apple Mail, iOS Mail, modernen Gmail-Web/Mobile-Clients und Thunderbird unterstützt. In Outlook 2016–2021 (Word-Renderer) wird `filter` ignoriert; dort fällt das Logo auf das Original (schwarz) zurück und ist dann nicht sichtbar. Falls Outlook-Support kritisch ist, müsste stattdessen eine weiße Logo-Variante hochgeladen werden — nicht in diesem Plan.
 
-#### UI-Verhalten
-- Header mit Titel („Branding hinzufügen" / „Branding bearbeiten") und „Zurück zur Übersicht"-Link.
-- Step-Indikator oben (nummerierte Kreise mit Verbindungslinien, aktueller/abgeschlossener/offener Status).
-- Footer mit „Zurück" / „Weiter" bzw. „Speichern" auf letztem Step.
-- Pflichtfeld-Validierung pro Step vor „Weiter"; Sprung zu beliebigem bereits besuchtem Step durch Klick auf Indikator erlaubt.
-- Im Edit-Modus: bei Mount Branding via `supabase.from('brandings').select().eq('id', id).single()` laden; Loader-State.
-- Nach erfolgreichem Save: Toast + Navigate zurück nach `/admin/brandings`.
+**Änderung:**
+- 1 Zeile in `supabase/functions/send-anfrage-email/index.ts` (Image-Style erweitern)
+- Anschließend `send-anfrage-email` redeployen
 
-### Anpassung: `src/pages/AdminBrandings.tsx`
-- Dialog inkl. komplettem Formular-Markup, `dialogOpen`, `form`, `editId`, `uploading`, `handleSave`, `uploadFile`, `set` etc. **entfernen**.
-- `openCreate` → `navigate('/admin/brandings/neu')`.
-- `openEdit(b)` → `navigate(\`/admin/brandings/${b.id}/bearbeiten\`)`.
-- Liste, Lade-State und Delete bleiben unverändert.
-
-### Technische Details
-- Wiederverwendung des `branding-assets` Storage-Buckets und der bestehenden Upload-Funktion (1:1 in den Wizard übernommen).
-- Step-State: `const [step, setStep] = useState(0)` plus `visitedSteps: Set<number>` für klickbare Indikator-Schritte.
-- Validierung: kleine `validateStep(n): string | null` Funktion, die bei Fehler einen Toast mit der Pflichtfeld-Meldung zeigt.
-- Styling konsistent zum Admin-Theme (weiße Cards, `bg-gray-50` Inputs, schwarzer Primary-Button), keine neuen Tokens nötig.
-- Keine Schema-Änderungen, keine Anpassungen an anderen Seiten oder Hooks.
-
-### Nicht im Scope
-- Auto-Save / Draft-Persistenz zwischen Steps.
-- Änderungen an Datenmodell oder bestehenden Brandings.
-- Refactor der Listen-Ansicht.
+Keine weiteren Files betroffen. Andere Templates (z. B. `send-template-email`) bleiben unverändert.

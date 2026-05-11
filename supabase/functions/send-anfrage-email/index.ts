@@ -21,7 +21,7 @@ function generateAnfrageEmail(
     <tr><td align="center" style="padding:30px 10px;">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #e0e0e0;">
         <tr><td style="background:#000000;padding:30px 40px;text-align:center;">
-          ${branding.email_logo_url ? `<img src="${branding.email_logo_url}" alt="${branding.name}" style="max-height:50px;max-width:200px;height:auto;display:inline-block;" />` : `<span style="color:#fff;font-size:18px;font-weight:600;letter-spacing:2px;">${branding.name}</span>`}
+          ${branding.email_logo_url ? `<img src="${branding.email_logo_url}" alt="${branding.name}" style="max-height:50px;max-width:200px;height:auto;display:inline-block;filter:brightness(0) invert(1);-webkit-filter:brightness(0) invert(1);" />` : `<span style="color:#fff;font-size:18px;font-weight:600;letter-spacing:2px;">${branding.name}</span>`}
         </td></tr>
         <tr><td style="padding:40px;">
           <h1 style="font-size:22px;font-weight:bold;color:#000;margin:0 0 20px;">Vielen Dank für Ihre Anfrage</h1>
