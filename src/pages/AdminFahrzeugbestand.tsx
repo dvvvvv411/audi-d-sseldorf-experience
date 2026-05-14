@@ -81,6 +81,60 @@ const AdminFahrzeugbestand = () => {
   const [bilder, setBilder] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+
+  const handlePdfFile = async (file: File) => {
+    if (!file || file.type !== "application/pdf") {
+      toast.error("Bitte eine PDF-Datei auswählen");
+      return;
+    }
+    setExtracting(true);
+    try {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map((it: { str?: string }) => it.str ?? "").join(" ") + "\n";
+      }
+
+      const { data, error } = await supabase.functions.invoke("extract-fahrzeug-pdf", {
+        body: { text, filename: file.name },
+      });
+      if (error) throw error;
+      if (!data || data.error) throw new Error(data?.error || "Extraktion fehlgeschlagen");
+
+      setForm((prev) => ({
+        ...prev,
+        fahrzeugname: data.fahrzeugname ?? prev.fahrzeugname,
+        preis: data.preis != null ? String(data.preis) : prev.preis,
+        farbe: data.farbe ?? prev.farbe,
+        kw: data.kw != null ? String(data.kw) : prev.kw,
+        ps: data.ps != null ? String(data.ps) : prev.ps,
+        hubraum: data.hubraum != null ? String(data.hubraum) : prev.hubraum,
+        km_stand: data.km_stand != null ? String(data.km_stand) : prev.km_stand,
+        kraftstoff: data.kraftstoff ?? prev.kraftstoff,
+        getriebe: data.getriebe ?? prev.getriebe,
+        antrieb: data.antrieb ?? prev.antrieb,
+        innenausstattung: data.innenausstattung ?? prev.innenausstattung,
+        tueren: data.tueren != null ? String(data.tueren) : prev.tueren,
+        sitze: data.sitze != null ? String(data.sitze) : prev.sitze,
+        erstzulassung: data.erstzulassung ?? prev.erstzulassung,
+        tuev_au: data.tuev_au ?? prev.tuev_au,
+        auftragsnummer: data.auftragsnummer ?? prev.auftragsnummer,
+        fahrgestellnummer: data.fahrgestellnummer ?? prev.fahrgestellnummer,
+        beschreibung: data.beschreibung ?? prev.beschreibung,
+      }));
+      toast.success("Fahrzeugdaten aus PDF übernommen");
+    } catch (e) {
+      console.error(e);
+      toast.error("PDF konnte nicht gelesen werden");
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   const fetchFahrzeuge = async () => {
     const { data, error } = await supabase
