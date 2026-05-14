@@ -61,6 +61,7 @@ export default function AdminFahrzeugDetail() {
   const [formatted, setFormatted] = useState(true);
   const [pdfViewer, setPdfViewer] = useState<string | null>(null);
   const [uploadingPdf, setUploadingPdf] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const loadFahrzeug = async () => {
     if (!id) return;
