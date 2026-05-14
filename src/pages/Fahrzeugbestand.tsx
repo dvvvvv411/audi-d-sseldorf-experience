@@ -204,7 +204,7 @@ export default function Fahrzeugbestand() {
       } else {
         // Default: show all vehicles
         const [{ data: fzData }, { data: brData }, { data: vkData }, { data: vfData }] = await Promise.all([
-          supabase.from("fahrzeuge").select("*").eq("aktiv", true).order("created_at", { ascending: false }),
+          supabase.from("fahrzeuge").select("*").eq("aktiv", true).order("preis", { ascending: true }),
           supabase.from("brandings").select("*").limit(1).single(),
           supabase.from("verkaeufer").select("*").limit(1),
           supabase.from("verkaeufer_fahrzeuge").select("*"),
