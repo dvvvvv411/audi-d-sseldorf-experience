@@ -1,64 +1,37 @@
-## Plan: Komplette Datenbank rekonstruieren
+## Ziel
+Im Popup "Fahrzeug hinzufügen" auf `/admin/fahrzeugbestand` ein Drag-and-Drop-Feld einbauen, in das ein Fahrzeug-PDF (z.B. Tiemeyer/SEG-Angebot) gezogen werden kann. Die Felder Fahrzeugname, Preis, Farbe, kW, PS, Hubraum, km-Stand, Kraftstoff, Getriebe, Antrieb, Innenausstattung, Türen, Sitze, Erstzulassung, TÜV/AU, Auftragsnummer, Fahrgestellnummer und Serien-/Sonderausstattung werden automatisch ausgefüllt.
 
-Der gesamte Verlauf der Datenbank steckt bereits versioniert im Projekt — 23 Migrationsdateien unter `supabase/migrations/`. Die `types.ts` (704 Zeilen) bestätigt den letzten Stand. Es gibt **keinen** Datenverlust an Schema-Wissen, nur die Daten selbst sind weg.
+## Umsetzung
 
-### Was rekonstruiert wird
+### 1. PDF-Text-Extraktion (Client)
+- Paket `pdfjs-dist` installieren.
+- Beim Drop wird das PDF im Browser ausgelesen → reiner Text.
 
-**Tabellen** (aus den Migrationen + Code-Verweisen abgeleitet):
-- `verkaeufer` — Verkäufer-Profile mit Slug
-- `brandings` — Marken/Standorte (alle Felder inkl. Logo-URLs, Resend-/Seven.io-/Pixel-Konfig, Domain, Vorstand)
-- `fahrzeuge` — Fahrzeugbestand
-- `verkaeufer_fahrzeuge` — Zuordnung Verkäufer ↔ Fahrzeug
-- `anfragen` — Kundenanfragen
-- `anfrage_notizen` — Notizen zu Anfragen
-- `email_verlauf` — gesendete E-Mails
-- `sms_verlauf` — gesendete SMS
-- `aktivitaets_log` — Activity Log
-- `mailbox_clicks` — Klick-Tracking
-- `cloaker_redirects` — Redirect-Tracking
-- `telegram_chat_ids` — Telegram-Empfänger
-- `user_roles` + `app_role` Enum — Rollen (admin etc.)
+### 2. Strukturierte Extraktion via Lovable AI Gateway
+- Neue Edge Function `extract-fahrzeug-pdf` (POST mit `{ text }`).
+- Ruft Lovable AI Gateway (`google/gemini-2.5-flash`) mit Tool-Calling/JSON-Schema auf und gibt ein sauberes JSON mit allen Feldern zurück.
+- Fahrgestellnummer wird zusätzlich aus dem Dateinamen geparst (Muster `WAU…`), falls im PDF-Inhalt nicht enthalten – wie im Beispiel `A6_-_WAUZZZF22PN037331.pdf`.
+- Beschreibung (Serien-/Sonderausstattung) wird **wörtlich** aus dem PDF übernommen (kein Umformulieren), inkl. der `***`-Trenner.
 
-**Datenbank-Funktionen & Trigger**:
-- `has_role(_user_id, _role)` — SECURITY DEFINER, Standard-Pattern
-- `handle_new_user()` + Trigger auf `auth.users` — neue User bekommen automatisch `admin`-Rolle
-- `update_updated_at_column()` + Trigger auf relevanten Tabellen
+### 3. UI im Dialog (`AdminFahrzeugbestand.tsx`)
+- Neues Drag-and-Drop-Feld ganz oben im Dialog ("PDF hier ablegen oder klicken zum Hochladen").
+- Statusanzeige: "PDF wird gelesen…" → "Daten extrahiert".
+- Nach Erfolg werden alle Form-Felder vorausgefüllt; vorhandene Eingaben werden überschrieben.
+- Bilder bleiben unberührt – die fügt der Nutzer wie bisher manuell hinzu.
+- Funktioniert nur im "Hinzufügen"-Modus (nicht beim Bearbeiten).
+- Fehlerfall: Toast "PDF konnte nicht gelesen werden".
 
-**RLS-Policies**: alle Policies aus den 23 Migrationen (admin-only auf den meisten Tabellen, public read wo nötig).
+### 4. Mapping-Regeln
+- `Motor/Antrieb: Diesel Automatik/Allradantrieb` → Kraftstoff=`Diesel`, Getriebe=`Automatik`, Antrieb=`Allradantrieb`.
+- `kW/(PS): 150/(204)` → kW=150, PS=204.
+- `Türen/Sitze: 4/5` → Türen=4, Sitze=5.
+- `Barpreis: 43.460 €` → Preis=43460.
+- Fahrzeugname = Überschrift unter dem Briefkopf (z.B. `A6 40 TDI Q 2x S LINE`).
 
-**Storage-Buckets** (aus Code-Verwendung in `AdminBrandings`, `AdminFahrzeugbestand`, `AdminVerkaeufer`):
-- `avatars` — public
-- `fahrzeuge` — public
-- `branding-assets` — public
+## Technische Details
+- Neue Datei: `supabase/functions/extract-fahrzeug-pdf/index.ts` (registriert in `supabase/config.toml`, JWT off).
+- Nutzt `LOVABLE_API_KEY` (bereits vorhanden).
+- `pdfjs-dist` als neue Dependency; Worker via `?url`-Import gebündelt.
+- `AdminFahrzeugbestand.tsx`: neuer State `extracting`, Handler `handlePdfDrop`, kleiner Drop-Bereich oberhalb des Bilder-Blocks im Dialog.
 
-### Vorgehen
-
-1. **Eine einzige konsolidierte Replay-Migration** erzeugen, indem alle 23 vorhandenen Migrationsdateien in chronologischer Reihenfolge zu einer großen Migration zusammengeführt werden. Das garantiert exakt denselben Endzustand wie vorher, ohne dass etwas erraten werden muss.
-2. **Storage-Buckets** im selben Migration-Call anlegen (Insert in `storage.buckets` + Storage-Policies, falls vorhanden).
-3. **Edge Functions** redeployen — Code liegt unverändert im Repo:
-   - `detect-gender`, `kfz-callback`, `kfz-notify`, `kfz-resolve`, `send-anfrage-email`, `send-anfrage-sms`, `send-telegram-test`, `send-template-email`
-4. **Secrets prüfen** — laut aktueller Konfiguration sind bereits gesetzt: `LOVABLE_API_KEY`, `TELEGRAM_BOT_TOKEN`, plus Standard-Supabase-Secrets. Resend- und Seven.io-Keys werden **pro Branding** in der DB gespeichert (nicht als Edge-Function-Secret) — kommen mit dem Wiederanlegen der Brandings automatisch zurück.
-
-### Was du nach dem Migrations-Approve manuell tun musst
-
-- **Admin-Account neu anlegen**: einmalig auf `/auth` registrieren — der `handle_new_user`-Trigger gibt dem neuen Account automatisch die Admin-Rolle.
-- **Brandings, Verkäufer, Fahrzeuge** im Admin-Panel neu erfassen (oder, falls du noch ein Backup/Export der alten DB hast: über Insert-Tool importieren — sag Bescheid).
-- **Storage-Inhalte** (Logos, Fahrzeugbilder, Avatare) müssen neu hochgeladen werden — Buckets selbst werden vom Migration-Schritt erstellt, die Dateien sind weg.
-- **Telegram Chat-IDs** in `/admin/telegram` neu eintragen (oder Bot erneut anschreiben, je nach bestehender Logik).
-
-### Reihenfolge der Tool-Calls nach Approval
-
-1. `supabase--migration` mit dem zusammengeführten SQL aller 23 Migrationen + Storage-Buckets.
-2. Nach Bestätigung: `supabase--deploy_edge_functions` für alle 8 Funktionen.
-3. `supabase--linter` zur Sicherheitskontrolle.
-4. Kurzer Test-Read auf `brandings`/`verkaeufer`, um zu verifizieren, dass alle Tabellen existieren.
-
-### Was **nicht** im Scope ist
-
-- **Daten**-Wiederherstellung: ohne Backup unmöglich. Falls du bei Supabase ein PITR-Backup oder einen DB-Dump hast, sag Bescheid — dann importieren wir Daten statt sie neu zu erfassen.
-- Änderungen am Frontend-Code — der ist bereits korrekt für dieses Schema.
-- Ändern der `types.ts` — die wird nach Migration automatisch von Supabase regeneriert.
-
-### Risiko-Hinweis
-
-Die 23 Migrationen enthalten teilweise spätere `ALTER TABLE`/`DROP COLUMN`-Schritte, die Spalten erst hinzufügen und später wieder entfernen. Beim sequentiellen Replay ist das unkritisch, weil exakt dieselbe Reihenfolge angewandt wird — Endzustand ist identisch zum vorherigen Schema.
+Keine Datenbank-Änderungen nötig.
