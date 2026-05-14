@@ -111,14 +111,13 @@ export default function AdminFahrzeugDetail() {
 
   const isImageUrl = (url: string) => /\.(jpe?g|png|webp)(\?|$)/i.test(url);
 
-  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0 || !id) return;
+  const uploadFiles = async (files: File[]) => {
+    if (!id || files.length === 0) return;
     setUploadingPdf(true);
 
     const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
     const newUrls: string[] = [];
-    for (const file of Array.from(files)) {
+    for (const file of files) {
       if (!allowedTypes.includes(file.type)) {
         toast.error(`${file.name} ist kein gültiges Format (PDF, JPG, PNG)`);
         continue;
@@ -147,6 +146,12 @@ export default function AdminFahrzeugDetail() {
       }
     }
     setUploadingPdf(false);
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    await uploadFiles(Array.from(files));
     e.target.value = "";
   };
 
