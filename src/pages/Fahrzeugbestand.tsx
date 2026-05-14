@@ -189,7 +189,7 @@ export default function Fahrzeugbestand() {
             .select("*")
             .in("id", fahrzeugIds)
             .eq("aktiv", true)
-            .order("created_at", { ascending: false });
+            .order("preis", { ascending: true });
           fzData = data || [];
         }
 
