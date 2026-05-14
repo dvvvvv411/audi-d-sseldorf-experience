@@ -408,6 +408,50 @@ const AdminFahrzeugbestand = () => {
           </DialogHeader>
 
           <div className="space-y-6 mt-4">
+            {/* PDF-Extraktion */}
+            {!editingId && (
+              <div>
+                <Label className="text-gray-700 text-sm font-semibold">PDF-Datenimport</Label>
+                <label
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) handlePdfFile(file);
+                  }}
+                  className={`mt-2 flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg py-6 px-4 cursor-pointer transition-colors ${
+                    dragOver ? "border-black bg-gray-50" : "border-gray-300 hover:border-gray-400"
+                  } ${extracting ? "pointer-events-none opacity-60" : ""}`}
+                >
+                  {extracting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 text-gray-500 animate-spin" />
+                      <span className="text-sm text-gray-600">PDF wird gelesen…</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileUp className="w-5 h-5 text-gray-500" />
+                      <span className="text-sm text-gray-600">PDF hier ablegen oder klicken zum Hochladen</span>
+                      <span className="text-xs text-gray-400">Fahrzeugdaten werden automatisch übernommen</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    disabled={extracting}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handlePdfFile(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              </div>
+            )}
+
             {/* Bilder */}
             <div>
               <Label className="text-gray-700 text-sm font-semibold">Bilder</Label>
