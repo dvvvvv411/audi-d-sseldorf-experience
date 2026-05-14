@@ -19,8 +19,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, ImagePlus, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, ImagePlus, Eye, EyeOff, FileUp, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+(pdfjsLib as unknown as { GlobalWorkerOptions: { workerSrc: string } }).GlobalWorkerOptions.workerSrc = pdfWorker;
 
 interface Fahrzeug {
   id: string;
@@ -78,6 +81,60 @@ const AdminFahrzeugbestand = () => {
   const [bilder, setBilder] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+
+  const handlePdfFile = async (file: File) => {
+    if (!file || file.type !== "application/pdf") {
+      toast.error("Bitte eine PDF-Datei auswählen");
+      return;
+    }
+    setExtracting(true);
+    try {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map((it) => ("str" in it ? it.str : "")).join(" ") + "\n";
+      }
+
+      const { data, error } = await supabase.functions.invoke("extract-fahrzeug-pdf", {
+        body: { text, filename: file.name },
+      });
+      if (error) throw error;
+      if (!data || data.error) throw new Error(data?.error || "Extraktion fehlgeschlagen");
+
+      setForm((prev) => ({
+        ...prev,
+        fahrzeugname: data.fahrzeugname ?? prev.fahrzeugname,
+        preis: data.preis != null ? String(data.preis) : prev.preis,
+        farbe: data.farbe ?? prev.farbe,
+        kw: data.kw != null ? String(data.kw) : prev.kw,
+        ps: data.ps != null ? String(data.ps) : prev.ps,
+        hubraum: data.hubraum != null ? String(data.hubraum) : prev.hubraum,
+        km_stand: data.km_stand != null ? String(data.km_stand) : prev.km_stand,
+        kraftstoff: data.kraftstoff ?? prev.kraftstoff,
+        getriebe: data.getriebe ?? prev.getriebe,
+        antrieb: data.antrieb ?? prev.antrieb,
+        innenausstattung: data.innenausstattung ?? prev.innenausstattung,
+        tueren: data.tueren != null ? String(data.tueren) : prev.tueren,
+        sitze: data.sitze != null ? String(data.sitze) : prev.sitze,
+        erstzulassung: data.erstzulassung ?? prev.erstzulassung,
+        tuev_au: data.tuev_au ?? prev.tuev_au,
+        auftragsnummer: data.auftragsnummer ?? prev.auftragsnummer,
+        fahrgestellnummer: data.fahrgestellnummer ?? prev.fahrgestellnummer,
+        beschreibung: data.beschreibung ?? prev.beschreibung,
+      }));
+      toast.success("Fahrzeugdaten aus PDF übernommen");
+    } catch (e) {
+      console.error(e);
+      toast.error("PDF konnte nicht gelesen werden");
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   const fetchFahrzeuge = async () => {
     const { data, error } = await supabase
@@ -351,6 +408,50 @@ const AdminFahrzeugbestand = () => {
           </DialogHeader>
 
           <div className="space-y-6 mt-4">
+            {/* PDF-Extraktion */}
+            {!editingId && (
+              <div>
+                <Label className="text-gray-700 text-sm font-semibold">PDF-Datenimport</Label>
+                <label
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) handlePdfFile(file);
+                  }}
+                  className={`mt-2 flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg py-6 px-4 cursor-pointer transition-colors ${
+                    dragOver ? "border-black bg-gray-50" : "border-gray-300 hover:border-gray-400"
+                  } ${extracting ? "pointer-events-none opacity-60" : ""}`}
+                >
+                  {extracting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 text-gray-500 animate-spin" />
+                      <span className="text-sm text-gray-600">PDF wird gelesen…</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileUp className="w-5 h-5 text-gray-500" />
+                      <span className="text-sm text-gray-600">PDF hier ablegen oder klicken zum Hochladen</span>
+                      <span className="text-xs text-gray-400">Fahrzeugdaten werden automatisch übernommen</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    disabled={extracting}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handlePdfFile(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              </div>
+            )}
+
             {/* Bilder */}
             <div>
               <Label className="text-gray-700 text-sm font-semibold">Bilder</Label>

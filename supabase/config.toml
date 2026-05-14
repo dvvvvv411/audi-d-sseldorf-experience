@@ -1,1 +1,4 @@
 project_id = "tdbrzerwjrwqqrhfrscg"
+
+[functions.extract-fahrzeug-pdf]
+verify_jwt = false
