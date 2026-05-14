@@ -14,16 +14,563 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      aktivitaets_log: {
+        Row: {
+          aktion: string
+          anfrage_id: string | null
+          created_at: string
+          details: string | null
+          id: string
+          user_email: string
+        }
+        Insert: {
+          aktion: string
+          anfrage_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          user_email: string
+        }
+        Update: {
+          aktion?: string
+          anfrage_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          user_email?: string
+        }
+        Relationships: []
+      }
+      anfrage_notizen: {
+        Row: {
+          anfrage_id: string
+          created_at: string
+          id: string
+          text: string
+        }
+        Insert: {
+          anfrage_id: string
+          created_at?: string
+          id?: string
+          text: string
+        }
+        Update: {
+          anfrage_id?: string
+          created_at?: string
+          id?: string
+          text?: string
+        }
+        Relationships: []
+      }
+      anfragen: {
+        Row: {
+          auftragsnummer: string | null
+          branding_name: string
+          created_at: string
+          datenschutz_akzeptiert: boolean
+          email: string
+          fahrzeug_id: string
+          fahrzeug_name: string
+          fahrzeug_preis: number
+          hidden: boolean
+          id: string
+          nachname: string
+          nachricht: string
+          notizen: string | null
+          plz: string | null
+          redirect_id: string | null
+          stadt: string | null
+          status: string
+          strasse: string | null
+          telefon: string
+          verkaeufer_id: string
+          verkaeufer_name: string
+          vorname: string
+        }
+        Insert: {
+          auftragsnummer?: string | null
+          branding_name: string
+          created_at?: string
+          datenschutz_akzeptiert?: boolean
+          email: string
+          fahrzeug_id: string
+          fahrzeug_name: string
+          fahrzeug_preis: number
+          hidden?: boolean
+          id?: string
+          nachname: string
+          nachricht: string
+          notizen?: string | null
+          plz?: string | null
+          redirect_id?: string | null
+          stadt?: string | null
+          status?: string
+          strasse?: string | null
+          telefon: string
+          verkaeufer_id: string
+          verkaeufer_name: string
+          vorname: string
+        }
+        Update: {
+          auftragsnummer?: string | null
+          branding_name?: string
+          created_at?: string
+          datenschutz_akzeptiert?: boolean
+          email?: string
+          fahrzeug_id?: string
+          fahrzeug_name?: string
+          fahrzeug_preis?: number
+          hidden?: boolean
+          id?: string
+          nachname?: string
+          nachricht?: string
+          notizen?: string | null
+          plz?: string | null
+          redirect_id?: string | null
+          stadt?: string | null
+          status?: string
+          strasse?: string | null
+          telefon?: string
+          verkaeufer_id?: string
+          verkaeufer_name?: string
+          vorname?: string
+        }
+        Relationships: []
+      }
+      brandings: {
+        Row: {
+          absendername: string | null
+          amtsgericht: string
+          created_at: string
+          eigene_domain: string | null
+          email: string
+          email_absender: string | null
+          email_logo_url: string | null
+          footer_unternehmensname: string | null
+          geschaeftsfuehrer: string
+          handelsregister: string
+          id: string
+          logo_pdf_url: string | null
+          marketing_image_url: string | null
+          meta_pixel_aktiv: boolean
+          meta_pixel_code: string | null
+          name: string
+          originallink: string | null
+          plz: string
+          resend_api_key: string | null
+          sevenio_absendername: string | null
+          sevenio_api_key: string | null
+          stadt: string
+          strasse: string
+          ust_id: string
+          vorstand: Json
+        }
+        Insert: {
+          absendername?: string | null
+          amtsgericht: string
+          created_at?: string
+          eigene_domain?: string | null
+          email: string
+          email_absender?: string | null
+          email_logo_url?: string | null
+          footer_unternehmensname?: string | null
+          geschaeftsfuehrer: string
+          handelsregister: string
+          id?: string
+          logo_pdf_url?: string | null
+          marketing_image_url?: string | null
+          meta_pixel_aktiv?: boolean
+          meta_pixel_code?: string | null
+          name: string
+          originallink?: string | null
+          plz: string
+          resend_api_key?: string | null
+          sevenio_absendername?: string | null
+          sevenio_api_key?: string | null
+          stadt: string
+          strasse: string
+          ust_id: string
+          vorstand?: Json
+        }
+        Update: {
+          absendername?: string | null
+          amtsgericht?: string
+          created_at?: string
+          eigene_domain?: string | null
+          email?: string
+          email_absender?: string | null
+          email_logo_url?: string | null
+          footer_unternehmensname?: string | null
+          geschaeftsfuehrer?: string
+          handelsregister?: string
+          id?: string
+          logo_pdf_url?: string | null
+          marketing_image_url?: string | null
+          meta_pixel_aktiv?: boolean
+          meta_pixel_code?: string | null
+          name?: string
+          originallink?: string | null
+          plz?: string
+          resend_api_key?: string | null
+          sevenio_absendername?: string | null
+          sevenio_api_key?: string | null
+          stadt?: string
+          strasse?: string
+          ust_id?: string
+          vorstand?: Json
+        }
+        Relationships: []
+      }
+      cloaker_redirects: {
+        Row: {
+          action_created: boolean
+          callback_sent_at: string | null
+          captcha_solved: boolean
+          created_at: string
+          id: string
+          ip_address: string | null
+          redirect_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          action_created?: boolean
+          callback_sent_at?: string | null
+          captcha_solved?: boolean
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          redirect_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          action_created?: boolean
+          callback_sent_at?: string | null
+          captcha_solved?: boolean
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          redirect_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      email_verlauf: {
+        Row: {
+          absender: string | null
+          anfrage_id: string | null
+          attachments: Json | null
+          betreff: string | null
+          branding_id: string | null
+          created_at: string
+          empfaenger: string
+          fehler: string | null
+          html: string | null
+          id: string
+          resend_id: string | null
+          status: string
+          template: string | null
+          verkaeufer_id: string | null
+        }
+        Insert: {
+          absender?: string | null
+          anfrage_id?: string | null
+          attachments?: Json | null
+          betreff?: string | null
+          branding_id?: string | null
+          created_at?: string
+          empfaenger: string
+          fehler?: string | null
+          html?: string | null
+          id?: string
+          resend_id?: string | null
+          status: string
+          template?: string | null
+          verkaeufer_id?: string | null
+        }
+        Update: {
+          absender?: string | null
+          anfrage_id?: string | null
+          attachments?: Json | null
+          betreff?: string | null
+          branding_id?: string | null
+          created_at?: string
+          empfaenger?: string
+          fehler?: string | null
+          html?: string | null
+          id?: string
+          resend_id?: string | null
+          status?: string
+          template?: string | null
+          verkaeufer_id?: string | null
+        }
+        Relationships: []
+      }
+      fahrzeuge: {
+        Row: {
+          aktiv: boolean
+          antrieb: string | null
+          auftragsnummer: string | null
+          beschreibung: string | null
+          bilder: string[] | null
+          created_at: string
+          erstzulassung: string | null
+          fahrgestellnummer: string | null
+          fahrzeugname: string
+          farbe: string | null
+          getriebe: string | null
+          hubraum: number | null
+          id: string
+          innenausstattung: string | null
+          km_stand: number | null
+          kraftstoff: string | null
+          kw: number | null
+          preis: number
+          ps: number | null
+          servicenachweis_urls: string[] | null
+          sitze: number | null
+          tueren: number | null
+          tuev_au: string | null
+        }
+        Insert: {
+          aktiv?: boolean
+          antrieb?: string | null
+          auftragsnummer?: string | null
+          beschreibung?: string | null
+          bilder?: string[] | null
+          created_at?: string
+          erstzulassung?: string | null
+          fahrgestellnummer?: string | null
+          fahrzeugname: string
+          farbe?: string | null
+          getriebe?: string | null
+          hubraum?: number | null
+          id?: string
+          innenausstattung?: string | null
+          km_stand?: number | null
+          kraftstoff?: string | null
+          kw?: number | null
+          preis: number
+          ps?: number | null
+          servicenachweis_urls?: string[] | null
+          sitze?: number | null
+          tueren?: number | null
+          tuev_au?: string | null
+        }
+        Update: {
+          aktiv?: boolean
+          antrieb?: string | null
+          auftragsnummer?: string | null
+          beschreibung?: string | null
+          bilder?: string[] | null
+          created_at?: string
+          erstzulassung?: string | null
+          fahrgestellnummer?: string | null
+          fahrzeugname?: string
+          farbe?: string | null
+          getriebe?: string | null
+          hubraum?: number | null
+          id?: string
+          innenausstattung?: string | null
+          km_stand?: number | null
+          kraftstoff?: string | null
+          kw?: number | null
+          preis?: number
+          ps?: number | null
+          servicenachweis_urls?: string[] | null
+          sitze?: number | null
+          tueren?: number | null
+          tuev_au?: string | null
+        }
+        Relationships: []
+      }
+      mailbox_clicks: {
+        Row: {
+          anfrage_id: string
+          clicked_at: string
+          id: string
+        }
+        Insert: {
+          anfrage_id: string
+          clicked_at?: string
+          id?: string
+        }
+        Update: {
+          anfrage_id?: string
+          clicked_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      sms_verlauf: {
+        Row: {
+          absender: string | null
+          anfrage_id: string | null
+          branding_id: string | null
+          created_at: string
+          empfaenger: string
+          fehler: string | null
+          id: string
+          seven_response: Json | null
+          status: string
+          text: string
+        }
+        Insert: {
+          absender?: string | null
+          anfrage_id?: string | null
+          branding_id?: string | null
+          created_at?: string
+          empfaenger: string
+          fehler?: string | null
+          id?: string
+          seven_response?: Json | null
+          status: string
+          text: string
+        }
+        Update: {
+          absender?: string | null
+          anfrage_id?: string | null
+          branding_id?: string | null
+          created_at?: string
+          empfaenger?: string
+          fehler?: string | null
+          id?: string
+          seven_response?: Json | null
+          status?: string
+          text?: string
+        }
+        Relationships: []
+      }
+      telegram_chat_ids: {
+        Row: {
+          chat_id: string
+          created_at: string
+          id: string
+          label: string | null
+        }
+        Insert: {
+          chat_id: string
+          created_at?: string
+          id?: string
+          label?: string | null
+        }
+        Update: {
+          chat_id?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verkaeufer: {
+        Row: {
+          avatar_url: string | null
+          branding_id: string | null
+          created_at: string
+          email: string
+          id: string
+          nachname: string
+          telefon: string
+          vorname: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          branding_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          nachname: string
+          telefon: string
+          vorname: string
+        }
+        Update: {
+          avatar_url?: string | null
+          branding_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          nachname?: string
+          telefon?: string
+          vorname?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verkaeufer_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verkaeufer_fahrzeuge: {
+        Row: {
+          created_at: string
+          fahrzeug_id: string
+          id: string
+          verkaeufer_id: string
+        }
+        Insert: {
+          created_at?: string
+          fahrzeug_id: string
+          id?: string
+          verkaeufer_id: string
+        }
+        Update: {
+          created_at?: string
+          fahrzeug_id?: string
+          id?: string
+          verkaeufer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verkaeufer_fahrzeuge_fahrzeug_id_fkey"
+            columns: ["fahrzeug_id"]
+            isOneToOne: false
+            referencedRelation: "fahrzeuge"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verkaeufer_fahrzeuge_verkaeufer_id_fkey"
+            columns: ["verkaeufer_id"]
+            isOneToOne: false
+            referencedRelation: "verkaeufer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "caller"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +697,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "caller"],
+    },
   },
 } as const
