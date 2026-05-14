@@ -253,37 +253,64 @@ export default function AdminFahrzeugDetail() {
                 </label>
               </div>
 
-              {servicenachweise.length === 0 ? (
-                <p className="text-gray-400 text-sm">Keine Servicenachweise vorhanden.</p>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  {servicenachweise.map((url, i) => (
-                    <div
-                      key={i}
-                      className="relative group flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 hover:border-gray-300 bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => setPdfViewer(url)}
-                    >
-                      {isImageUrl(url) ? (
-                        <img src={url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
-                      ) : (
-                        <div className="flex items-center justify-center w-10 h-10 rounded bg-red-50 text-red-500 shrink-0">
-                          <FileText className="w-5 h-5" />
-                        </div>
-                      )}
-                      <p className="text-xs text-gray-700 truncate flex-1">{getPdfFilename(url)}</p>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removePdf(url);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (!dragOver) setDragOver(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  const files = Array.from(e.dataTransfer.files || []);
+                  if (files.length) uploadFiles(files);
+                }}
+                className={`relative rounded-lg border-2 border-dashed transition-colors ${
+                  dragOver ? "border-emerald-400 bg-emerald-50/60" : "border-gray-200"
+                } ${servicenachweise.length === 0 ? "p-6" : "p-2"}`}
+              >
+                {servicenachweise.length === 0 ? (
+                  <p className="text-gray-400 text-sm text-center">
+                    PDF, JPG oder PNG hier ablegen oder Button oben nutzen
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {servicenachweise.map((url, i) => (
+                      <div
+                        key={i}
+                        className="relative group flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 hover:border-gray-300 bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => setPdfViewer(url)}
                       >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        {isImageUrl(url) ? (
+                          <img src={url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+                        ) : (
+                          <div className="flex items-center justify-center w-10 h-10 rounded bg-red-50 text-red-500 shrink-0">
+                            <FileText className="w-5 h-5" />
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-700 truncate flex-1">{getPdfFilename(url)}</p>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePdf(url);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {(dragOver || uploadingPdf) && (
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-emerald-50/70 text-emerald-700 text-xs font-medium">
+                    {uploadingPdf ? "Wird hochgeladen…" : "Zum Hochladen ablegen"}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
