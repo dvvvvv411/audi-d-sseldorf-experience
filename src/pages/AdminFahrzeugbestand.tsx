@@ -22,9 +22,8 @@ import {
 import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, ImagePlus, Eye, EyeOff, FileUp, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as pdfjsLib from "pdfjs-dist";
-// @ts-expect-error vite worker import
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+(pdfjsLib as unknown as { GlobalWorkerOptions: { workerSrc: string } }).GlobalWorkerOptions.workerSrc = pdfWorker;
 
 interface Fahrzeug {
   id: string;
