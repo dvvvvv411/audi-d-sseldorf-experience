@@ -89,19 +89,23 @@ const AdminFahrzeugbestand = () => {
       toast.error("Bitte eine PDF-Datei auswählen");
       return;
     }
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error("PDF zu groß (max. 15 MB)");
+      return;
+    }
     setExtracting(true);
     try {
       const buf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-      let text = "";
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        text += content.items.map((it) => ("str" in it ? it.str : "")).join(" ") + "\n";
+      let binary = "";
+      const bytes = new Uint8Array(buf);
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
       }
+      const pdf_base64 = btoa(binary);
 
       const { data, error } = await supabase.functions.invoke("extract-fahrzeug-pdf", {
-        body: { text, filename: file.name },
+        body: { pdf_base64, filename: file.name },
       });
       if (error) throw error;
       if (!data || data.error) throw new Error(data?.error || "Extraktion fehlgeschlagen");
