@@ -143,6 +143,36 @@ export default function Fahrzeugbestand() {
   );
   useMetaPixel((branding as any)?.meta_pixel_code, (branding as any)?.meta_pixel_aktiv);
 
+  // Branding zuerst laden, damit der Loading-Spinner direkt das richtige Logo zeigt
+  useEffect(() => {
+    const loadBranding = async () => {
+      if (sellerSlug) {
+        const parts = sellerSlug.split("_");
+        if (parts.length < 2) return;
+        const vorname = parts[0];
+        const nachname = parts.slice(1).join("_");
+        const { data: sellerData } = await supabase
+          .from("verkaeufer")
+          .select("branding_id")
+          .ilike("vorname", vorname)
+          .ilike("nachname", nachname)
+          .single();
+        if (sellerData?.branding_id) {
+          const { data: brData } = await supabase
+            .from("brandings")
+            .select("*")
+            .eq("id", sellerData.branding_id)
+            .single();
+          if (brData) setBranding(brData);
+        }
+      } else {
+        const { data: brData } = await supabase.from("brandings").select("*").limit(1).single();
+        if (brData) setBranding(brData);
+      }
+    };
+    loadBranding();
+  }, [sellerSlug]);
+
   useEffect(() => {
     const load = async () => {
       if (sellerSlug) {
