@@ -141,7 +141,10 @@ export default function Fahrzeugbestand() {
       ? `Unser aktueller Fahrzeugbestand bei ${brandLabel}. Große Auswahl an Neu- und Gebrauchtwagen.`
       : `Unser aktueller Fahrzeugbestand. Große Auswahl an Neu- und Gebrauchtwagen.`
   );
-  useMetaPixel((branding as any)?.meta_pixel_code, (branding as any)?.meta_pixel_aktiv);
+  useMetaPixel(
+    sellerSlug ? (branding as any)?.meta_pixel_code : null,
+    sellerSlug ? (branding as any)?.meta_pixel_aktiv : false
+  );
 
   // Branding zuerst laden, damit der Loading-Spinner direkt das richtige Logo zeigt
   useEffect(() => {

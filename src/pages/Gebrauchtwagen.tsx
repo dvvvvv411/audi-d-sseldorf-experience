@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useMetaPixel } from "@/hooks/useMetaPixel";
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import useEmblaCarousel from "embla-carousel-react";
@@ -153,10 +153,6 @@ export default function Gebrauchtwagen() {
     }
   }, [fahrzeug, verkaeufer]);
 
-  useMetaPixel(
-    (verkaeufer[0]?.branding as any)?.meta_pixel_code,
-    (verkaeufer[0]?.branding as any)?.meta_pixel_aktiv
-  );
   // Anfrage Dialog
   const [anfrageOpen, setAnfrageOpen] = useState(false);
   const [anfrageForm, setAnfrageForm] = useState({ vorname: "", nachname: "", email: "", telefon: "", nachricht: "" });
