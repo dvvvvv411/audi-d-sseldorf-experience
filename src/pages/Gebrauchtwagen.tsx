@@ -167,6 +167,12 @@ export default function Gebrauchtwagen() {
 
   useRedirectTracking();
 
+  const sellerBranding = verkaeufer[0]?.branding as any;
+  useMetaPixel(
+    sellerSlug ? sellerBranding?.meta_pixel_code : null,
+    sellerSlug ? sellerBranding?.meta_pixel_aktiv : false
+  );
+
   const handleAnfrageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fahrzeug || !verkaeufer[0] || !datenschutz) return;
