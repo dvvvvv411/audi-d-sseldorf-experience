@@ -6,10 +6,8 @@ const Index = () => {
 
   useEffect(() => {
     if (loading) return;
-    const target = branding?.originallink?.trim();
-    if (target) {
-      window.location.replace(target);
-    }
+    const target = branding?.originallink?.trim() || "https://www.audi.de";
+    window.location.replace(target);
   }, [branding, loading]);
 
   return null;

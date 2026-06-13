@@ -1,8 +1,21 @@
-Add two new domains to the Vite development server configuration in `vite.config.ts`:
+## Ziel
+Root `/` soll weiterhin auf den `originallink` des hostbezogenen Brandings weiterleiten (aktuelles Verhalten beibehalten/absichern).
 
-**Changes:**
-- `vite.config.ts`
-  - Append `"berlin.audi-portal.de"` and `"audi-portal.de"` to the `server.allowedHosts` array.
-  - Append `"https://berlin.audi-portal.de"` and `"https://audi-portal.de"` to the `server.cors.origin` array.
+## Änderungen
 
-This allows the Vite dev server to accept requests from these domains during local development.
+**`src/pages/Index.tsx`**
+- Behält `useActiveBranding()` Logik.
+- Redirect via `window.location.replace(branding.originallink)` sobald Branding geladen ist.
+- Fallback: wenn `loading=false` und kein gültiger `originallink` vorhanden → `https://www.audi.de`, damit die Seite nie leer hängenbleibt.
+- Während `loading` weiterhin `null` rendern (keine UI-Flash).
+
+## Technische Details
+```ts
+useEffect(() => {
+  if (loading) return;
+  const target = branding?.originallink?.trim() || "https://www.audi.de";
+  window.location.replace(target);
+}, [branding, loading]);
+```
+
+Keine weiteren Dateien betroffen.
