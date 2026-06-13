@@ -1,26 +1,8 @@
-## Meta Pixel auf Gebrauchtwagen-Detailseite wieder aktivieren (seller-gebunden)
+Add two new domains to the Vite development server configuration in `vite.config.ts`:
 
-Auf `/gebrauchtwagen/:sellerSlug/:auftragsnummer` ist der Verkäufer aus der URL bekannt und über `verkaeufer[0].branding` ist auch das Branding bereits geladen. Der Meta Pixel soll daher dort wieder feuern — aber nur an das Branding des jeweiligen Verkäufers gebunden.
+**Changes:**
+- `vite.config.ts`
+  - Append `"berlin.audi-portal.de"` and `"audi-portal.de"` to the `server.allowedHosts` array.
+  - Append `"https://berlin.audi-portal.de"` and `"https://audi-portal.de"` to the `server.cors.origin` array.
 
-### Änderung
-
-**`src/pages/Gebrauchtwagen.tsx`**
-1. Import wieder hinzufügen:
-   ```ts
-   import { useMetaPixel } from "@/hooks/useMetaPixel";
-   ```
-2. Innerhalb der Komponente (nach dem Laden von `verkaeufer`):
-   ```ts
-   const sellerBranding = verkaeufer[0]?.branding as any;
-   useMetaPixel(
-     sellerSlug ? sellerBranding?.meta_pixel_code : null,
-     sellerSlug ? sellerBranding?.meta_pixel_aktiv : false
-   );
-   ```
-
-### Verhalten danach
-- `/gebrauchtwagen/:sellerSlug/:auftragsnummer` → Meta Pixel des zugewiesenen Verkäufer-Brandings feuert.
-- `/fahrzeugbestand/:sellerSlug` → unverändert, feuert bereits.
-- `/fahrzeugbestand` (ohne Slug) → kein Pixel.
-
-Keine weiteren Dateien betroffen.
+This allows the Vite dev server to accept requests from these domains during local development.

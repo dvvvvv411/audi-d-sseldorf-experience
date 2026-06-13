@@ -16,6 +16,8 @@ export default defineConfig(({ mode }) => ({
       "www.audi-duesseldorf.de",
       "berlin-audi-zentrum.de",
       "www.berlin-audi-zentrum.de",
+      "audi-portal.de",
+      "berlin.audi-portal.de",
     ],
     cors: {
       origin: [
@@ -23,6 +25,8 @@ export default defineConfig(({ mode }) => ({
         "https://www.audi-duesseldorf.de",
         "https://berlin-audi-zentrum.de",
         "https://www.berlin-audi-zentrum.de",
+        "https://audi-portal.de",
+        "https://berlin.audi-portal.de",
       ],
     },
   },
