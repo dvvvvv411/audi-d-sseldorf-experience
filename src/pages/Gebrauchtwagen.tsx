@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import useEmblaCarousel from "embla-carousel-react";
 import { useRedirectTracking, getRedirectId, clearRedirectId } from "@/hooks/useRedirectTracking";
+import { useMetaPixel } from "@/hooks/useMetaPixel";
 
 type Fahrzeug = Tables<"fahrzeuge">;
 type Verkaeufer = Tables<"verkaeufer">;
