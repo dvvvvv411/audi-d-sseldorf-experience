@@ -33,8 +33,14 @@ import DigitalServicesAct from "./pages/rechtliches/DigitalServicesAct.tsx";
 import EuDataAct from "./pages/rechtliches/EuDataAct.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import { useDynamicFavicon } from "./hooks/useDynamicFavicon";
 
 const queryClient = new QueryClient();
+
+const DynamicFavicon = () => {
+  useDynamicFavicon();
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -42,6 +48,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <DynamicFavicon />
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
