@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Tables } from "@/integrations/supabase/types";
 import { Link, useParams } from "react-router-dom";
-import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail } from "lucide-react";
+import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail, Loader2 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useRedirectTracking } from "@/hooks/useRedirectTracking";
 import { useMetaPixel } from "@/hooks/useMetaPixel";
