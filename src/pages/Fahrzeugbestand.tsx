@@ -47,17 +47,17 @@ const BrandLogo = ({
   height?: number;
   className?: string;
 }) => {
-  if (logoUrl) {
-    return (
-      <img
-        src={logoUrl}
-        alt=""
-        style={{ width, height, objectFit: "contain" }}
-        className={className}
-      />
-    );
+  if (!logoUrl) {
+    return <div style={{ width, height }} aria-hidden />;
   }
-  return <AudiLogo fill={fallbackFill} width={width} height={height} />;
+  return (
+    <img
+      src={logoUrl}
+      alt=""
+      style={{ width, height, objectFit: "contain" }}
+      className={className}
+    />
+  );
 };
 
 function FahrzeugCard({ fahrzeug, sellerSlug, logoUrl }: { fahrzeug: Fahrzeug; sellerSlug: string; logoUrl?: string | null }) {

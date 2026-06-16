@@ -1,31 +1,39 @@
-## Problem
+Verstanden — kein Domain-Fallback, kein Branding-Raten. Die öffentlichen Verkäuferseiten sollen ausschließlich das Branding verwenden, das beim Verkäufer gespeichert ist.
 
-In `src/pages/Fahrzeugbestand.tsx` zeigt der Loading-Screen (Zeilen 266–275) die `BrandLogo`-Komponente. Solange `branding` noch `null` ist, fällt `BrandLogo` automatisch auf das hartcodierte `AudiLogo` zurück (Zeile 60). Sobald das Branding geladen ist, wechselt es zum VW-Logo → sichtbares Flackern.
+## Plan
 
-## Lösung
+1. **`/fahrzeugbestand/:sellerSlug` sauber halten**
+   - Das bereits geladene Verkäufer-Branding bleibt die einzige Logo-Quelle.
+   - Der `BrandLogo`-Fallback auf das hardcodierte Audi-SVG wird entfernt.
+   - Wenn `branding.logo_pdf_url` noch nicht geladen ist oder fehlt, wird kein Audi-Logo angezeigt.
 
-Den Loading-Zustand auf einen neutralen Spinner umstellen, der kein Marken-Logo enthält. Erst wenn `loading === false` ist (und damit auch das Branding bekannt), wird die echte Seite mit dem korrekten Logo gerendert. Kein Logo-Wechsel mehr während des Ladens.
+2. **`/gebrauchtwagen/:sellerSlug/:auftragsnummer` korrigieren**
+   - Der Loading-Screen mit hardcodiertem Audi-Logo wird durch den neutralen Spinner ersetzt.
+   - Das hardcodierte Audi-SVG im Header wird entfernt.
+   - Im Header wird stattdessen `verkaeufer[0].branding.logo_pdf_url` gerendert.
+   - Der Branding-Name daneben bleibt wie bisher aus `verkaeufer[0].branding.name`.
 
-## Änderungen
+3. **Kein falsches Logo mehr bei Seitenwechseln**
+   - Während Daten laden: neutraler Spinner.
+   - Nach dem Laden: exakt das beim Verkäufer hinterlegte Branding-Logo.
+   - Kein Audi-Fallback auf öffentlichen Fahrzeugseiten.
 
-**`src/pages/Fahrzeugbestand.tsx`** (Zeilen 266–275):
+## Technische Details
 
-- Den `BrandLogo`-Block im Loading-Screen entfernen.
-- Stattdessen einen neutralen, markenlosen Spinner anzeigen (z. B. `Loader2` aus `lucide-react` mit `animate-spin`, in dezentem Grau).
-- Untertitel „Wird geladen..." beibehalten oder leicht angepasst.
-
-Beispielstruktur:
+Betroffene Dateien:
 
 ```text
-<div min-h-screen bg-white center>
-  <Loader2 className="w-8 h-8 text-gray-300 animate-spin" />
-  <p className="text-xs text-gray-400">Wird geladen...</p>
-</div>
+src/pages/Fahrzeugbestand.tsx
+src/pages/Gebrauchtwagen.tsx
 ```
 
-Der separate `loadBranding`-Effect (Zeilen 150–177), der nur dazu diente, das Logo früh in den Spinner zu bekommen, kann bleiben (schadet nicht) oder optional entfernt werden, da das Logo im Spinner nicht mehr gebraucht wird. Empfehlung: entfernen, um Doppel-Fetch zu vermeiden — Branding wird sowieso im Haupt-`load`-Effect gesetzt.
+Branding-Reihenfolge auf öffentlichen Verkäuferseiten danach:
 
-## Out of scope
+```text
+1. Verkäufer laden
+2. branding_id des Verkäufers laden
+3. dieses Branding-Logo rendern
+4. wenn kein Logo vorhanden ist: leer/neutral, niemals Audi
+```
 
-- Keine Änderungen an Logo, Branding-Daten, Routing oder anderen Seiten.
-- Loading-States in `Gebrauchtwagen.tsx` o. ä. bleiben unangetastet, sofern nicht ausdrücklich gewünscht.
+Keine Datenbankänderung nötig.
