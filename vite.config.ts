@@ -18,6 +18,8 @@ export default defineConfig(({ mode }) => ({
       "www.berlin-audi-zentrum.de",
       "audi-portal.de",
       "berlin.audi-portal.de",
+      "vw-dusseldorf.de",
+      "www.vw-dusseldorf.de",
     ],
     cors: {
       origin: [
@@ -27,6 +29,8 @@ export default defineConfig(({ mode }) => ({
         "https://www.berlin-audi-zentrum.de",
         "https://audi-portal.de",
         "https://berlin.audi-portal.de",
+        "https://vw-dusseldorf.de",
+        "https://www.vw-dusseldorf.de",
       ],
     },
   },
