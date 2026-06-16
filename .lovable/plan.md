@@ -1,21 +1,16 @@
-## Ziel
-Favicon wird pro Domain dynamisch aus dem Branding-Feld `logo_pdf_url` ("Logo für PDFs & Fahrzeugbestand") gesetzt.
+## Problem
+Vite dev server blocks requests from `vw-dusseldorf.de` with the error:
+> Blocked request. This host ("vw-dusseldorf.de") is not allowed.
 
-## Umsetzung
+## Fix
+Update `vite.config.ts` to add the new domain to `server.allowedHosts`.
 
-**Neuer Hook `src/hooks/useDynamicFavicon.ts`**
-- Nutzt `useActiveBranding()`.
-- Sobald `branding.logo_pdf_url` vorhanden ist, wird im `<head>` der `<link rel="icon">` aktualisiert:
-  - Vorhandene `link[rel~="icon"]` Tags entfernen (inkl. `shortcut icon`, `apple-touch-icon`).
-  - Neuen `<link rel="icon">` mit `href = branding.logo_pdf_url` einfügen.
-  - Zusätzlich `apple-touch-icon` setzen.
-- Fallback (kein Logo / kein Branding): Standard `/favicon.ico` bzw. das aktuelle Audi-Favicon in `index.html` bleibt aktiv.
+## Change
+In `vite.config.ts`, append to the `allowedHosts` array:
+- `"vw-dusseldorf.de"`
+- `"www.vw-dusseldorf.de"`
 
-**Einbindung in `src/App.tsx`**
-- Hook einmalig auf App-Ebene aufrufen, damit er auf jeder Route greift (inkl. `/`-Redirect-Seite vor dem Redirect — schadet aber nicht, da Redirect sofort erfolgt; primär relevant für `/:sellerSlug` & Admin auf Custom Domains).
+Also add corresponding entries to `server.cors.origin` for consistency.
 
-## Hinweise
-- Keine DB-Änderungen, keine neuen Felder — `logo_pdf_url` existiert bereits.
-- Funktioniert mit beliebigen Bildtypen (PNG/SVG/JPG); Browser akzeptieren das für Favicons.
-- Da das Bild von Supabase Storage geladen wird, gibt es einen kurzen Moment mit dem Default-Favicon — akzeptabel.
-- Keine Anpassung am bestehenden Redirect oder an `usePageMeta` nötig.
+## Verification
+After the change, accessing the preview via `vw-dusseldorf.de` should no longer trigger the blocked-request error.
