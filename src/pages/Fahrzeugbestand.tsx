@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Tables } from "@/integrations/supabase/types";
 import { Link, useParams } from "react-router-dom";
-import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail } from "lucide-react";
+import { Car, Gauge, Calendar, Zap, Fuel, Settings2, ImagePlus, Menu, Phone, Mail, Loader2 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useRedirectTracking } from "@/hooks/useRedirectTracking";
 import { useMetaPixel } from "@/hooks/useMetaPixel";
@@ -146,35 +146,6 @@ export default function Fahrzeugbestand() {
     sellerSlug ? (branding as any)?.meta_pixel_aktiv : false
   );
 
-  // Branding zuerst laden, damit der Loading-Spinner direkt das richtige Logo zeigt
-  useEffect(() => {
-    const loadBranding = async () => {
-      if (sellerSlug) {
-        const parts = sellerSlug.split("_");
-        if (parts.length < 2) return;
-        const vorname = parts[0];
-        const nachname = parts.slice(1).join("_");
-        const { data: sellerData } = await supabase
-          .from("verkaeufer")
-          .select("branding_id")
-          .ilike("vorname", vorname)
-          .ilike("nachname", nachname)
-          .single();
-        if (sellerData?.branding_id) {
-          const { data: brData } = await supabase
-            .from("brandings")
-            .select("*")
-            .eq("id", sellerData.branding_id)
-            .single();
-          if (brData) setBranding(brData);
-        }
-      } else {
-        const { data: brData } = await supabase.from("brandings").select("*").limit(1).single();
-        if (brData) setBranding(brData);
-      }
-    };
-    loadBranding();
-  }, [sellerSlug]);
 
   useEffect(() => {
     const load = async () => {
@@ -266,9 +237,7 @@ export default function Fahrzeugbestand() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
-        <div className="animate-pulse opacity-40">
-          <BrandLogo logoUrl={branding?.logo_pdf_url} fallbackFill="#999" width={80} height={28} className="grayscale opacity-60" />
-        </div>
+        <Loader2 className="w-8 h-8 text-gray-300 animate-spin" />
         <p className="text-xs text-gray-400">Wird geladen...</p>
       </div>
     );
