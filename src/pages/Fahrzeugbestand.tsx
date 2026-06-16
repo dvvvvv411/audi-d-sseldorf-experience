@@ -266,9 +266,7 @@ export default function Fahrzeugbestand() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
-        <div className="animate-pulse opacity-40">
-          <BrandLogo logoUrl={branding?.logo_pdf_url} fallbackFill="#999" width={80} height={28} className="grayscale opacity-60" />
-        </div>
+        <Loader2 className="w-8 h-8 text-gray-300 animate-spin" />
         <p className="text-xs text-gray-400">Wird geladen...</p>
       </div>
     );
