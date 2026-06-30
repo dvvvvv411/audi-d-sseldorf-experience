@@ -216,6 +216,15 @@ export default function Gebrauchtwagen() {
       resetAnfrageForm();
       setAnfrageOpen(false);
 
+      // Meta Pixel: Lead-Conversion tracken (nur falls Pixel auf der Domain aktiv)
+      if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
+        try {
+          (window as any).fbq("track", "Lead");
+        } catch (err) {
+          console.error("Meta Pixel Lead-Tracking fehlgeschlagen:", err);
+        }
+      }
+
 
       // Fire-and-forget: send confirmation email
       if (v.branding_id) {

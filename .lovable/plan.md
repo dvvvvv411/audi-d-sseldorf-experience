@@ -1,39 +1,27 @@
-Verstanden — kein Domain-Fallback, kein Branding-Raten. Die öffentlichen Verkäuferseiten sollen ausschließlich das Branding verwenden, das beim Verkäufer gespeichert ist.
+## Meta Pixel Lead-Tracking beim "Schreiben Sie uns"-Formular
 
-## Plan
+Beim erfolgreichen Absenden des Anfrage-Formulars im "Schreiben Sie uns"-Popup wird ein `fbq('track', 'Lead')`-Event an Meta Pixel gefeuert.
 
-1. **`/fahrzeugbestand/:sellerSlug` sauber halten**
-   - Das bereits geladene Verkäufer-Branding bleibt die einzige Logo-Quelle.
-   - Der `BrandLogo`-Fallback auf das hardcodierte Audi-SVG wird entfernt.
-   - Wenn `branding.logo_pdf_url` noch nicht geladen ist oder fehlt, wird kein Audi-Logo angezeigt.
+### Wo
 
-2. **`/gebrauchtwagen/:sellerSlug/:auftragsnummer` korrigieren**
-   - Der Loading-Screen mit hardcodiertem Audi-Logo wird durch den neutralen Spinner ersetzt.
-   - Das hardcodierte Audi-SVG im Header wird entfernt.
-   - Im Header wird stattdessen `verkaeufer[0].branding.logo_pdf_url` gerendert.
-   - Der Branding-Name daneben bleibt wie bisher aus `verkaeufer[0].branding.name`.
+- `src/pages/Gebrauchtwagen.tsx` → `handleAnfrageSubmit` (nach erfolgreichem Insert in `anfragen`, vor/nach Toast)
+- `src/pages/Fahrzeugbestand.tsx` → falls dort ebenfalls ein Anfrage-Popup existiert, gleicher Aufruf an der Submit-Erfolgsstelle (kurz prüfen und ggf. ergänzen)
 
-3. **Kein falsches Logo mehr bei Seitenwechseln**
-   - Während Daten laden: neutraler Spinner.
-   - Nach dem Laden: exakt das beim Verkäufer hinterlegte Branding-Logo.
-   - Kein Audi-Fallback auf öffentlichen Fahrzeugseiten.
+### Wie
 
-## Technische Details
+Nach erfolgreichem DB-Insert:
 
-Betroffene Dateien:
-
-```text
-src/pages/Fahrzeugbestand.tsx
-src/pages/Gebrauchtwagen.tsx
+```ts
+if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
+  (window as any).fbq("track", "Lead");
+}
 ```
 
-Branding-Reihenfolge auf öffentlichen Verkäuferseiten danach:
+- Nur bei Erfolg (kein Lead bei Fehler).
+- Safe-Guard: wird nichts ausgeführt, wenn auf der Domain kein Meta Pixel aktiv ist (`fbq` nicht vorhanden) – das aktive Pixel wird weiterhin über `useMetaPixel` aus dem Branding geladen.
+- Kein zusätzliches `<script>`-Tag nötig, da das Pixel bereits global via Branding injiziert wird.
 
-```text
-1. Verkäufer laden
-2. branding_id des Verkäufers laden
-3. dieses Branding-Logo rendern
-4. wenn kein Logo vorhanden ist: leer/neutral, niemals Audi
-```
+### Keine Änderungen
 
-Keine Datenbankänderung nötig.
+- Kein neuer Pixel-Code/keine Pixel-ID hartkodiert.
+- Keine Backend-/Datenbank-Änderungen.
